@@ -1,6 +1,10 @@
 tags_metadata = [
     {
         "name" : "Register",
-        "description" : "Leverage this API to register"
+        "description" : "API for creating new user accounts."
+    },
+    {
+        "name" : "Login",
+        "description" : "API for authenticating users and generating access tokens."
     }
 ]
