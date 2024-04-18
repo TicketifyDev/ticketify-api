@@ -22,3 +22,4 @@ async def add_event(request: create_event):
     with open(event_response_file,'w') as resp_file:
         json.dump(response,resp_file,indent=4)
     return JSONResponse(content = response, status_code=201)
+
