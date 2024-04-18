@@ -1,0 +1,37 @@
+{
+    "superman": {
+        "title": "superman",
+        "release_date": "2024-04-18",
+        "duration": 180,
+        "language": "english",
+        "genre": [
+            "action",
+            "thriller"
+        ],
+        "cast": [
+            "henry cavil",
+            "gal gadot"
+        ],
+        "crew": null,
+        "venues": [
+            {
+                "name": "imax",
+                "location": "yalhanka",
+                "ticket_details": {
+                    "price": 300,
+                    "total_tickets": 100,
+                    "available_tickets": 100
+                }
+            },
+            {
+                "name": "PVR",
+                "location": "vijaynagar",
+                "ticket_details": {
+                    "price": 300,
+                    "total_tickets": 100,
+                    "available_tickets": 100
+                }
+            }
+        ]
+    }
+}
