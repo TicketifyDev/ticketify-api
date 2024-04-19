@@ -7,6 +7,7 @@ router = APIRouter()
 @router.post('/login',tags=["Login"])
 async def login_to_get_token(credentials : AuthModel):
     """ 
-    API for authenticating users by verifying their credentials.
+    API for authenticating users by verifying their credentials.\n
+    Leverage this API to get Access Token.
     """
     return {"Login" : "Successful"}

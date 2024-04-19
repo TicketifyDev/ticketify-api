@@ -6,5 +6,9 @@ tags_metadata = [
     {
         "name" : "Login",
         "description" : "API for authenticating users and generating access tokens."
+    },
+    {
+        "name" : "Event Management",
+        "description" : "API for organizers to create,update and cancel the events."
     }
 ]
