@@ -1,21 +1,22 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from schemas.event_manage import create_event
-from fastapi import APIRouter, Response, Query, status
+from fastapi import APIRouter
 from fastapi.encoders import jsonable_encoder
-from pathlib import Path
-import json
 from fastapi.responses import JSONResponse
+from pathlib import Path
+from schemas.event_manage import create_event
+import json
 
-router1=APIRouter(prefix="/event_management",
-                 tags=["Events"])
+router=APIRouter(tags=["Event Management"])
 
 current_directory= Path(__file__).parents[1]
 response_file="event_add.json"
 event_response_file = current_directory / 'responses' / response_file
 
-@router1.post('/create_event')
-async def add_event(request: create_event):
+@router.post('/create-event')
+async def add_new_event(request: create_event):
+    """
+    API for organizers to create new events (movies)
+    """
+
     title = request.title
     response = {}
     response[title]=jsonable_encoder(request)
