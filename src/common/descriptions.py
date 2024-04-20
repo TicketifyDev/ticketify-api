@@ -1,14 +1,10 @@
 tags_metadata = [
     {
-        "name" : "Register",
-        "description" : "API for creating new user accounts."
-    },
-    {
-        "name" : "Login",
-        "description" : "API for authenticating users and generating access tokens."
+        "name" : "User Management",
+        "description" : "APIs for users to create new account,login and perform ticket booking operations."
     },
     {
         "name" : "Event Management",
-        "description" : "API for organizers to create,update and cancel the events."
+        "description" : "APIs for organizers to create,update and cancel the events."
     }
 ]

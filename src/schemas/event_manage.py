@@ -21,4 +21,4 @@ class create_event(BaseModel):
     genre : list[str]
     cast : Optional[list[str]] = None
     crew : Optional[list[str]] = None
-    venues : list[venue_list]
+    venues : list[venue_list] = Field

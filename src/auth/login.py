@@ -4,7 +4,7 @@ from auth.get_token import verify_user
 
 router = APIRouter()
 
-@router.post('/login',tags=["Login"])
+@router.post('/login',tags=["User Management"])
 async def login_to_get_token(credentials : AuthModel):
     """ 
     API for authenticating users by verifying their credentials.\n
