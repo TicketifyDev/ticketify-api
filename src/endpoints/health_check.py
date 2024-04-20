@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
 router = APIRouter(tags=["Health Check"])
 
@@ -7,8 +8,4 @@ async def health_check():
     """
     API to check whether the web server is up or down.
     """
-    return {
-            "message":"Server is up and running",
-            "statusCode": 200,
-            "errorCode": None
-        }
+    return JSONResponse(content={"status":"Server is up and running"},status_code=200)
