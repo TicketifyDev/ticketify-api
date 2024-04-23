@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from auth import register,login
+from auth import login
 from common.descriptions import tags_metadata
-from endpoints import event_management
+from endpoints import event_management, register
 
 app = FastAPI(title="Ticketify-API", openapi_tags=tags_metadata)
 
