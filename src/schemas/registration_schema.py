@@ -49,6 +49,7 @@ class organization_details(BaseModel):
     organization_pan_card_number : str = Field(
         min_length=10,
         max_length=10,
+        pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$",
         examples=["ABCPD1234E"],
         description="Represents the unique PAN deatils of the organization or company."
     )
@@ -61,6 +62,7 @@ class organizer_registration(BaseModel):
     )
     user_name : str = Field(
         min_length=3,
+        examples=["john_doe"],
         description="Represents the unique username chosen by the organizer for logging into their account."
     )
     email : EmailStr = Field(
