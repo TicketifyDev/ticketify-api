@@ -4,7 +4,6 @@ from fastapi.responses import JSONResponse
 from fastapi import status
 from pathlib import Path
 import json
-import os
 from schemas.registration_schema import user_registration,organizer_registration
 from common.create_json import create_response_json
 
