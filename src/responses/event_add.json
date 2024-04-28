@@ -1,22 +1,24 @@
 {
     "superman": {
         "title": "superman",
-        "release_date": "2024-04-18",
+        "release_date": "2024-04-30",
         "duration": 180,
         "language": "english",
         "genre": [
-            "action",
-            "thriller"
+            "Action",
+            "Thriller"
         ],
         "cast": [
-            "henry cavil",
-            "gal gadot"
+            "Henry Cavil",
+            "Rachel Brosnahan"
         ],
-        "crew": null,
+        "crew": [
+            "Richard Donar"
+        ],
         "venues": [
             {
-                "name": "imax",
-                "location": "yalhanka",
+                "name": "PVR",
+                "location": "Yalhanka",
                 "ticket_details": {
                     "price": 300,
                     "total_tickets": 100,
@@ -24,38 +26,48 @@
                 }
             },
             {
+                "name": "INOX",
+                "location": "Vijaynagar",
+                "ticket_details": {
+                    "price": 300,
+                    "total_tickets": 80,
+                    "available_tickets": 80
+                }
+            }
+        ]
+    },
+    "Batman": {
+        "title": "Batman",
+        "release_date": "2024-05-31",
+        "duration": 180,
+        "language": "english",
+        "genre": [
+            "Action",
+            "Thriller"
+        ],
+        "cast": [
+            "Robert Pattison"
+        ],
+        "crew": [
+            "Richard Donar"
+        ],
+        "venues": [
+            {
                 "name": "PVR",
-                "location": "vijaynagar",
+                "location": "Yalhanka",
                 "ticket_details": {
                     "price": 300,
                     "total_tickets": 100,
                     "available_tickets": 100
                 }
-            }
-        ]
-    },
-    "batmam": {
-        "title": "batmam",
-        "release_date": "2024-04-28",
-        "duration": 180,
-        "language": "string",
-        "genre": [
-            "string"
-        ],
-        "cast": [
-            "string"
-        ],
-        "crew": [
-            "string"
-        ],
-        "venues": [
+            },
             {
-                "name": "string",
-                "location": "string",
+                "name": "INOX",
+                "location": "Vijaynagar",
                 "ticket_details": {
-                    "price": 150,
-                    "total_tickets": 100,
-                    "available_tickets": 100
+                    "price": 300,
+                    "total_tickets": 80,
+                    "available_tickets": 80
                 }
             }
         ]
