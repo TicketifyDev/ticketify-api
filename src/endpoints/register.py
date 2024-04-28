@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from fastapi import status
 from pathlib import Path
 import json
 from schemas.registration_schema import user_registration,organizer_registration
 from common.create_json import create_response_json
+from common.json_read import status_codes
 
 router = APIRouter()
 
@@ -17,7 +17,17 @@ async def new_user_registration(deatils : user_registration):
     return {"Registration" : "Successful"}
 
 
-@router.post('/organizer-register',tags=["Event Management"],status_code=201)
+@router.post('/organizer-register',
+             tags=["Event Management"],
+             status_code=201,
+             responses={
+                201 : status_codes["response_201"],
+                400 : status_codes["response_400"],
+                422 : status_codes["response_422"],
+                500 : status_codes["response_500"]
+                }
+            )
+
 async def new_organizer_registration(details : organizer_registration):
     """
     API for allowing new organizers to create accounts by providing organizer details.
@@ -70,5 +80,5 @@ async def new_organizer_registration(details : organizer_registration):
     create_response_json(username,data,filename)
     return JSONResponse(
         content={"message" : "Registration is Successful"},
-        status_code=status.HTTP_201_CREATED
+        status_code=201
     )

@@ -35,6 +35,9 @@ class user_registration(BaseModel):
 
 
 class organization_details(BaseModel):
+    """
+    Model representing additional details about an organization or company.
+    """
     organization_name : str = Field(
         min_length=3,
         examples=["EventPro Solutions"],
@@ -55,6 +58,9 @@ class organization_details(BaseModel):
     )
 
 class organizer_registration(BaseModel):
+    """
+    Model representing the registration data required for creating a new organizer account.
+    """
     name : str = Field(
         min_length=3,
         examples=["John Doe"],
