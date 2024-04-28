@@ -3,6 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from pathlib import Path
 from schemas.event_management_schema import create_event
+from common.create_json import create_response_json
 import json
 
 router=APIRouter(tags=["Event Management"])
@@ -20,7 +21,6 @@ async def add_new_event(request: create_event):
     title = request.title
     response = {}
     response[title]=jsonable_encoder(request)
-    with open(event_response_file,'w') as resp_file:
-        json.dump(response,resp_file,indent=4)
+    create_response_json(title,jsonable_encoder(request),event_response_file)
     return JSONResponse(content = response, status_code=201)
 

@@ -33,5 +33,31 @@
                 }
             }
         ]
+    },
+    "batmam": {
+        "title": "batmam",
+        "release_date": "2024-04-28",
+        "duration": 180,
+        "language": "string",
+        "genre": [
+            "string"
+        ],
+        "cast": [
+            "string"
+        ],
+        "crew": [
+            "string"
+        ],
+        "venues": [
+            {
+                "name": "string",
+                "location": "string",
+                "ticket_details": {
+                    "price": 150,
+                    "total_tickets": 100,
+                    "available_tickets": 100
+                }
+            }
+        ]
     }
 }
