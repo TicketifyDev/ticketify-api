@@ -5,7 +5,7 @@ from pathlib import Path
 import json
 from schemas.registration_schema import user_registration,organizer_registration
 from common.create_json import create_response_json
-from common.json_read import status_codes
+from common.status_codes import status_codes
 
 router = APIRouter()
 

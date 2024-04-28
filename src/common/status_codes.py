@@ -1,4 +1,4 @@
-{
+status_codes = {
     "response_200": {"description": "OK"},
     "response_201": {"description": "Created"},
     "response_204": {"description": "No Content"},
