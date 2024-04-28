@@ -8,14 +8,13 @@ from common.status_codes import status_codes
 import json
 from datetime import date
 
-router=APIRouter()
+router=APIRouter(tags=["Event Management"])
 
 current_directory= Path(__file__).parents[1]
 response_file="event_add.json"
 event_response_file = current_directory / 'responses' / response_file
 
 @router.post('/create-event',
-             tags=["Event Management"],
              status_code=201,
              responses={
                 201 : status_codes["response_201"],
