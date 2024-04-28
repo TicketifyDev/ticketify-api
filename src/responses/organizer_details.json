@@ -1,0 +1,14 @@
+{
+    "john_doe": {
+        "name": "John Doe",
+        "user_name": "john_doe",
+        "email": "john@gmail.com",
+        "phone_number": "1602269184",
+        "password": "stringst",
+        "organization_details": {
+            "organization_name": "EventPro Solutions",
+            "organization_address": "Bangalore",
+            "organization_pan_card_number": "ABCPD1234E"
+        }
+    }
+}

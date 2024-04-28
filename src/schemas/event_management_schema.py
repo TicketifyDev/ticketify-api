@@ -30,7 +30,7 @@ class create_event(BaseModel):
     release_date : date = Field(...,description = "Release date of the event")
     duration : int = Field( default=180, description = "Duration of the event")
     language : str = Field(..., examples = ["English","Hindi","Kannada"], description = "Duration of the event")
-    genre : list[str] = Field(..., examples = ["Thriller","Comedy"], description = "Genre of the event")
+    genre : list[str] = Field(..., examples = [["Thriller"],["Comedy"]], description = "Genre of the event")
     cast : list[str] = Field(..., description = "Cast involved in the event")
     crew : Optional[list[str]] = Field( None, description = "Crew involved in making of the event")
     venues : list[venue_list] = Field(...)

@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from pathlib import Path
@@ -20,6 +20,7 @@ event_response_file = current_directory / 'responses' / response_file
              responses={
                 201 : status_codes["response_201"],
                 400 : status_codes["response_400"],
+                403 : status_codes["response_403"],
                 422 : status_codes["response_422"],
                 500 : status_codes["response_500"]
                 })
@@ -37,7 +38,7 @@ async def add_new_event(request: create_event):
         # Check if the title already exists
         for event_details in existing_data:
             if title in event_details:
-                return JSONResponse(content = f"The title {title} already exists, please use /update-event to modify the event", status_code=403)
+                return JSONResponse(status_code=400, content = f"The title {title} already exists, please use /update-event to modify the event")
             
     except Exception:
         pass
@@ -48,7 +49,7 @@ async def add_new_event(request: create_event):
 
     # Check if the release date is less than or equal to todays date
     if release_date <= date.today():
-        return JSONResponse(content = f"The release date must be future date", status_code=403)
+        raise HTTPException(detail = "The release date must be future date", status_code=403)
     
     # Store the response in JSON file
     create_response_json(title, data, event_response_file)
