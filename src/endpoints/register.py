@@ -18,7 +18,7 @@ async def new_user_registration(deatils : user_registration):
 
 
 @router.post('/organizer-register',
-             tags=["Event Management"],
+             tags=["Organizer Management"],
              status_code=201,
              responses={
                 201 : status_codes["response_201"],

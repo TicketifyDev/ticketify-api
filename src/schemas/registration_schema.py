@@ -2,6 +2,9 @@ from pydantic import BaseModel, EmailStr, Field
 from datetime import date
 
 class user_registration(BaseModel):
+    """
+    Model representing the registration data required for creating a new user account.
+    """
     name : str = Field(
         min_length=3,
         examples=["John Doe"],
@@ -41,8 +44,7 @@ class organization_details(BaseModel):
     organization_name : str = Field(
         min_length=3,
         examples=["EventPro Solutions"],
-        description="Represents the name of the organization or company associated with the organizer.",
-        title="Full name"
+        description="Represents the name of the organization or company associated with the organizer."
     )
     organization_address : str =  Field(
         min_length=5,

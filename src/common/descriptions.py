@@ -5,7 +5,11 @@ tags_metadata = [
     },
     {
         "name" : "User Management",
-        "description" : "APIs for users to create new account,login and perform ticket booking operations."
+        "description" : "APIs for users to create new account, login, view and update their profile."
+    },
+    {
+        "name" : "Organizer Management",
+        "description" : "APIs for organizers to create new account, login, view and update their profile."
     },
     {
         "name" : "Event Management",

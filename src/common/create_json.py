@@ -1,4 +1,6 @@
+from fastapi import HTTPException
 import json
+import traceback
 
 def create_response_json(unique_id, data_dict, file_location):
     """
@@ -14,4 +16,9 @@ def create_response_json(unique_id, data_dict, file_location):
         with open(file_location, 'w') as file:
             json.dump(existing_data, file, indent=4)
     except Exception as e:
-        print(f"An error occurred while writing to {file_location}: {e}")
+        exception_details = traceback.format_exc()
+        print(f"An error occurred while writing to {file_location} due to '{e}' : {exception_details}")
+        raise HTTPException(
+            status_code=500,
+            detail="An unexpected error occurred"
+        )

@@ -1,0 +1,28 @@
+-->/user-register
+
+{
+  "name": "John Doe",
+  "user_name": "john_doe",
+  "email": "john@gmail.com",
+  "password": "john@123",
+  "phone_number": "9876543210",
+  "date_of_birth": "2011-01-20",
+  "address": "Bangalore"
+}
+
+
+-->/organizer-register
+
+{
+  "name": "John Doe",
+  "user_name": "john_doe",
+  "email": "john@gmail.com",
+  "phone_number": "9521302848",
+  "password": "john@123",
+  "organization_details": {
+    "organization_name": "EventPro Solutions",
+    "organization_address": "Bangalore",
+    "organization_pan_card_number": "ABCPD1234E"
+  }
+}
+
