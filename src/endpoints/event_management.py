@@ -3,7 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from pathlib import Path
 from schemas.event_management_schema import create_event
-from common.create_json import create_response_json
+from common.json_operations import create_json_response
 from common.status_codes import status_codes
 import json
 from datetime import date
@@ -51,7 +51,7 @@ async def add_new_event(request: create_event):
         raise HTTPException(detail = "The release date must be future date", status_code=403)
     
     # Store the response in JSON file
-    create_response_json(title, data, event_response_file)
+    create_json_response(title, data, event_response_file)
     return JSONResponse(content = response, status_code=201)  
     
 

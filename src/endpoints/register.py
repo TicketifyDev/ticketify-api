@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from pathlib import Path
 import json
 from schemas.registration_schema import user_registration,organizer_registration
-from common.create_json import create_response_json
+from common.json_operations import create_json_response, read_json_data
 from common.status_codes import status_codes
 
 router = APIRouter()
@@ -37,12 +37,7 @@ async def new_organizer_registration(details : organizer_registration):
     response_file="organizer_details.json"
     filename = current_directory / 'responses' / response_file
 
-    # Check if the file is empty or file doesn't exist
-    try : 
-        with open(filename, "r") as file:
-            existing_data = json.load(file)
-    except Exception:
-        existing_data = {}                       # Initialise an empty dictionary if the file is empty
+    existing_data = read_json_data(filename)
 
     for organizers_data in existing_data.values():
         # Check if username already exists
@@ -77,7 +72,7 @@ async def new_organizer_registration(details : organizer_registration):
     data = jsonable_encoder(details)
 
     # Store the response in JSON file
-    create_response_json(username,data,filename)
+    create_json_response(username,data,filename)
     return JSONResponse(
         content={"message" : "Registration is Successful"},
         status_code=201
