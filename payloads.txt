@@ -18,7 +18,7 @@
   "user_name": "john_doe",
   "email": "john@gmail.com",
   "phone_number": "9521302848",
-  "password": "john@123",
+  "password": "John@123",
   "organization_details": {
     "organization_name": "EventPro Solutions",
     "organization_address": "Bangalore",
