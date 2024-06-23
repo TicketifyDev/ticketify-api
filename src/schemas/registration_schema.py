@@ -1,7 +1,19 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from datetime import date
+import re
 
-class user_registration(BaseModel):
+#Constants for Regex Patterns
+NAME_REGEX = r"^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$"
+USERNAME_REGEX = r"^[a-zA-Z0-9_.]+$"
+EMAIL_REGEX = r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,3})+$"
+PHONE_NUMBER_REGEX = r"^[6-9]\d{9}$"
+PASSWORD_REGEX = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$"
+
+ORGANIZATION_NAME_REGEX = r"^[A-Za-z0-9À-ÖØ-öø-ÿ' -]+$"
+ORGANIZATION_PAN_REGEX = r"^[A-Z]{5}\d{4}[A-Z]$"
+
+
+class user_registration(BaseModel, extra = 'forbid'):
     """
     Model representing the registration data required for creating a new user account.
     """
@@ -25,7 +37,6 @@ class user_registration(BaseModel):
         description="A secure password to protect the user's account."
         )
     phone_number : str = Field(
-        pattern="^[0-9]{10}$",
         description="A contact number for communication and verification purposes."
         )
     date_of_birth : date = Field(
@@ -37,7 +48,7 @@ class user_registration(BaseModel):
         )
 
 
-class organization_details(BaseModel):
+class organization_details(BaseModel, extra = 'forbid'):
     """
     Model representing additional details about an organization or company.
     """
@@ -54,12 +65,23 @@ class organization_details(BaseModel):
     organization_pan_card_number : str = Field(
         min_length=10,
         max_length=10,
-        pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$",
         examples=["ABCPD1234E"],
         description="Represents the unique PAN deatils of the organization or company."
     )
 
-class organizer_registration(BaseModel):
+    @field_validator("organization_name")
+    def validate_organization_name(cls, value):
+        if not re.match(ORGANIZATION_NAME_REGEX, value):
+            raise ValueError("Invalid organization name format")
+        return value
+    
+    @field_validator("organization_pan_card_number")
+    def validate_organization_pan_card_number(cls, value):
+        if not re.match(ORGANIZATION_PAN_REGEX, value):
+            raise ValueError("Invalid PAN card number format")
+        return value
+
+class organizer_registration(BaseModel, extra = 'forbid'):
     """
     Model representing the registration data required for creating a new organizer account.
     """
@@ -79,7 +101,8 @@ class organizer_registration(BaseModel):
         description="Represents the email address of the organizer."
     )
     phone_number : str = Field(
-        pattern="^[0-9]{10}$",
+        min_length=10,
+        max_length=10,
         description="Represents the phone number of the organizer."
     )
     password : str = Field(
@@ -89,4 +112,32 @@ class organizer_registration(BaseModel):
     )
     organization_details : organization_details
 
+    @field_validator("name")
+    def name_validator(cls, value):
+        if not re.match(NAME_REGEX, value):
+            raise ValueError("Invalid name format")
+        return value
+
+    @field_validator("user_name")
+    def username_validator(cls, value):
+        if not re.match(USERNAME_REGEX, value):
+            raise ValueError("Invalid username format")
+        return value
     
+    @field_validator("email")
+    def email_validator(cls, value):
+        if not re.match(EMAIL_REGEX, value):
+            raise ValueError("Invalid email format")
+        return value
+
+    @field_validator("phone_number")
+    def validate_phone_number(cls, value):
+        if not re.match(PHONE_NUMBER_REGEX, value):
+            raise ValueError("Invalid phone number format")
+        return value
+
+    @field_validator("password")
+    def password_validator(cls, value):
+        if not re.match(PASSWORD_REGEX, value):
+            raise ValueError("Password must be at least 8-32 characters long, contain an uppercase letter, a lowercase letter, a number, and a special character")
+        return value
