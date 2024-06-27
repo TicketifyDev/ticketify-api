@@ -2,7 +2,7 @@ from fastapi import HTTPException
 import json
 import traceback
 
-def create_response_json(unique_id, data_dict, file_location):
+def create_json_response(unique_id, data_dict, file_location):
     """
     Method to write responses to json file
     """
@@ -22,3 +22,17 @@ def create_response_json(unique_id, data_dict, file_location):
             status_code=500,
             detail="An unexpected error occurred"
         )
+
+
+def read_json_data(filename):
+    """
+    Method to read/retrieve the content of json file
+    """
+    
+    # Check if the file is empty or file doesn't exist
+    try : 
+        with open(filename, "r") as file:
+            return json.load(file)
+    except Exception:
+        return {}                       # Initialise an empty dictionary if the file is empty
+    
