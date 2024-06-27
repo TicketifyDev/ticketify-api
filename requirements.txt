@@ -1,8 +1,6 @@
-# To add installed packages to this file, use the following command
-# 'pip freeze > requirements.txt'
-
-
+bcrypt==4.0.1
 fastapi==0.110.0
+passlib==1.7.4
 pydantic[email]==2.4.2
 python-multipart==0.0.9
 uvicorn==0.29.0
