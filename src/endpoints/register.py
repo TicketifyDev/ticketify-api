@@ -6,6 +6,7 @@ import json
 from schemas.registration_schema import user_registration,organizer_registration
 from common.create_json import create_response_json
 from common.status_codes import status_codes
+from common.utils import hash_password
 
 router = APIRouter()
 
@@ -73,12 +74,16 @@ async def new_organizer_registration(details : organizer_registration):
                 detail=f"The PAN card number '{details.organization_details.organization_pan_card_number}' is already associated with another organization. Please verify the details and try again."
                 )
     
+    # Hash the password
+    hashed_password = hash_password(details.password)
+
     username = details.user_name
     data = jsonable_encoder(details)
+    data["password"] = hashed_password
 
     # Store the response in JSON file
     create_response_json(username,data,filename)
     return JSONResponse(
-        content={"message" : "Registration is Successful"},
+        content={"message" : "Registration Successful"},
         status_code=201
     )

@@ -3,8 +3,8 @@
         "name": "John Doe",
         "user_name": "john_doe",
         "email": "john@gmail.com",
-        "phone_number": "1602269184",
-        "password": "stringst",
+        "phone_number": "9521302848",
+        "password": "$2b$12$C/ZObNsrfuds88gcvx30HeUzQ6TPV8Ltoo5u8ODTBEgRgGWTaWeJ.",
         "organization_details": {
             "organization_name": "EventPro Solutions",
             "organization_address": "Bangalore",
