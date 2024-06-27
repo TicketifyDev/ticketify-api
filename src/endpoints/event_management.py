@@ -48,7 +48,7 @@ async def add_new_event(request: create_event):
 
     # Check if the release date is less than or equal to todays date
     if release_date <= date.today():
-        raise HTTPException(detail = "The release date must be future date", status_code=403)
+        raise HTTPException(detail = "The release date must be future date", status_code=400)
     
     # Store the response in JSON file
     create_response_json(title, data, event_response_file)

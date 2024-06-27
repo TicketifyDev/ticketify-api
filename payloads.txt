@@ -26,3 +26,40 @@
   }
 }
 
+-->/create-event
+
+{
+  "title": "Batman",
+  "release_date": "2024-08-26",
+  "duration": 180,
+  "language": "English",
+  "genre": [
+    "Thriller","action"
+  ],
+  "cast": [
+    "Robert Pattinson","Zoë Kravitz"
+  ],
+  "crew": [
+    "Paul Dano","Peter Sarsgaard"
+  ],
+  "venues": [
+    {
+      "name": "PVR",
+      "location": "yalahanka",
+      "ticket_details": {
+        "price": 150,
+        "total_tickets": 100,
+        "available_tickets": 100
+      }
+    },
+    {
+      "name": "INOX",
+      "location": "vijayanagar",
+      "ticket_details": {
+        "price": 300,
+        "total_tickets": 78,
+        "available_tickets": 78
+      }
+    }
+  ]
+}
