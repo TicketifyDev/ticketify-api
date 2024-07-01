@@ -45,7 +45,11 @@ async def login_as_organizer(details : AuthModel):
         # Generate JWT Access Token
         access_token_expires = timedelta(minutes=30)
         access_token = create_access_token(
-            data = {"sub": details.username}, 
+            data = {
+                "sub" : details.username,
+                "name" : organizer["name"],
+                "role" : "organizer"
+            }, 
             expires_delta = access_token_expires
             )
         
