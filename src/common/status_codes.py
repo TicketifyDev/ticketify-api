@@ -1,6 +1,7 @@
 status_codes = {
     "response_200": {"description": "OK"},
     "response_201": {"description": "Created"},
+    "response_202": {"description": "Accepted"},
     "response_204": {"description": "No Content"},
     "response_400": {"description": "Bad Request"},
     "response_401": {"description": "Unauthorized"},
