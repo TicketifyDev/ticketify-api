@@ -37,8 +37,22 @@ async def login_as_organizer(details : AuthModel):
         # Authenticate Organizer details
         organizer = authenticate_user(existing_data, details.username, details.password)
         if not organizer:
-            return JSONResponse(
-                content={"message" : "Invalid credentials"},
+            raise HTTPException(
+                detail={"message" : "Invalid credentials"},
+                status_code=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        # Check if the account is under review
+        if organizer.get("registration_status") == "under_review":
+            raise HTTPException(
+                detail={"message" : "Your account is still being reviewed. Please wait until one of our Administrators approves it."},
+                status_code=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Check if the account is rejected
+        if organizer.get("registration_status") == "rejected":
+            raise HTTPException(
+                detail={"message" : "Your account has been REJECTED by our Administrators."},
                 status_code=status.HTTP_401_UNAUTHORIZED
             )
         
@@ -62,6 +76,9 @@ async def login_as_organizer(details : AuthModel):
             },
             status_code=status.HTTP_200_OK
         )
+
+    except HTTPException as http_exc:
+        raise http_exc
 
     except Exception as e :
         exception_details = traceback.format_exc()
