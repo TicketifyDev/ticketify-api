@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException,status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from pathlib import Path
@@ -11,12 +11,52 @@ from common.utils import hash_password
 router = APIRouter()
 
 @router.post('/user-register',tags=["User Management"])
-async def new_user_registration(deatils : user_registration):
+async def new_user_registration(details : user_registration):
     """
     API for allowing new users to create accounts by providing user details.
     """
-    return {"Registration" : "Successful"}
+    current_directory= Path(__file__).parents[1]
+    response_file_path="user_details.json"
+    filename = current_directory / 'responses' / response_file_path
+    data = read_json_data(filename)
 
+    for user in data.values():
+        #check if user name already exists
+        if details.user_name == user["user_name"]:         
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, 
+                detail=f"The username '{details.user_name}' is already exists."
+                )
+
+        # Check if user email already exists
+        if details.email == user["email"]:              
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, 
+                detail=f"The email '{details.email}' is already registered."
+                )
+
+
+        # Check if phone number already exists
+        if details.phone_number == user["phone_number"]:         
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, 
+                detail=f"The phone number '{details.phone_number}' is already existing. Please verify the details and try again."
+                )
+    hashed_password = hash_password(details.password)
+
+    username = details.user_name
+    data = jsonable_encoder(details)
+    data["password"] = hashed_password
+
+    # Store the response in JSON file
+    create_json_response(username,data,filename)   
+    return {
+            "detail": {
+                "message": "User registered successfully",
+                "statusCode": 200,
+                "errorCode": None,
+            }
+        }
 
 @router.post('/organizer-register',
              tags=["Organizer Management"],

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator
-from datetime import date
+from datetime import date, timedelta
 import re
 
 #Constants for Regex Patterns
@@ -8,7 +8,6 @@ USERNAME_REGEX = r"^[a-zA-Z0-9_.]+$"
 EMAIL_REGEX = r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,3})+$"
 PHONE_NUMBER_REGEX = r"^[6-9]\d{9}$"
 PASSWORD_REGEX = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$"
-
 ORGANIZATION_NAME_REGEX = r"^[A-Za-z0-9À-ÖØ-öø-ÿ' -]+$"
 ORGANIZATION_PAN_REGEX = r"^[A-Z]{5}\d{4}[A-Z]$"
 
@@ -46,7 +45,45 @@ class user_registration(BaseModel, extra = 'forbid'):
         examples=["Bangalore"],
         description="The user's address or region for regional services or offers."
         )
+    
+    @field_validator("name")
+    def name_validator(cls, value):
+        if not re.match(NAME_REGEX, value):
+            raise ValueError("Invalid name format")
+        return value
 
+    @field_validator("user_name")
+    def username_validator(cls, value):
+        if not re.match(USERNAME_REGEX, value):
+            raise ValueError("Invalid username format")
+        return value
+    
+    @field_validator("email")
+    def email_validator(cls, value):
+        if not re.match(EMAIL_REGEX, value):
+            raise ValueError("Invalid email format")
+        return value
+
+    @field_validator("date_of_birth")
+    def date_of_birth_validator(cls, value):
+        if value >= date.today():
+            raise ValueError("Date of birth cannot be today or in the future")
+        ten_years_ago = date.today() - timedelta(days=10*365)  # Roughly 10 years ago
+        if value > ten_years_ago:
+            raise ValueError("User must be at least 10 years old")
+        return value
+    
+    @field_validator("phone_number")
+    def validate_phone_number(cls, value):
+        if not re.match(PHONE_NUMBER_REGEX, value):
+            raise ValueError("Invalid phone number format")
+        return value
+
+    @field_validator("password")
+    def password_validator(cls, value):
+        if not re.match(PASSWORD_REGEX, value):
+            raise ValueError("Password must be at least 8-32 characters long, contain an uppercase letter, a lowercase letter, a number, and a special character")
+        return value
 
 class organization_details(BaseModel, extra = 'forbid'):
     """
