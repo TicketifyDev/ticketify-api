@@ -1,12 +1,12 @@
 -->/user-register
 
 {
-  "name": "John Doe",
-  "user_name": "john_doe",
-  "email": "john@gmail.com",
-  "password": "john@123",
-  "phone_number": "9876543210",
-  "date_of_birth": "2011-01-20",
+  "name": "Alia Bhat",
+  "user_name": "Alia",
+  "email": "Alia21@gmail.com",
+  "password": "Alia@21",
+  "phone_number": "9087654321",
+  "date_of_birth": "2001-01-01", // while entering make sure the user is 10 years old.
   "address": "Bangalore"
 }
 
