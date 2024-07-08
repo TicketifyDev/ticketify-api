@@ -4,7 +4,7 @@
   "name": "Alia Bhat",
   "user_name": "Alia",
   "email": "Alia21@gmail.com",
-  "password": "Alia@21",
+  "password": "Aliabhat@21",
   "phone_number": "9087654321",
   "date_of_birth": "2001-01-01", // while entering make sure the user is 10 years old.
   "address": "Bangalore"
