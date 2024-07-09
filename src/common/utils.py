@@ -1,5 +1,5 @@
 from passlib.context import CryptContext
-from typing import Dict
+from typing import Dict, List, Optional
 
 VALIDATION_ERROR_CONSTANT = "Validation error occurred"
 
@@ -23,8 +23,8 @@ def verify_password(plain_password: str, hashed_password: str):
 def response_content(
         status_code : int, 
         message : str, 
-        data : Dict={},
-        errors : list=[]
+        data : Optional[Dict] = None,
+        errors : Optional[List] = None
     ):
     """
     Utility function to create a standardized API response.
@@ -32,16 +32,22 @@ def response_content(
     Args:
         `statusCode` : An integer representing the HTTP status code.
         `message` : A string message providing information about the response.
-        `data` : A dictionary containing the response data. Defaults to an empty dictionary if no data is present.
-        `errors` : A list of errors encountered during the request processing. Defaults to an empty list if no errors are present.
+        `data` : A dictionary containing the response data. Defaults to None if data is not provided when calling the function.
+        `errors` : A list of errors encountered during the request processing. Defaults to None if errors is not provided when calling the function.
 
     """
-    return {
+
+    response = {
         "status_code": status_code,
-        "message": message,
-        "data": data,
-        "errors": errors
+        "message": message
     }
+
+    if data is not None and data != {}:
+        response["data"] = data
+    if errors is not None and errors != []:
+        response["errors"] = errors
+
+    return response
 
 
 
