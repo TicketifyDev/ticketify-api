@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from schemas.auth_schema import AuthModel
 from common.status_codes import status_codes
 from common.json_operations import read_json_data
-from common.utils import authenticate_user
+from common.utils import authenticate_user, response_content
 from auth.auth_token import create_access_token
 from pathlib import Path
 from datetime import timedelta
@@ -27,9 +27,9 @@ async def login_as_organizer(details : AuthModel):
 
     try :
         # Navigate to the directory where json file with organizer details exists
-        current_directory= Path(__file__).parents[1]
+        parent_directory= Path(__file__).parents[1]
         response_file="organizer_details.json"
-        filename = current_directory / 'responses' / response_file
+        filename = parent_directory / 'responses' / response_file
 
         # Get all organizers information
         existing_data = read_json_data(filename)
@@ -38,21 +38,48 @@ async def login_as_organizer(details : AuthModel):
         organizer = authenticate_user(existing_data, details.username, details.password)
         if not organizer:
             raise HTTPException(
-                detail={"message" : "Invalid credentials"},
+                detail=response_content(
+                    401,
+                    "Invalid Credentials",
+                    errors=[
+                        {
+                            "field": ["username","password"],
+                            "message": "Invalid username or password."
+                        }
+                    ]
+                ),
                 status_code=status.HTTP_401_UNAUTHORIZED
             )
         
         # Check if the account is under review
         if organizer.get("registration_status") == "under_review":
             raise HTTPException(
-                detail={"message" : "Your account is still being reviewed. Please wait until one of our Administrators approves it."},
+                detail=response_content(
+                    401,
+                    "Your account is still being reviewed. Please wait until one of our Administrators approves it.",
+                    errors=[
+                        {
+                            "field": "registration_status",
+                            "message": "Account status is under review."
+                        }
+                    ]
+                ),
                 status_code=status.HTTP_401_UNAUTHORIZED
             )
 
         # Check if the account is rejected
         if organizer.get("registration_status") == "rejected":
             raise HTTPException(
-                detail={"message" : "Your account has been REJECTED by our Administrators."},
+                detail=response_content(
+                    401,
+                    "Your account has been REJECTED by our Administrators.",
+                    errors=[
+                        {
+                            "field": "registration_status",
+                            "message": "Account status is Rejected"
+                        }
+                    ]
+                ),
                 status_code=status.HTTP_401_UNAUTHORIZED
             )
         
@@ -68,23 +95,35 @@ async def login_as_organizer(details : AuthModel):
             )
         
         return JSONResponse(
-            content = {
-                "message": "Login successful",
-                "access_token": access_token,
-                "token_type": "bearer",
-                "expires_in": 1800
-            },
+            content=response_content(
+                200,
+                "Login successful",
+                data={
+                        "access_token": access_token,
+                        "token_type": "bearer",
+                        "expires_in": 1800
+                    }
+            ),
             status_code=status.HTTP_200_OK
         )
 
     except HTTPException as http_exc:
         raise http_exc
 
-    except Exception as e :
+    except Exception as exc :
         exception_details = traceback.format_exc()
-        print(f"An error occurred due to '{e}' : {exception_details}")
+        print(f"An error occurred due to '{exc}' : {exception_details}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An unexpected error occurred"
+            detail=response_content(
+                500,
+                "An unexpected error occurred. Please try again later.",
+                errors=[
+                    {
+                        "field": "general", 
+                        "message": str(exc)
+                    }
+                ]
+            )
         )
 
