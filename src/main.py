@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from auth import login
+from endpoints import login
 from common.descriptions import tags_metadata
 from endpoints import register, event_management, health_check, profile
 
