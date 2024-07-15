@@ -33,6 +33,8 @@ def read_json_data(filename):
     try : 
         with open(filename, "r") as file:
             return json.load(file)
-    except Exception:
+    except Exception as e:
+        exception_details = traceback.format_exc()
+        print(f"An error occurred while reading '{filename}' file due to '{e}' : {exception_details}")
         return {}                       # Initialise an empty dictionary if the file is empty
     

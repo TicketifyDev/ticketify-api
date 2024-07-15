@@ -35,9 +35,9 @@ async def new_organizer_registration(details : organizer_registration):
     API for allowing new organizers to create accounts by providing organizer details.
     """
     try:
-        current_directory= Path(__file__).parents[1]
+        parent_directory= Path(__file__).parents[1]
         response_file="organizer_details.json"
-        filename = current_directory / 'responses' / response_file
+        filename = parent_directory / 'responses' / response_file
 
         existing_data = read_json_data(filename)
 
@@ -149,8 +149,9 @@ async def new_organizer_registration(details : organizer_registration):
                 500,
                 "An unexpected error occurred. Please try again later.",
                 errors=[
-                    {"field": "general", 
-                     "message": str(exc)
+                    {
+                        "field": "general", 
+                        "message": str(exc)
                     }
                 ]
             )
