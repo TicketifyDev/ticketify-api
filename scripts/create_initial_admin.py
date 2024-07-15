@@ -16,7 +16,7 @@ from src.schemas.registration_schema import NAME_REGEX, USERNAME_REGEX, PASSWORD
 
 parent_directory = Path(__file__).parents[1]
 admin_file = "initial_admin.json"
-filename = parent_directory / 'responses' / admin_file
+filename = parent_directory / 'src' / 'responses' / admin_file
 
 def get_valid_input(prompt: str, regex: str, error_message: str):
     """
