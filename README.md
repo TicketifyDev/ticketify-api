@@ -59,7 +59,7 @@ ticketify_env\Scripts\activate     # On Linux use, `source ticketify_env/bin/act
 pip install -r requirements.txt
 ```
 
-<h5>5. Create the first admin for the application by running the script</h5>
+<h5>5. Run the script to create the initial admin account required for administrative access to the application.</h5>
 
 ```bash
 cd scripts
