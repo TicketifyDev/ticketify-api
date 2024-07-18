@@ -35,37 +35,49 @@ This project provides the backend APIs that supports user authentication, event 
 
 <h3><b>Setup</b></h3>
 <h4><b>To run this project, follow the instructions outlined below:</b></h4>
-<h5>1. Clone the repository:</h5>
+<h5>1. Clone the repository</h5>
 
 ```bash
 git clone https://github.com/YashwanthSimhaa/Ticketify-API.git
 ```
 
-<h5>2. Create a Python Virtual Environment:</h5>
+<h5>2. Create a Python Virtual Environment</h5>
 
 ```bash
 python -m venv ticketify_env
 ```
 
-<h5>3. Activate the Virtual Environment:</h5>
+<h5>3. Activate the Virtual Environment</h5>
 
 ```bash
-ticketify_env\Scripts\activate     #On Linux, use `source ticketify_env/bin/activate`
+ticketify_env\Scripts\activate     # On Linux use, `source ticketify_env/bin/activate`
 ```
 
-<h5>4. Install dependencies:</h5>
+<h5>4. Install dependencies</h5>
 
 ```bash
 pip install -r requirements.txt
 ```
 
-<h5>5. Navigate to source folder</h5>
+<h5>5. Run the script to create the initial admin account required for administrative access to the application.</h5>
 
 ```bash
-cd src
+cd scripts
+python create_initial_admin.py
+
 ```
 
-<h5>6. Start the server</h5>
+<h6>NOTE : You can create only initial admin using this script.</h6>
+
+<h5>6. Navigate to source folder</h5>
+
+```bash
+cd ..
+cd src
+
+```
+
+<h5>7. Start the server</h5>
 
 ```bash
 uvicorn main:app --reload
