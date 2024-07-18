@@ -68,6 +68,23 @@ async def new_user_registration(details : user_registration):
     except HTTPException as e :
         raise e
     
+    except Exception as exc :
+        exception_details = traceback.format_exc()
+        print(f"An error occurred due to '{exc}' : {exception_details}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=response_content(
+                500,
+                "An unexpected error occurred. Please try again later.",
+                errors=[
+                    {
+                        "field": "general", 
+                        "message": str(exc)
+                    }
+                ]
+            )
+        )
+    
 
 @router.post('/organizer-register',
              tags=["Organizer Management"],
