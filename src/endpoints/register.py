@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException,status
+from fastapi import APIRouter, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from datetime import datetime,timezone
 from pathlib import Path
 from datetime import datetime, timezone
-from schemas.registration_schema import user_registration,organizer_registration
+from schemas.registration_schema import user_registration, organizer_registration
 from common.json_operations import create_json_response, read_json_data
 from common.status_codes import status_codes
 from common.utils import hash_password, response_content, VALIDATION_ERROR_CONSTANT
@@ -35,23 +35,54 @@ async def new_user_registration(details : user_registration):
             if details.user_name == user["user_name"]:         
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST, 
-                    detail=f"The username '{details.user_name}' already exists."
+                    detail=response_content(
+                        400,
+                        VALIDATION_ERROR_CONSTANT,
+                        errors=[
+                            {
+                                "field": "user_name",
+                                "message": f"The username '{details.user_name}' already exists."
+                            }
+                        ]
+
                     )
+                )
+
 
             # Check if user email already exists
             if details.email == user["email"]:              
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST, 
-                    detail=f"The email '{details.email}' is already registered."
-                    )
+                    detail=response_content(
+                        400,
+                        VALIDATION_ERROR_CONSTANT,
+                        errors=[
+                            {
+                                "field": "email",
+                                "message": f"The email '{details.email}' is already registered."
+                            }
+                        ]
 
+                    )
+                )
 
             # Check if phone number already exists
             if details.phone_number == user["phone_number"]:         
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST, 
-                    detail=f"The phone number '{details.phone_number}' already exists. Please verify the details and try again."
+                    detail=response_content(
+                        400,
+                        VALIDATION_ERROR_CONSTANT,
+                        errors=[
+                            {
+                                "field": "phone_number",
+                                "message": f"The phone number '{details.phone_number}' already exists."
+                            }
+                        ]
+
                     )
+                )
+        #hash the password
         hashed_password = hash_password(details.password)
 
         username = details.user_name
@@ -62,12 +93,17 @@ async def new_user_registration(details : user_registration):
         # Store the response in JSON file
         create_json_response(username,data,filename)   
         return JSONResponse(
-            content={"message" : "User registered Successfully"},
-            status_code=201
+            status_code=status.HTTP_201_CREATED,
+            content=response_content(
+                201,
+                "User registered successfully",
+            )
         )
+    #HTTP exception is catched
     except HTTPException as e :
         raise e
     
+    #Other exception is Catched
     except Exception as exc :
         exception_details = traceback.format_exc()
         print(f"An error occurred due to '{exc}' : {exception_details}")
