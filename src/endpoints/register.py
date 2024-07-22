@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from schemas.registration_schema import user_registration,organizer_registration
 from common.json_operations import create_json_response, read_json_data
 from common.status_codes import status_codes
-from common.utils import hash_password, response_content, VALIDATION_ERROR_CONSTANT
+from common.utils import hash_password, response_content, CONFLICT_ERROR_CONSTANT
 import traceback
 
 router = APIRouter()
@@ -25,6 +25,7 @@ async def new_user_registration(deatils : user_registration):
              responses={
                 202 : status_codes["response_202"],
                 400 : status_codes["response_400"],
+                409 : status_codes["response_409"],
                 422 : status_codes["response_422"],
                 500 : status_codes["response_500"]
                 }
@@ -45,10 +46,10 @@ async def new_organizer_registration(details : organizer_registration):
             # Check if username already exists
             if details.user_name == organizers_data["user_name"]:         
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST, 
+                    status_code=status.HTTP_409_CONFLICT, 
                     detail=response_content(
-                        400,
-                        VALIDATION_ERROR_CONSTANT,
+                        409,
+                        CONFLICT_ERROR_CONSTANT,
                         errors=[
                             {
                                 "field": "user_name",
@@ -62,10 +63,10 @@ async def new_organizer_registration(details : organizer_registration):
             # Check if email already exists
             if details.email == organizers_data["email"]:              
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST, 
+                    status_code=status.HTTP_409_CONFLICT, 
                     detail=response_content(
-                        400, 
-                        VALIDATION_ERROR_CONSTANT,
+                        409, 
+                        CONFLICT_ERROR_CONSTANT,
                         errors=[
                             {
                                 "field": "email",
@@ -75,13 +76,29 @@ async def new_organizer_registration(details : organizer_registration):
                     )
                 )
 
+            # Check if phone number already exists
+            if details.phone_number == organizers_data["phone_number"]:              
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT, 
+                    detail=response_content(
+                        409, 
+                        CONFLICT_ERROR_CONSTANT,
+                        errors=[
+                            {
+                                "field": "phone_number",
+                                "message": f"The phone number '{details.phone_number}' is already registered."
+                            }
+                        ]
+                    )
+                )
+
             # Check if organization name already exists
             if details.organization_details.organization_name == organizers_data["organization_details"]["organization_name"]: 
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST, 
+                    status_code=status.HTTP_409_CONFLICT, 
                     detail=response_content(
-                        400, 
-                        VALIDATION_ERROR_CONSTANT,
+                        409, 
+                        CONFLICT_ERROR_CONSTANT,
                         errors=[
                             {
                                 "field": "organization_name",
@@ -94,10 +111,10 @@ async def new_organizer_registration(details : organizer_registration):
             # Check if organization PAN  already exists
             if details.organization_details.organization_pan_card_number == organizers_data["organization_details"]["organization_pan_card_number"]:         
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST, 
+                    status_code=status.HTTP_409_CONFLICT, 
                     detail=response_content(
-                        400, 
-                        VALIDATION_ERROR_CONSTANT,
+                        409, 
+                        CONFLICT_ERROR_CONSTANT,
                         errors=[
                             {
                                 "field": "organization_pan_card_number",
