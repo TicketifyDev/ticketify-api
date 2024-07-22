@@ -3,6 +3,8 @@ import secrets
 import traceback
 from typing import Optional
 from datetime import datetime, timedelta, timezone
+from fastapi import status, HTTPException
+from common.utils import response_content
 
 JWT_SECRET = secrets.token_hex(32)
 JWT_ALGORITHM = "HS256"
@@ -42,11 +44,54 @@ def decode_access_token(token : str):
     """
     try: 
         decoded_token = jwt.decode(token, JWT_SECRET, algorithms=JWT_ALGORITHM)
-        user = decoded_token.get("sub")
-        return user
+        username = decoded_token.get("sub")
+        role = decoded_token.get("role")
+        return username, role
     
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=response_content(
+                401,
+                "Token has expired."
+            )
+        )
+
+    except (jwt.InvalidSignatureError, jwt.InvalidTokenError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=response_content(
+                401,
+                "Invalid access token."
+            )
+        )
+
     except Exception as e:
         exception_details = traceback.format_exc()
         print(f"An error occurred due to '{e}' : {exception_details}")
-        return None
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=response_content(
+                500,
+                "An unexpected error occurred. Please try again later."
+            )
+        )
 
+
+def validate_roles(roles_list : list, role : str):
+    """
+    Function to check if a user/role has necessary permissions to access a resource. 
+
+    Parameters :
+        `roles_list` : A List of roles eligible to access a resource
+        `role` : A role that is decoded from access token
+    """
+
+    if role not in roles_list:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=response_content(
+                    403,
+                    "Access Denied : You do not have access to this resource."
+                )
+            )

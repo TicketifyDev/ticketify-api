@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from common.status_codes import status_codes
 from common.json_operations import read_json_data
-from auth.auth_token import decode_access_token
+from auth.auth_token import decode_access_token, validate_roles
 from common.utils import response_content, validate_unique_fields
 from schemas.update_profile_schema import organizer_profile_update
 import traceback, json
@@ -20,7 +20,6 @@ token = HTTPBearer()
                 400 : status_codes["response_400"],
                 401 : status_codes["response_401"],
                 403 : status_codes["response_401"],
-                404 : status_codes["response_404"],
                 409 : status_codes["response_409"],
                 500 : status_codes["response_500"]
             })
@@ -35,8 +34,8 @@ async def update_organizer_profile(
         token = credentials.credentials
         username, role = decode_access_token(token)
 
-        # required_roles = ['admin','organizer']
-        # validate_roles(required_roles, role)
+        required_roles = ['admin','organizer']
+        validate_roles(required_roles, role)
 
         #Navigate to the directory where json file with organizer details exists
         current_directory= Path(__file__).parents[1]
