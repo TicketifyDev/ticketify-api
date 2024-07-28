@@ -34,7 +34,7 @@ def read_json_data(filename):
         with open(filename, "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        return None
+        return {}
     except Exception as e:
         exception_details = traceback.format_exc()
         print(f"An error occurred while reading '{filename}' file due to '{e}' : {exception_details}")
