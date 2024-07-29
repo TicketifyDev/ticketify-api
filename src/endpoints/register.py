@@ -1,9 +1,10 @@
 from fastapi import APIRouter, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
+from datetime import datetime,timezone
 from pathlib import Path
 from datetime import datetime, timezone
-from schemas.registration_schema import user_registration,organizer_registration
+from schemas.registration_schema import user_registration, organizer_registration
 from common.json_operations import create_json_response, read_json_data
 from common.status_codes import status_codes
 from common.utils import hash_password, response_content, VALIDATION_ERROR_CONSTANT
@@ -11,13 +12,115 @@ import traceback
 
 router = APIRouter()
 
-@router.post('/user-register',tags=["User Management"])
-async def new_user_registration(deatils : user_registration):
+@router.post('/user-register',tags=["User Management"],
+             status_code=201,
+             responses={
+                201 : status_codes["response_201"],
+                400 : status_codes["response_400"],
+                422 : status_codes["response_422"],
+                500 : status_codes["response_500"]
+                })
+async def new_user_registration(details : user_registration):
     """
     API for allowing new users to create accounts by providing user details.
     """
-    return {"Registration" : "Successful"}
+    try:
+        current_directory= Path(__file__).parents[1]
+        response_file_path="user_details.json"
+        filename = current_directory / 'responses' / response_file_path
+        data = read_json_data(filename)
 
+        for user in data.values():
+            #check if user name already exists
+            if details.user_name == user["user_name"]:         
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, 
+                    detail=response_content(
+                        400,
+                        VALIDATION_ERROR_CONSTANT,
+                        errors=[
+                            {
+                                "field": "user_name",
+                                "message": f"The username '{details.user_name}' already exists."
+                            }
+                        ]
+
+                    )
+                )
+
+
+            # Check if user email already exists
+            if details.email == user["email"]:              
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, 
+                    detail=response_content(
+                        400,
+                        VALIDATION_ERROR_CONSTANT,
+                        errors=[
+                            {
+                                "field": "email",
+                                "message": f"The email '{details.email}' is already registered."
+                            }
+                        ]
+
+                    )
+                )
+
+            # Check if phone number already exists
+            if details.phone_number == user["phone_number"]:         
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, 
+                    detail=response_content(
+                        400,
+                        VALIDATION_ERROR_CONSTANT,
+                        errors=[
+                            {
+                                "field": "phone_number",
+                                "message": f"The phone number '{details.phone_number}' already exists."
+                            }
+                        ]
+
+                    )
+                )
+        #hash the password
+        hashed_password = hash_password(details.password)
+
+        username = details.user_name
+        data = jsonable_encoder(details)
+        data["password"] = hashed_password
+        data["registered_date"]=datetime.now(timezone.utc).isoformat()
+
+        # Store the response in JSON file
+        create_json_response(username,data,filename)   
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content=response_content(
+                201,
+                "User registered successfully",
+            )
+        )
+    #HTTP exception is catched
+    except HTTPException as e :
+        raise e
+    
+    #Other exception is Catched
+    except Exception as exc :
+        exception_details = traceback.format_exc()
+        print(f"An error occurred due to '{exc}' : {exception_details}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=response_content(
+                500,
+                "An unexpected error occurred. Please try again later.",
+                errors=[
+                    {
+                        "field": "general", 
+                        "message": str(exc)
+                    }
+                ]
+            )
+        )
+    
 
 @router.post('/organizer-register',
              tags=["Organizer Management"],
