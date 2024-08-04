@@ -1,75 +1,43 @@
 {
-    "superman": {
-        "title": "superman",
-        "release_date": "2024-04-30",
-        "duration": 180,
-        "language": "english",
-        "genre": [
-            "Action",
-            "Thriller"
-        ],
-        "cast": [
-            "Henry Cavil",
-            "Rachel Brosnahan"
-        ],
-        "crew": [
-            "Richard Donar"
-        ],
-        "venues": [
-            {
-                "name": "PVR",
-                "location": "Yalhanka",
-                "ticket_details": {
-                    "price": 300,
-                    "total_tickets": 100,
-                    "available_tickets": 100
-                }
-            },
-            {
-                "name": "INOX",
-                "location": "Vijaynagar",
-                "ticket_details": {
-                    "price": 300,
-                    "total_tickets": 80,
-                    "available_tickets": 80
-                }
-            }
-        ]
-    },
     "Batman": {
         "title": "Batman",
-        "release_date": "2024-05-31",
+        "release_date": "2024-08-26",
         "duration": 180,
-        "language": "english",
+        "language": "English",
         "genre": [
-            "Action",
-            "Thriller"
+            "Thriller",
+            "action"
         ],
         "cast": [
-            "Robert Pattison"
+            "Robert Pattinson",
+            " Kravitz"
         ],
         "crew": [
-            "Richard Donar"
+            "Paul Dano",
+            "Peter Sarsgaard"
         ],
         "venues": [
             {
                 "name": "PVR",
-                "location": "Yalhanka",
+                "location": "yalahanka",
                 "ticket_details": {
-                    "price": 300,
+                    "price": 150,
                     "total_tickets": 100,
                     "available_tickets": 100
                 }
             },
             {
                 "name": "INOX",
-                "location": "Vijaynagar",
+                "location": "vijayanagar",
                 "ticket_details": {
                     "price": 300,
-                    "total_tickets": 80,
-                    "available_tickets": 80
+                    "total_tickets": 78,
+                    "available_tickets": 78
                 }
             }
-        ]
+        ],
+        "event_creation_date_and_time": "2024-08-04T21:39:48.662196",
+        "event_creation_request_status": "Under Review",
+        "created_by": "john_doe"
     }
 }
