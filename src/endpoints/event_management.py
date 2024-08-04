@@ -1,16 +1,18 @@
-from fastapi import APIRouter,HTTPException,status, Query
+from fastapi import APIRouter,HTTPException,status, Query, Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from pathlib import Path
 from schemas.event_management_schema import create_event
 from common.json_operations import create_json_response, read_json_data
+from auth.auth_token import decode_access_token, validate_roles
 from common.status_codes import status_codes
 from common.utils import response_content
 import traceback
 from datetime import date, datetime
 
 router=APIRouter(tags=["Event Management"])
-
+token = HTTPBearer()
 current_directory= Path(__file__).parents[1]
 response_file="event_add.json"
 event_response_file = current_directory / 'responses' / response_file
@@ -97,8 +99,13 @@ async def add_new_event(request: create_event):
                 404 : status_codes["response_404"],
                 500 : status_codes["response_500"]
                 })
-async def check_event_status(title: str = Query(..., description="Title of the event to check the status")):
+async def check_event_status(title: str = Query(..., description="Title of the event to check the status"), credentials : HTTPAuthorizationCredentials = Security(token)):
     try:
+        token = credentials.credentials
+        username, role = decode_access_token(token)
+
+        required_roles = ['admin','organizer']
+        validate_roles(required_roles, role)
         existing_data = read_json_data(event_response_file)
         
         # Check if the title exists and get the event details
