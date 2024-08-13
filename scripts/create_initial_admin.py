@@ -18,6 +18,18 @@ parent_directory = Path(__file__).parents[1]
 admin_file = "initial_admin.json"
 filename = parent_directory / 'src' / 'responses' / admin_file
 
+def  check_initial_admin():
+    """
+    Function to check if the initial Admin account exists and proceed with account creation if it does not.\n
+    This function is intended to be used during the startup event in `main.py`. 
+    """
+    
+    # Check if the file exists
+    if not filename.is_file():
+        print("\n !! Initial Admin account does not exist. !! \n")
+        create_initial_admin()
+
+
 def get_valid_input(prompt: str, regex: str, error_message: str):
     """
     Function to Prompt the user for input and validate it against a regex pattern. \n
@@ -90,7 +102,7 @@ def create_initial_admin():
     # Write admin data to JSON file
     create_json_response(username,admin_data,filename)
 
-    print("\n !! Initial Admin account created successfully. !!")
+    print("\n !! Initial Admin account created successfully. !! \n")
 
 
 # This block ensures that the create_initial_admin() function is called only when this script is run directly through command line.
