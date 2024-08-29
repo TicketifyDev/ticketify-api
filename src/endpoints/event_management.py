@@ -96,13 +96,21 @@ async def add_new_event(request: create_event):
              status_code=200,
              responses={
                 200 : status_codes["response_200"],
+                401 : status_codes["response_401"],
+                403 : status_codes["response_403"],
                 404 : status_codes["response_404"],
                 500 : status_codes["response_500"]
                 })
 async def check_event_status(title: str = Query(..., description="Title of the event to check the status"), credentials : HTTPAuthorizationCredentials = Security(token)):
+    """
+    Check the status of an event based on its title.
+
+    This endpoint allows you to retrieve the current status of an event. The event is identified by its title,
+    which must be provided as a query parameter. Access to this endpoint requires valid authorization credentials.
+    """
     try:
         token = credentials.credentials
-        username, role = decode_access_token(token)
+        _, role = decode_access_token(token)
 
         required_roles = ['admin','organizer']
         validate_roles(required_roles, role)
