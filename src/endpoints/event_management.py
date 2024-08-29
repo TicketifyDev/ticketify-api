@@ -18,9 +18,8 @@ response_file="event_add.json"
 event_response_file = current_directory / 'responses' / response_file
 
 @router.post('/create-event',
-             status_code=201,
+             status_code=202,
              responses={
-                201 : status_codes["response_201"],
                 202 : status_codes["response_202"],
                 400 : status_codes["response_400"],
                 403 : status_codes["response_403"],
