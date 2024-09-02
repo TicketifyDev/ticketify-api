@@ -14,5 +14,6 @@ router.include_router(register.router)
 router.include_router(login.router)
 router.include_router(event_management.router)
 router.include_router(health_check.router)
-router.include_router(get_profile.router)
 router.include_router(get_organizer_status.router)
+router.include_router(get_profile.router)
+
