@@ -60,12 +60,17 @@ async def update_organizer_profile(
         updated_data = organizer.copy()
 
         # Loop through the key-value pairs of the payload, excluding unset fields
-        for key, value in details.model_dump(exclude_unset=True).items():           
-            if isinstance(value, dict):                                             # Check if the value is a dictionary (to handle nested dictionaries)
+        for key, value in details.model_dump(exclude_unset=True).items():  
+
+            # Check if the value is a dictionary (to handle nested dictionaries)         
+            if isinstance(value, dict):                                             
                 for nested_key, nested_value in value.items():
-                    updated_data[key][nested_key] = nested_value                    # Update the nested dictionary with the new values
+                    
+                    # Update the nested dictionary with the new values
+                    updated_data[key][nested_key] = nested_value                    
             else:
-                updated_data[key] = value                                           # Update the non-nested fields with the new values
+                # Update the non-nested fields with the new values
+                updated_data[key] = value                                           
 
         # Validate unique constraints
         unique_fields = ['user_name', 'email', 'phone_number']
