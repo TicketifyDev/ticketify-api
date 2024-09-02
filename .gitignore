@@ -1,2 +1,5 @@
-ticketify_env
+# Bytecode files
 __pycache__
+
+# Virtual Environments
+ticketify_env

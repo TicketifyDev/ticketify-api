@@ -2,9 +2,9 @@ from fastapi import APIRouter,HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from pathlib import Path
-from schemas.event_management_schema import create_event
-from common.json_operations import create_json_response
-from common.status_codes import status_codes
+from src.schemas.event_management_schema import create_event
+from src.common.json_operations import create_json_response
+from src.common.status_codes import status_codes
 import json
 from datetime import date
 

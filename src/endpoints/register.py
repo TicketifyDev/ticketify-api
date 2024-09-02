@@ -4,10 +4,10 @@ from fastapi.responses import JSONResponse
 from datetime import datetime,timezone
 from pathlib import Path
 from datetime import datetime, timezone
-from schemas.registration_schema import user_registration, organizer_registration
-from common.json_operations import create_json_response, read_json_data
-from common.status_codes import status_codes
-from common.utils import hash_password, response_content, VALIDATION_ERROR_CONSTANT
+from src.schemas.registration_schema import user_registration, organizer_registration
+from src.common.json_operations import create_json_response, read_json_data
+from src.common.status_codes import status_codes
+from src.common.utils import hash_password, response_content, VALIDATION_ERROR_CONSTANT
 import traceback
 
 router = APIRouter()

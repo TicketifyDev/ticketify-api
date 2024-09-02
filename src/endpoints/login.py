@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
-from schemas.auth_schema import AuthModel
-from common.status_codes import status_codes
-from common.json_operations import read_json_data
-from common.utils import authenticate_user, response_content
-from auth.auth_token import create_access_token
+from src.schemas.auth_schema import AuthModel
+from src.common.status_codes import status_codes
+from src.common.json_operations import read_json_data
+from src.common.utils import authenticate_user, response_content
+from src.auth.auth_token import create_access_token
 from pathlib import Path
 from datetime import timedelta
 import traceback

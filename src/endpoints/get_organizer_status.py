@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, status, Query
 from fastapi.responses import JSONResponse
 from pathlib import Path
-from common.status_codes import status_codes
-from common.json_operations import read_json_data
-from common.utils import response_content, authenticate_user
+from src.common.status_codes import status_codes
+from src.common.json_operations import read_json_data
+from src.common.utils import response_content, authenticate_user
 import traceback
 
 router = APIRouter()
