@@ -8,6 +8,7 @@ status_codes = {
     "response_403": {"description": "Forbidden"},
     "response_404": {"description": "Not Found"},
     "response_405": {"description": "Method Not Allowed"},
+    "response_409": {"description": "Conflict"},
     "response_422": {"description": "Unprocessable Entity"},
     "response_500": {"description": "Internal Server Error"}
 }
