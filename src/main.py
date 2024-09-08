@@ -10,7 +10,7 @@ sys.path.append(str(parent_directory_resolved))
 
 from scripts.create_initial_admin import check_initial_admin
 from src.common.descriptions import tags_metadata
-from src.endpoints import register, event_management, health_check, get_profile, login, get_organizer_status
+from src.endpoints import register, event_management, health_check, get_profile, login, get_organizer_status, update_profile
 
 app = FastAPI(
         title="Ticketify-API", 
@@ -39,4 +39,5 @@ app.include_router(event_management.router)
 app.include_router(health_check.router)
 app.include_router(get_organizer_status.router)
 app.include_router(get_profile.router)
+app.include_router(update_profile.router)
 
