@@ -1,4 +1,4 @@
-from fastapi import APIRouter,HTTPException,status, Security
+from fastapi import APIRouter,HTTPException,status, Query, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
@@ -95,3 +95,72 @@ async def add_new_event(request: create_event, credentials : HTTPAuthorizationCr
         )
     
 
+
+
+@router.get('/check-event-status',
+             status_code=200,
+             responses={
+                200 : status_codes["response_200"],
+                401 : status_codes["response_401"],
+                403 : status_codes["response_403"],
+                404 : status_codes["response_404"],
+                500 : status_codes["response_500"]
+                })
+async def check_event_status(title: str = Query(..., description="Title of the event to check the status"), credentials : HTTPAuthorizationCredentials = Security(token)):
+    """
+    Check the status of an event based on its title.
+
+    This endpoint allows you to retrieve the current status of an event. The event is identified by its title,
+    which must be provided as a query parameter. Access to this endpoint requires valid authorization credentials.
+    """
+    try:
+        token = credentials.credentials
+        _, role = decode_access_token(token)
+
+        required_roles = ['admin','organizer']
+        validate_roles(required_roles, role)
+        existing_data = read_json_data(event_response_file)
+        
+        # Check if the title exists and get the event details
+        if title in existing_data:
+            event_status = existing_data[title]["event_creation_request_status"]
+            return JSONResponse(
+                content={
+                    "status_code": 200,
+                    "message": f"The status of the event is {event_status}"
+                },
+                status_code=status.HTTP_200_OK
+            )
+        else:
+            raise HTTPException(
+                detail=response_content(
+                    404,
+                    "Event not found.",
+                    errors=[
+                        {
+                            "field": ["title"],
+                            "message": f"Provided event {title} not found"
+                        }
+                    ]
+                ),
+                status_code=status.HTTP_404_NOT_FOUND
+            )
+    except HTTPException as http_exc:
+        raise http_exc
+
+    except Exception as exc :
+        exception_details = traceback.format_exc()
+        print(f"An error occurred due to '{exc}' : {exception_details}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=response_content(
+                500,
+                "An unexpected error occurred. Please try again later.",
+                errors=[
+                    {
+                        "field": "general", 
+                        "message": str(exc)
+                    }
+                ]
+            )
+        )
