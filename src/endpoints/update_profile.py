@@ -3,11 +3,11 @@ from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from datetime import datetime, timezone
 from pathlib import Path
-from common.status_codes import status_codes
-from common.json_operations import read_json_data
-from auth.auth_token import decode_access_token, validate_roles
-from common.utils import response_content, validate_unique_fields
-from schemas.update_profile_schema import organizer_profile_update
+from src.common.status_codes import status_codes
+from src.common.json_operations import read_json_data
+from src.auth.auth_token import decode_access_token, validate_roles
+from src.common.utils import response_content, validate_unique_fields
+from src.schemas.update_profile_schema import organizer_profile_update
 import traceback, json
 
 router = APIRouter()
@@ -45,7 +45,7 @@ async def update_organizer_profile(
         # Read existing organizer data
         organizers_data = read_json_data(filename)
 
-        # Check if the username exists in the data
+        # Check if the username has changed since last login
         organizer = organizers_data.get(username)
         if not organizer:
             raise HTTPException(
@@ -73,20 +73,20 @@ async def update_organizer_profile(
                 updated_data[key] = value                                           
 
         # Validate unique constraints
-        unique_fields = ['user_name', 'email', 'phone_number']
+        unique_fields = ['email', 'phone_number']
         nested_unique_fields = ['organization_name', 'organization_pan_card_number']
         validate_unique_fields(username, updated_data, organizers_data, unique_fields, nested_unique_fields)
 
         # Add additional fields
         updated_data["updation_date"] = datetime.now(timezone.utc).isoformat()
 
-        # Check if the username has changed
-        new_username = updated_data['user_name']
-        if new_username != username:
-            organizers_data[new_username] = updated_data
-            del organizers_data[username]
-        else:
-            organizers_data[username] = updated_data
+        # Check if the username has changed                 # TODO Enable this block of code if needed in future
+        # new_username = updated_data['user_name']
+        # if new_username != username:
+        #     organizers_data[new_username] = updated_data
+        #     del organizers_data[username]
+        # else:
+        #     organizers_data[username] = updated_data
 
         # Save the updated data back to the JSON file
         with open(filename,"w") as file:

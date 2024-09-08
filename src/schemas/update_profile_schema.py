@@ -46,11 +46,12 @@ class organizer_profile_update(BaseModel, extra = 'forbid'):
         min_length=3,
         description="Represents the name of the organizer."
     )
-    user_name : Optional[str] = Field(
-        None,
-        min_length=3,
-        description="Represents the unique username chosen by the organizer for logging into their account."
-    )
+    # TODO enable this if needed in future
+    # user_name : Optional[str] = Field(
+    #     None,
+    #     min_length=3,
+    #     description="Represents the unique username chosen by the organizer for logging into their account."
+    # )
     email : Optional[EmailStr] = Field(
         None,
         min_length=10,
@@ -70,12 +71,12 @@ class organizer_profile_update(BaseModel, extra = 'forbid'):
         if not re.match(NAME_REGEX, value):
             raise ValueError("Invalid name format")
         return value
-
-    @field_validator("user_name")
-    def username_validator(cls, value):
-        if not re.match(USERNAME_REGEX, value):
-            raise ValueError("Invalid username format")
-        return value
+    # TODO enable this if needed in future
+    # @field_validator("user_name")
+    # def username_validator(cls, value):
+    #     if not re.match(USERNAME_REGEX, value):
+    #         raise ValueError("Invalid username format")
+    #     return value
     
     @field_validator("email")
     def email_validator(cls, value):

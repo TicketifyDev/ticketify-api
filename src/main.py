@@ -29,9 +29,9 @@ async def read_root():
             }
         }
 
-# @app.on_event("startup")
-# async def startup_event():
-#     check_initial_admin()
+@app.on_event("startup")
+async def startup_event():
+    check_initial_admin()
 
 app.include_router(register.router)
 app.include_router(login.router)
