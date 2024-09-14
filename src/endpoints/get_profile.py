@@ -2,15 +2,15 @@ from fastapi import APIRouter, HTTPException, status, Security
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pathlib import Path
-from common.status_codes import status_codes
-from common.json_operations import read_json_data
-from auth.auth_token import decode_access_token, validate_roles
-from common.utils import response_content
+from src.common.status_codes import status_codes
+from src.common.json_operations import read_json_data
+from src.auth.auth_token import decode_access_token, validate_roles
+from src.common.utils import response_content
 import traceback
 
 router = APIRouter()
 token = HTTPBearer()
-
+# TODO fill up the code for get user profile here
 # @router.get('/user-profile',
 #             tags=["User Management"],
 #             status_code=200,

@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
 import re
-from schemas.registration_schema import NAME_REGEX, USERNAME_REGEX, EMAIL_REGEX, PHONE_NUMBER_REGEX, ORGANIZATION_NAME_REGEX, ORGANIZATION_PAN_REGEX
+from src.schemas.registration_schema import NAME_REGEX, USERNAME_REGEX, EMAIL_REGEX, PHONE_NUMBER_REGEX, ORGANIZATION_NAME_REGEX, ORGANIZATION_PAN_REGEX
 
 class organization_details_update(BaseModel):
     """
