@@ -2,15 +2,15 @@ from fastapi import APIRouter, HTTPException, status, Security
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pathlib import Path
-from common.status_codes import status_codes
-from common.json_operations import read_json_data
-from auth.auth_token import decode_access_token, validate_roles
-from common.utils import response_content
+from src.common.status_codes import status_codes
+from src.common.json_operations import read_json_data
+from src.auth.auth_token import decode_access_token, validate_roles
+from src.common.utils import response_content
 import traceback
 
 router = APIRouter()
 token = HTTPBearer()
-
+# TODO fill up the code for get user profile here
 # @router.get('/user-profile',
 #             tags=["User Management"],
 #             status_code=200,
@@ -47,9 +47,9 @@ async def get_organizer_profile(credentials : HTTPAuthorizationCredentials = Sec
         validate_roles(required_roles, role)
 
         #Navigate to the directory where json file with organizer details exists
-        current_directory= Path(__file__).parents[1]
+        parent_directory= Path(__file__).parents[1]
         response_file="organizer_details.json"
-        filename = current_directory / 'responses' / response_file
+        filename = parent_directory / 'responses' / response_file
 
         organizers_data = read_json_data(filename)
 
