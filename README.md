@@ -90,7 +90,7 @@ python create_initial_admin.py
 <h4><b>Running Locally</b></h4>
 <ul>
   <li>Ensure your MongoDB server is running and accessible.</li>
-  <li>Start the FastAPI server using <b>uvicorn</b> as shown in the installation steps.</li>
+  <li>Start the FastAPI server as shown in the installation steps.</li>
   <li>Access the API at <b>http://localhost:8000/docs</b></li>
 </ul>
 
