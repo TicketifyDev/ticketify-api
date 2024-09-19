@@ -28,12 +28,11 @@ def authenticate_user(data : dict, username: str, password: str):
     Function to Authenticate a user by verifying their `username` and `password`.
     """
     try:
-        if username in data:
-            user_dict = data[username]
-            hashed_password = user_dict["password"]
+        if data["user_name"] == username:
+            hashed_password = data["password"]
             if not verify_password(password, hashed_password):
                 return False
-            return user_dict
+            return True
         
     except Exception as e :
         exception_details = traceback.format_exc()
@@ -91,84 +90,62 @@ def response_content(
     return response
 
 
-def check_field_uniqueness(
-    current_username: str,
-    updated_value: Any,
-    organizers_data: Dict[str, Dict[str, Any]],
-    field: str,
-    is_nested: bool = False
-):
+async def validate_unique_fields(organizers_data : list, updated_data : dict, username : str):
     """
-    Utility function to check the uniqueness of a single field.
+    Utility function to validate the uniqueness of fields like `email`, `phone_number`,
+    `organization_name`, and `organization_pan_card_number`.
 
-    Parameters :
-        `current_username` : The username of the current organizer.
-        `updated_value` : The updated value for the field.
-        `existing_data` : The existing organizer data.
-        `field` : The field to check for uniqueness.
-        `is_nested` : Flag to indicate if the field is nested within organization_details.
+    Args:
+        organizers_data : List of all organizer documents.
+        updated_data : The updated data for the organizer being modified.
+        username : The username of the organizer being updated.
+
+    Raises:
+        HTTPException: If a unique field value already exists in another organizer's data.
     """
+    for organizer in organizers_data:
+        if organizer["user_name"] != username:  # Skip the current organizer being updated
 
-    if updated_value:
-        for existing_username, existing_organizer in organizers_data.items():
-            if existing_username != current_username:       # Skip the current user
-                if is_nested:
-                    if field in existing_organizer.get('organization_details', {}) and \
-                       existing_organizer['organization_details'][field] == updated_value:
-                        raise HTTPException(
-                            status_code=status.HTTP_409_CONFLICT,
-                            detail=response_content(
-                                409,
-                                CONFLICT_ERROR_CONSTANT,
-                                errors=[
-                                    {
-                                        "field": field,
-                                        "message": f"'{updated_value}' is already registered."
-                                    }
-                                ]
-                            )
-                        )
-                else:
-                    if existing_organizer.get(field) == updated_value:
-                        raise HTTPException(
-                            status_code=status.HTTP_409_CONFLICT,
-                            detail=response_content(
-                                409,
-                                CONFLICT_ERROR_CONSTANT,
-                                errors=[
-                                    {
-                                        "field": field,
-                                        "message": f"'{updated_value}' is already registered."
-                                    }
-                                ]
-                            )
-                        )
+            # Check if the email already exists
+            if updated_data["email"] == organizer["email"]:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=response_content(
+                        409,
+                        "Email is already registered.",
+                        errors=[{"field": "email", "message": "Email must be unique."}]
+                    )
+                )
 
+            # Check if the phone number already exists
+            if updated_data["phone_number"] == organizer["phone_number"]:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=response_content(
+                        409,
+                        "Phone number is already registered.",
+                        errors=[{"field": "phone_number", "message": "Phone number must be unique."}]
+                    )
+                )
 
-def validate_unique_fields(
-        current_username: str,
-        updated_data: Dict[str, Any],
-        organizers_data: Dict[str, Dict[str, Any]],
-        unique_fields: List[str],
-        nested_unique_fields: List[str]
-    ):
-    """
-    Utility function to validate the uniqueness of the values that are passed to the fields.\n
-    Checks if any field in the `updated_data` dictionary conflicts with existing data in `organizers_data` dictionary
-    for organizer other than the current `username`.
+            # Check if the organization name already exists
+            if updated_data["organization_details"]["organization_name"] == organizer["organization_details"]["organization_name"]:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=response_content(
+                        409,
+                        "Organization name is already taken.",
+                        errors=[{"field": "organization_name", "message": "Organization name must be unique."}]
+                    )
+                )
 
-    Parameters :
-        `current_username` : The username of the current organizer.
-        `updated_data` : The updated data for the organizer.
-        `organizers_data` : The existing organizer data.
-        `unique_fields` : List of fields that need to be unique across all organizer.
-        `nested_unique_fields` : List of nested fields that need to be unique within organization_details.
-    """
-
-    for field in unique_fields:
-        updated_value = updated_data.get(field)
-        check_field_uniqueness(current_username, updated_value, organizers_data, field)
-
-    for field in nested_unique_fields:
-        updated_value = updated_data.get('organization_details', {}).get(field)
-        check_field_uniqueness(current_username, updated_value, organizers_data, field, is_nested=True)
+            # Check if the organization PAN card number already exists
+            if updated_data["organization_details"]["organization_pan_card_number"] == organizer["organization_details"]["organization_pan_card_number"]:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=response_content(
+                        409,
+                        "Organization PAN card number is already taken.",
+                        errors=[{"field": "organization_pan_card_number", "message": "PAN card number must be unique."}]
+                    )
+                )

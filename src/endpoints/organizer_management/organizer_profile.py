@@ -1,15 +1,14 @@
 from fastapi import status, HTTPException
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials
 from src.schemas.update_profile_schema import organizer_profile_update
-from src.common.json_operations import read_json_data
 from src.auth.auth_token import decode_access_token, validate_roles
 from src.common.utils import response_content, validate_unique_fields
-from pathlib import Path
+from src.common.db import MongoDB
 from datetime import datetime, timezone
-import json
 
-async def organizer_profile_get(credentials : HTTPAuthorizationCredentials):
+async def organizer_profile_get(credentials : HTTPAuthorizationCredentials, collection : MongoDB):
     """
     Function for retrieving logged in organizer's profile information.
     """
@@ -20,18 +19,13 @@ async def organizer_profile_get(credentials : HTTPAuthorizationCredentials):
     required_roles = ['admin','organizer']
     validate_roles(required_roles, role)
 
-    #Navigate to the directory where json file with organizer details exists
-    parent_directory= Path(__file__).parents[2]
-    response_file="organizer_details.json"
-    filename = parent_directory / 'responses' / response_file
-
-    organizers_data = read_json_data(filename)
-
-    # Get the details of logged in organizer
-    organizer = organizers_data.get(username)
+    organizer = await collection.read({"user_name": username})
     
-    # Exclude the password field
-    del organizer["password"]                     
+    # Exclude fields that are not required
+    del organizer["password"]     
+    del organizer["_id"]  
+
+    organizer = jsonable_encoder(organizer)        
 
     return JSONResponse(
         content=response_content(
@@ -45,7 +39,8 @@ async def organizer_profile_get(credentials : HTTPAuthorizationCredentials):
 
 async def update_organizer(
     details : organizer_profile_update,
-    credentials : HTTPAuthorizationCredentials
+    credentials : HTTPAuthorizationCredentials,
+    collection : MongoDB
     ):
     """
     Function to update organizers profile information.
@@ -57,24 +52,7 @@ async def update_organizer(
     required_roles = ['admin','organizer']
     validate_roles(required_roles, role)
 
-    #Navigate to the directory where json file with organizer details exists
-    current_directory= Path(__file__).parents[2]
-    response_file="organizer_details.json"
-    filename = current_directory / 'responses' / response_file
-
-    # Read existing organizer data
-    organizers_data = read_json_data(filename)
-
-    # Check if the username has changed since last login
-    organizer = organizers_data.get(username)
-    if not organizer:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=response_content(
-                401,
-                "Your 'username' has been updated since last login. Please re-login with the updated credentials."
-            )
-        )
+    organizer = await collection.read({"user_name": username})
 
     # Copy the existing data
     updated_data = organizer.copy()
@@ -92,28 +70,30 @@ async def update_organizer(
             # Update the non-nested fields with the new values
             updated_data[key] = value                                           
 
-    # Validate unique constraints
-    unique_fields = ['email', 'phone_number']
-    nested_unique_fields = ['organization_name', 'organization_pan_card_number']
-    validate_unique_fields(username, updated_data, organizers_data, unique_fields, nested_unique_fields)
+    # Fetch all organizers' documents
+    organizers_data = await collection.read_all()
+
+    # Iterate through all organizers to validate uniqueness
+    await validate_unique_fields(organizers_data, updated_data, username)
 
     # Add additional fields
     updated_data["updation_date"] = datetime.now(timezone.utc).isoformat()
 
-    # Check if the username has changed                 # TODO Enable this block of code if needed in future
-    # new_username = updated_data['user_name']
-    # if new_username != username:
-    #     organizers_data[new_username] = updated_data
-    #     del organizers_data[username]
-    # else:
-    #     organizers_data[username] = updated_data
+    # Update the target document if validation passes
+    modified_count = await collection.update({"user_name": username}, updated_data)
 
-    # Save the updated data back to the JSON file
-    with open(filename,"w") as file:
-        json.dump(organizers_data, file, indent=4)
+    if modified_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=response_content(
+                404,
+                "Organizer not found or no fields were updated."
+            )
+        )
 
-    # Exclude the password field
+    # Exclude fields that are not required
     del updated_data['password']
+    del updated_data['_id']
 
     return JSONResponse(
         status_code=status.HTTP_200_OK,
