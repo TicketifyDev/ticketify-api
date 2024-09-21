@@ -30,12 +30,7 @@ async def add_new_event(request: create_event, credentials : HTTPAuthorizationCr
     API for organizers to create new events (movies).
     """
     try:
-        token = credentials.credentials
-        username, role = decode_access_token(token)
-
-        required_roles = ['admin','organizer']
-        validate_roles(required_roles, role)
-        response = await event_creation(username, request, event_response_file)
+        response = await event_creation(credentials, request, event_response_file)
         return response
     except HTTPException as http_exc :
         raise http_exc
@@ -62,12 +57,7 @@ async def check_event_status(title: str = Query(..., description="Title of the e
     which must be provided as a query parameter. Access to this endpoint requires valid authorization credentials.
     """
     try:
-        token = credentials.credentials
-        _, role = decode_access_token(token)
-
-        required_roles = ['admin','organizer']
-        validate_roles(required_roles, role)
-        response = await event_status(event_response_file, title)
+        response = await event_status(credentials, event_response_file, title)
         return response
     except HTTPException as http_exc :
         raise http_exc

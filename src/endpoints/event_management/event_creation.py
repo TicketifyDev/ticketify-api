@@ -1,12 +1,19 @@
 from fastapi import status
 from fastapi.encoders import jsonable_encoder
 from src.common.json_operations import create_json_response, read_json_data
+from src.auth.auth_token import decode_access_token, validate_roles
 from fastapi.responses import JSONResponse
 from src.common.utils import response_content
 from datetime import date, datetime
 
 
-async def event_creation(username, request, event_response_file):
+async def event_creation(credentials, request, event_response_file):
+    token = credentials.credentials
+    username, role = decode_access_token(token)
+
+    required_roles = ['admin','organizer']
+    validate_roles(required_roles, role)
+
     title = request.title
     release_date = request.release_date
 
