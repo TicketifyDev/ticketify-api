@@ -59,7 +59,23 @@ ticketify_env\Scripts\activate     # On Linux use, `source ticketify_env/bin/act
 pip install -r requirements.txt
 ```
 
-<h5>5. Run the script to create the initial admin account required for administrative access to the application.</h5>
+<h5>5. Setup `.env`  </h5>
+
+```bash
+1. Create a new file named `.env` under root directory.
+2. Copy the content of `.env.example` to `.env`.
+3. Update the `.env` file with your actual database credentials and other configuration details.
+```
+
+<h5>6. Start the Server</h5>
+
+```bash
+python run.py
+```
+
+<h6>NOTE : After executing the above command, the initial Admin account creation process will begin if an Admin account does not already exist.</h6>
+
+<h5> To manually create initial Admin account, Run the script before starting the server.</h5>
 
 ```bash
 cd scripts
@@ -67,27 +83,14 @@ python create_initial_admin.py
 
 ```
 
-<h6>NOTE : You can create only initial admin using this script.</h6>
+<h6>NOTE : You can create only initial admin using this script. To add more admins leverage the APIs</h6>
 
-<h5>6. Navigate to source folder</h5>
-
-```bash
-cd ..
-cd src
-
-```
-
-<h5>7. Start the server</h5>
-
-```bash
-uvicorn main:app --reload
-```
 
 <h3><b>Usage</b></h3>
 <h4><b>Running Locally</b></h4>
 <ul>
   <li>Ensure your MongoDB server is running and accessible.</li>
-  <li>Start the FastAPI server using <b>uvicorn</b> as shown in the installation steps.</li>
+  <li>Start the FastAPI server as shown in the installation steps.</li>
   <li>Access the API at <b>http://localhost:8000/docs</b></li>
 </ul>
 
