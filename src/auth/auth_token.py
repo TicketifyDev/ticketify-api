@@ -4,7 +4,7 @@ import traceback
 from typing import Optional
 from datetime import datetime, timedelta, timezone
 from fastapi import status, HTTPException
-from common.utils import response_content
+from src.common.utils import response_content
 
 JWT_SECRET = secrets.token_hex(32)
 JWT_ALGORITHM = "HS256"
