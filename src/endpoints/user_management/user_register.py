@@ -6,7 +6,8 @@ from pathlib import Path
 from datetime import datetime, timezone
 from src.schemas.registration_schema import user_registration
 from src.common.json_operations import create_json_response, read_json_data
-from src.common.utils import hash_password, response_content, CONFLICT_ERROR_CONSTANT
+from src.common.utils import hash_password, response_content
+from src.common.constants import CONFLICT_ERROR_CONSTANT
 
 async def user_register(details : user_registration):
     """
