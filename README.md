@@ -38,7 +38,7 @@ This project provides the backend APIs that supports user authentication, event 
 <h5>1. Clone the repository</h5>
 
 ```bash
-git clone https://github.com/YashwanthSimhaa/Ticketify-API.git
+git clone https://github.com/TicketifyDev/Ticketify-API.git
 ```
 
 <h5>2. Create a Python Virtual Environment</h5>
@@ -59,7 +59,15 @@ ticketify_env\Scripts\activate     # On Linux use, `source ticketify_env/bin/act
 pip install -r requirements.txt
 ```
 
-<h5>5. Start the Server</h5>
+<h5>5. Setup `.env`  </h5>
+
+```bash
+1. Create a new file named `.env` under root directory.
+2. Copy the content of `.env.example` to `.env`.
+3. Update the `.env` file with your actual database credentials and other configuration details.
+```
+
+<h5>6. Start the Server</h5>
 
 ```bash
 python run.py
@@ -67,7 +75,7 @@ python run.py
 
 <h6>NOTE : After executing the above command, the initial Admin account creation process will begin if an Admin account does not already exist.</h6>
 
-<h5>5. To manually create initial Admin account, Run the script before starting the server.</h5>
+<h5> To manually create initial Admin account, Run the script before starting the server.</h5>
 
 ```bash
 cd scripts
@@ -82,7 +90,7 @@ python create_initial_admin.py
 <h4><b>Running Locally</b></h4>
 <ul>
   <li>Ensure your MongoDB server is running and accessible.</li>
-  <li>Start the FastAPI server using <b>uvicorn</b> as shown in the installation steps.</li>
+  <li>Start the FastAPI server as shown in the installation steps.</li>
   <li>Access the API at <b>http://localhost:8000/docs</b></li>
 </ul>
 
