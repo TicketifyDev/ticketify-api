@@ -93,4 +93,18 @@ class MongoDB:
             return results
         except Exception as e:
             print(f"Error while reading documents : {e}")
+
+    async def is_collection_empty(self):
+        """
+        Method to check if the MongoDB collection is empty.
+
+        Returns:
+            bool: True if the collection is empty, False otherwise.
+        """
+        try:
+            count = await self.collection.count_documents({})
+            return count == 0
+        except Exception as e:
+            print(f"Error while checking if collection is empty: {e}")
+            return False  # Return False in case of error to assume it's not empty
             

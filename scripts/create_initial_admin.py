@@ -2,7 +2,9 @@ import sys
 import getpass 
 import re
 import time
+import asyncio
 from pathlib import Path
+from datetime import datetime, timezone
 
 # Determine the parent directory of the current script's file path.
 parent_directory_resolved = Path(__file__).resolve().parents[1]
@@ -10,24 +12,22 @@ parent_directory_resolved = Path(__file__).resolve().parents[1]
 # Add the parent directory to the sys.path list to allow importing modules from that directory.
 sys.path.append(str(parent_directory_resolved))
 
-from src.common.json_operations import read_json_data, create_json_response
 from src.common.utils import hash_password
 from src.schemas.registration_schema import NAME_REGEX, USERNAME_REGEX, PASSWORD_REGEX, EMAIL_REGEX
+from src.common.db import MongoDB
 
-parent_directory = Path(__file__).parents[1]
-admin_file = "initial_admin.json"
-filename = parent_directory / 'src' / 'responses' / admin_file
+collection = MongoDB('admins')
 
-def  check_initial_admin():
+async def  check_initial_admin():
     """
     Function to check if the initial Admin account exists and proceed with account creation if it does not.\n
     This function is intended to be used during the startup event in `main.py`. 
     """
-    
-    # Check if the file exists
-    if not filename.is_file():
+
+    is_empty = await collection.is_collection_empty()
+    if is_empty:
         print("\n !! Initial Admin account does not exist. !! \n")
-        create_initial_admin()
+        await create_initial_admin()
 
 
 def get_valid_input(prompt: str, regex: str, error_message: str):
@@ -49,14 +49,13 @@ def get_valid_input(prompt: str, regex: str, error_message: str):
             print(error_message)
 
 
-def create_initial_admin():
+async def create_initial_admin():
     """
     Function to create the first/initial Admin for the application.
     """
 
-    # Check if admin file already exists and has data in it
-    admin_data = read_json_data(filename)
-    if admin_data:
+    is_empty = await collection.is_collection_empty()
+    if not is_empty:
         print("\n !! Initial Admin account already exists. !!")
         return 
     
@@ -96,11 +95,13 @@ def create_initial_admin():
         "name":name,
         "username": username,
         "email": email,
-        "password": hashed_password
+        "password": hashed_password,
+        "creation_date" : datetime.now(timezone.utc).isoformat(),
+        "status" : "active"
     }
 
-    # Write admin data to JSON file
-    create_json_response(username,admin_data,filename)
+    # Store admin data to DB
+    await collection.create(admin_data)
 
     print("\n !! Initial Admin account created successfully. !! \n")
 
@@ -108,4 +109,4 @@ def create_initial_admin():
 # This block ensures that the create_initial_admin() function is called only when this script is run directly through command line.
 # If this script is imported as a module in another script, the function will not be executed automatically.
 if __name__ == "__main__":
-    create_initial_admin()
+    asyncio.run(create_initial_admin())
