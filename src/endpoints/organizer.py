@@ -5,6 +5,7 @@ from src.schemas.registration_schema import organizer_registration
 from src.schemas.update_profile_schema import organizer_profile_update
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
+from src.common.db import MongoDB
 from src.endpoints.organizer_management.organizer_register import organizer_register
 from src.endpoints.organizer_management.organizer_login import organizer_login
 from src.endpoints.organizer_management.organizer_status import organizer_status
@@ -12,6 +13,9 @@ from src.endpoints.organizer_management.organizer_profile import organizer_profi
 
 router = APIRouter(tags=["Organizer Management"])
 token = HTTPBearer()
+
+# Create an instance of MongoDB class by providing a collection name
+collection = MongoDB("organizers")
 
 @router.post('/organizer-register',
             status_code=202,
@@ -27,7 +31,7 @@ async def new_organizer_registration(details : organizer_registration):
     API for allowing new organizers to create accounts by providing organizer details.
     """
     try :
-        response = await organizer_register(details)
+        response = await organizer_register(details, collection)
         return response
     
     except HTTPException as http_exc:
@@ -50,7 +54,7 @@ async def login_as_organizer(details : AuthModel):
     API for authenticating organizers and generating access tokens by validating their `username` and `password`.
     """
     try :
-        response = await organizer_login(details)
+        response = await organizer_login(details, collection)
         return response
     
     except HTTPException as http_exc:
@@ -74,7 +78,7 @@ async def get_organizer_status(username : str = Query(..., min_length=3),
     API for organizers to check the status of their account registration request.
     """
     try :
-        response = await organizer_status(username, password)
+        response = await organizer_status(username, password, collection)
         return response
     
     except HTTPException as http_exc:
@@ -99,7 +103,7 @@ async def get_organizer_profile(credentials : HTTPAuthorizationCredentials = Sec
     API for retrieving logged in organizer's profile information.
     """
     try :
-        response = await organizer_profile_get(credentials)
+        response = await organizer_profile_get(credentials, collection)
         return response
     
     except HTTPException as http_exc:
@@ -127,7 +131,7 @@ async def update_organizer_profile(
     API for organizers to update their profile information.
     """
     try :
-        response = await update_organizer(details, credentials)
+        response = await update_organizer(details, credentials, collection)
         return response
     
     except HTTPException as http_exc:

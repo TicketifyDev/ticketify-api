@@ -1,28 +1,21 @@
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from src.schemas.auth_schema import AuthModel
-from src.common.json_operations import read_json_data
 from src.common.utils import authenticate_user, response_content
+from src.common.db import MongoDB
 from src.auth.auth_token import create_access_token
-from pathlib import Path
 from datetime import timedelta
 
-async def organizer_login(details : AuthModel):
+async def organizer_login(details : AuthModel, collection : MongoDB):
     """ 
     Function for authenticating organizers and generating access tokens by validating their `username` and `password`.
     """
 
-    # Navigate to the directory where json file with organizer details exists
-    parent_directory= Path(__file__).parents[2]
-    response_file="organizer_details.json"
-    filename = parent_directory / 'responses' / response_file
+    # Fetch the organizer data from MongoDB by username
+    organizer = await collection.read({"user_name": details.username})
 
-    # Get all organizers information
-    existing_data = read_json_data(filename)
-
-    # Authenticate Organizer details
-    organizer = authenticate_user(existing_data, details.username, details.password)
-    if not organizer:
+    # If the organizer doesn't exist or the password is incorrect
+    if not organizer or not authenticate_user(organizer, details.username, details.password):
         raise HTTPException(
             detail=response_content(
                 401,
