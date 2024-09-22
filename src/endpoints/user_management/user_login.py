@@ -11,7 +11,6 @@ async def user_login(details : AuthModel):
     """ 
     Function for authenticating users and generating access tokens by validating their `username` and `password`.
     """
-
     # Navigate to the directory where json file with user details exists
     parent_directory= Path(__file__).parents[2]
     response_file="user_details.json"
@@ -37,8 +36,7 @@ async def user_login(details : AuthModel):
             status_code=status.HTTP_401_UNAUTHORIZED
         )
     
-    
-    # Generate JWT Access Token
+    # Generate JWT Access Token For User
     access_token_expires = timedelta(minutes=30)
     access_token = create_access_token(
         data = {
