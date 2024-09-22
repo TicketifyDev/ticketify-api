@@ -15,8 +15,9 @@ sys.path.append(str(parent_directory_resolved))
 from src.common.utils import hash_password
 from src.schemas.registration_schema import NAME_REGEX, USERNAME_REGEX, PASSWORD_REGEX, EMAIL_REGEX
 from src.common.db import MongoDB
+from src.common.constants import ADMINS_COLLECTION
 
-collection = MongoDB('admins')
+collection = MongoDB(ADMINS_COLLECTION)
 
 async def  check_initial_admin():
     """
