@@ -5,6 +5,7 @@ from src.schemas.registration_schema import organizer_registration
 from src.schemas.update_profile_schema import organizer_profile_update
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
+from src.common.constants import ORGANIZERS_COLLECTION
 from src.common.db import MongoDB
 from src.endpoints.organizer_management.organizer_register import organizer_register
 from src.endpoints.organizer_management.organizer_login import organizer_login
@@ -15,7 +16,7 @@ router = APIRouter(tags=["Organizer Management"])
 token = HTTPBearer()
 
 # Create an instance of MongoDB class by providing a collection name
-collection = MongoDB("organizers")
+collection = MongoDB(ORGANIZERS_COLLECTION)
 
 @router.post('/organizer-register',
             status_code=202,
