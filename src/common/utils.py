@@ -3,9 +3,6 @@ import traceback
 from typing import Dict, List, Optional, Any
 from fastapi import HTTPException, status
 
-VALIDATION_ERROR_CONSTANT = "Validation error occurred"
-CONFLICT_ERROR_CONSTANT = "Conflict : The provided value already exists."
-
 # Initialize CryptContext for hashing passwords
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
