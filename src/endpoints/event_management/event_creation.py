@@ -23,7 +23,7 @@ async def event_creation(credentials, request, collection : MongoDB):
     required_roles = ['admin','organizer']
     validate_roles(required_roles, role)
 
-    title = request.title
+    title = request.title.lower()
     release_date = request.release_date
 
     existing_event = await collection.read({"title": title})
@@ -58,29 +58,19 @@ async def event_creation(credentials, request, collection : MongoDB):
         )
     
     # Add extra fields to the response data
+    response['title'] = title
     response['event_creation_date_and_time'] = datetime.now().isoformat()
     response['event_creation_request_status'] = "Under Review"
     response['created_by'] = username
     
     # Store the response in the DB
     await collection.create(response)
+    del response['_id']
     return JSONResponse(
         content=response_content(
             202,
             "This event will be reviewed by our administrators for approval.",
-            {
-                "title": response["title"],
-                "release_date": response["release_date"],
-                "duration": response["duration"],
-                "language": response["language"],
-                "genre": response["genre"],
-                "cast": response["cast"],
-                "crew": response["crew"],
-                "venues": response["venues"],
-                "event_creation_date_and_time": response["event_creation_date_and_time"],
-                "event_creation_request_status": response["event_creation_request_status"],
-                "created_by": response["created_by"]
-            }
+            response
         ),
         status_code=status.HTTP_202_ACCEPTED
     )
