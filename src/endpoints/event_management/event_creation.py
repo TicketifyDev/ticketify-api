@@ -1,13 +1,22 @@
-from fastapi import status
+from fastapi import status, HTTPException
 from fastapi.encoders import jsonable_encoder
-from src.common.json_operations import create_json_response, read_json_data
 from src.auth.auth_token import decode_access_token, validate_roles
 from fastapi.responses import JSONResponse
-from src.common.utils import response_content
+from src.common.utils import response_content, CONFLICT_ERROR_CONSTANT
+from src.common.db import MongoDB
 from datetime import date, datetime
 
 
-async def event_creation(credentials, request, event_response_file):
+async def event_creation(credentials, request, collection : MongoDB):
+    """
+    Function to add a new event in MongoDB.
+
+    Args:
+        credentials : For authorization and authentication of a user.
+        request : The event details of the event to be added.
+        collection : MongoDB collection to store event details.
+    """
+    
     token = credentials.credentials
     username, role = decode_access_token(token)
 
@@ -17,17 +26,22 @@ async def event_creation(credentials, request, event_response_file):
     title = request.title
     release_date = request.release_date
 
-    existing_data = read_json_data(event_response_file)
-    # Check if the title already exists
-    for event_details in existing_data:
-        if title in event_details:
-            return JSONResponse(
-                content=response_content(
-                    409,
-                    f"The title {title} already exists."
-                ),
-                status_code=status.HTTP_409_CONFLICT
+    existing_event = await collection.read({"title": title})
+    if existing_event:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=response_content(
+                409,
+                CONFLICT_ERROR_CONSTANT,
+                errors=[
+                    {
+                        "field": "title", 
+                        "message": f"The title '{title}' already exists."
+                    }
+                ]
             )
+        )
+
         
     data = jsonable_encoder(request)
     response = {}
@@ -48,13 +62,25 @@ async def event_creation(credentials, request, event_response_file):
     response['event_creation_request_status'] = "Under Review"
     response['created_by'] = username
     
-    # Store the response in the JSON file
-    create_json_response(title, response, event_response_file)
+    # Store the response in the DB
+    await collection.create(response)
     return JSONResponse(
-            content=response_content(
-                202,
-                "This event will be reviewed by our administrators for approval.",
-                response
-            ),
-            status_code=status.HTTP_202_ACCEPTED
-        )
+        content=response_content(
+            202,
+            "This event will be reviewed by our administrators for approval.",
+            {
+                "title": response["title"],
+                "release_date": response["release_date"],
+                "duration": response["duration"],
+                "language": response["language"],
+                "genre": response["genre"],
+                "cast": response["cast"],
+                "crew": response["crew"],
+                "venues": response["venues"],
+                "event_creation_date_and_time": response["event_creation_date_and_time"],
+                "event_creation_request_status": response["event_creation_request_status"],
+                "created_by": response["created_by"]
+            }
+        ),
+        status_code=status.HTTP_202_ACCEPTED
+    )
