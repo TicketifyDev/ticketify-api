@@ -2,7 +2,8 @@ from fastapi import status, HTTPException
 from fastapi.encoders import jsonable_encoder
 from src.auth.auth_token import decode_access_token, validate_roles
 from fastapi.responses import JSONResponse
-from src.common.utils import response_content, CONFLICT_ERROR_CONSTANT
+from src.common.utils import response_content
+from src.common.constants import CONFLICT_ERROR_CONSTANT
 from src.common.db import MongoDB
 from datetime import date, datetime
 
