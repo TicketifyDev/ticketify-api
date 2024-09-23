@@ -1,19 +1,17 @@
-from fastapi import APIRouter,HTTPException,status, Query, Security
+from fastapi import APIRouter,HTTPException, Query, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pathlib import Path
 from src.schemas.event_management_schema import create_event
-from src.auth.auth_token import decode_access_token, validate_roles
 from src.endpoints.event_management.event_creation import event_creation
 from src.endpoints.event_management.event_status import event_status
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
+from src.common.db import MongoDB
 
 
 router=APIRouter(tags=["Event Management"])
 token = HTTPBearer()
-current_directory= Path(__file__).parents[1]
-response_file="event_add.json"
-event_response_file = current_directory / 'responses' / response_file
+collection = MongoDB("events")
 
 @router.post('/create-event',
              status_code=202,
@@ -30,7 +28,7 @@ async def add_new_event(request: create_event, credentials : HTTPAuthorizationCr
     API for organizers to create new events (movies).
     """
     try:
-        response = await event_creation(credentials, request, event_response_file)
+        response = await event_creation(credentials, request, collection)
         return response
     except HTTPException as http_exc :
         raise http_exc
@@ -57,7 +55,7 @@ async def check_event_status(title: str = Query(..., description="Title of the e
     which must be provided as a query parameter. Access to this endpoint requires valid authorization credentials.
     """
     try:
-        response = await event_status(credentials, event_response_file, title)
+        response = await event_status(credentials, collection, title)
         return response
     except HTTPException as http_exc :
         raise http_exc
