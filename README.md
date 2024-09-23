@@ -38,7 +38,7 @@ This project provides the backend APIs that supports user authentication, event 
 <h5>1. Clone the repository</h5>
 
 ```bash
-git clone https://github.com/YashwanthSimhaa/Ticketify-API.git
+git clone https://github.com/TicketifyDev/Ticketify-API.git
 ```
 
 <h5>2. Create a Python Virtual Environment</h5>
