@@ -70,7 +70,7 @@ async def login_user(details : AuthModel):
                404 : status_codes["response_404"],
                500 : status_codes["response_500"]
            })
-async def Fetch_user_profile(credentials : HTTPAuthorizationCredentials = Security(token)):
+async def fetch_user_profile(credentials : HTTPAuthorizationCredentials = Security(token)):
     """
     API for retrieving logged-in user's profile information.
     """
