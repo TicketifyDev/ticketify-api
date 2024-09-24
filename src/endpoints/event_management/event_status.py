@@ -1,21 +1,30 @@
 from fastapi import status, HTTPException
-from src.common.json_operations import read_json_data
 from fastapi.responses import JSONResponse
 from src.common.utils import response_content
+from src.common.db import MongoDB
 from src.auth.auth_token import decode_access_token, validate_roles
 
 
-async def event_status(credentials, event_response_file, title):
+async def event_status(credentials, collection : MongoDB, title):
+    """
+    Function to fetch the event status from DB.
+
+    Args:
+        credentials : For authorization and authentication of a user.
+        collection : MongoDB collection to store event details.
+        title : Title of the event
+    """
     token = credentials.credentials
     _, role = decode_access_token(token)
 
     required_roles = ['admin','organizer']
     validate_roles(required_roles, role)
-    existing_data = read_json_data(event_response_file)
+
+    existing_event = await collection.read({"title": title})
         
-    # Check if the title exists and get the event details
-    if title in existing_data:
-        event_status = existing_data[title]["event_creation_request_status"]
+    # Check if the title exists and get the status
+    if existing_event:
+        event_status = existing_event["event_creation_request_status"]
         return JSONResponse(
             content={
                 "status_code": 200,
