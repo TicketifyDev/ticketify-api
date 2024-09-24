@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from src.schemas.auth_schema import AuthModel
-from src.common.utils import response_content
+from src.common.utils import response_content, authenticate_user
 from src.auth.auth_token import create_access_token
 from datetime import timedelta
 
@@ -12,7 +12,7 @@ async def user_login(details : AuthModel, collection):
 
     # Authenticate User details
     user = await collection.read({"user_name": details.username})
-    if not user:
+    if not user or not authenticate_user(user, details.username, details.password):
         raise HTTPException(
             detail=response_content(
                 401,
