@@ -1,26 +1,17 @@
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from src.schemas.auth_schema import AuthModel
-from src.common.json_operations import read_json_data
-from src.common.utils import authenticate_user, response_content
+from src.common.utils import response_content
 from src.auth.auth_token import create_access_token
-from pathlib import Path
 from datetime import timedelta
 
-async def user_login(details : AuthModel):
+async def user_login(details : AuthModel, collection):
     """ 
     Function for authenticating users and generating access tokens by validating their `username` and `password`.
     """
-    # Navigate to the directory where json file with user details exists
-    parent_directory= Path(__file__).parents[2]
-    response_file="user_details.json"
-    filename = parent_directory / 'responses' / response_file
-
-    # Get user information
-    existing_data = read_json_data(filename)
 
     # Authenticate User details
-    user = authenticate_user(existing_data, details.username, details.password)
+    user = await collection.read({"user_name": details.username})
     if not user:
         raise HTTPException(
             detail=response_content(
