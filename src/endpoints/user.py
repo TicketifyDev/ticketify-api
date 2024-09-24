@@ -34,6 +34,7 @@ async def new_user_registration(details : user_registration):
     except Exception as exc:
         handle_internal_server_error(exc)
 
+
 @router.post('/user-login',
             status_code=201,
             responses={
@@ -58,7 +59,6 @@ async def login_user(details : AuthModel):
 
     except Exception as exc:
         handle_internal_server_error(exc)
-
 
 
 @router.get('/user-profile',

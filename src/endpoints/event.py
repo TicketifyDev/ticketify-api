@@ -1,17 +1,17 @@
 from fastapi import APIRouter,HTTPException, Query, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pathlib import Path
 from src.schemas.event_management_schema import create_event
 from src.endpoints.event_management.event_creation import event_creation
 from src.endpoints.event_management.event_status import event_status
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
 from src.common.db import MongoDB
-
+from src.common.constants import EVENTS_COLLECTION
 
 router=APIRouter(tags=["Event Management"])
 token = HTTPBearer()
-collection = MongoDB("events")
+
+collection = MongoDB(EVENTS_COLLECTION)
 
 @router.post('/create-event',
              status_code=202,
@@ -35,8 +35,6 @@ async def add_new_event(request: create_event, credentials : HTTPAuthorizationCr
     except Exception as exc:
         handle_internal_server_error(exc)
     
-
-
 
 @router.get('/check-event-status',
              status_code=200,
