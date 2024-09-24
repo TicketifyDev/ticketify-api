@@ -4,7 +4,8 @@ from fastapi.responses import JSONResponse
 from datetime import datetime,timezone
 from datetime import datetime, timezone
 from src.schemas.registration_schema import organizer_registration
-from src.common.utils import hash_password, response_content, CONFLICT_ERROR_CONSTANT
+from src.common.utils import hash_password, response_content
+from src.common.constants import CONFLICT_ERROR_CONSTANT
 from src.common.db import MongoDB
 
 async def organizer_register(details : organizer_registration, collection : MongoDB):
