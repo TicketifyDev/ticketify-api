@@ -14,7 +14,6 @@ async def user_register(details : user_registration, collection):
 
     #check if user name already exists
     existing_user = await collection.read({"user_name": details.user_name})
-        
     if existing_user:         
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, 
