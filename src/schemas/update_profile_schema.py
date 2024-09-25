@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
 import re
-from src.schemas.registration_schema import NAME_REGEX, USERNAME_REGEX, EMAIL_REGEX, PHONE_NUMBER_REGEX, ORGANIZATION_NAME_REGEX, ORGANIZATION_PAN_REGEX
+from src.schemas.registration_schema import NAME_REGEX, USERNAME_REGEX, EMAIL_REGEX, PHONE_NUMBER_REGEX, ORGANIZATION_NAME_REGEX, ORGANIZATION_PAN_REGEX, PASSWORD_REGEX
 
 class organization_details_update(BaseModel):
     """
@@ -78,6 +78,45 @@ class organizer_profile_update(BaseModel, extra = 'forbid'):
     #         raise ValueError("Invalid username format")
     #     return value
     
+    @field_validator("email")
+    def email_validator(cls, value):
+        if not re.match(EMAIL_REGEX, value):
+            raise ValueError("Invalid email format")
+        return value
+
+    @field_validator("phone_number")
+    def validate_phone_number(cls, value):
+        if not re.match(PHONE_NUMBER_REGEX, value):
+            raise ValueError("Invalid phone number format")
+        return value
+
+
+class update_user_details(BaseModel, extra = 'forbid'):
+    "Model for updating user credentials"
+    name : str = Field(
+        min_length=3,
+        examples=["John Doe"],
+        description="Full name of the user."
+        )
+    email : EmailStr = Field(
+        min_length=10,
+        examples=["john@gmail.com"],
+        description="Email address for communication and login."
+        )
+    phone_number : str = Field(
+        description="A contact number for communication and verification purposes."
+        )
+    address : str = Field(
+        examples=["Bangalore"],
+        description="The user's address or region for regional services or offers."
+        )
+    
+    @field_validator("name")
+    def name_validator(cls, value):
+        if not re.match(NAME_REGEX, value):
+            raise ValueError("Invalid name format")
+        return value
+
     @field_validator("email")
     def email_validator(cls, value):
         if not re.match(EMAIL_REGEX, value):
