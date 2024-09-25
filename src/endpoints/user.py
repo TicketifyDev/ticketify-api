@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException, Security
 from src.schemas.auth_schema import AuthModel
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from src.common.constants import USERS_COLLECTION
 from src.schemas.registration_schema import user_registration
+from src.common.db import MongoDB
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
 from src.endpoints.user_management.user_register import user_register
@@ -10,7 +12,8 @@ from src.endpoints.user_management.get_user_profile import get_user_profile
 
 router = APIRouter(tags=["User Management"])
 token = HTTPBearer()
- 
+collection = MongoDB(USERS_COLLECTION)
+
 @router.post('/user-register',
             status_code=201,
             responses={
@@ -25,7 +28,7 @@ async def new_user_registration(details : user_registration):
     API for allowing new users to create accounts by providing user details.
     """
     try:
-        response = await user_register(details)
+        response = await user_register(details, collection)
         return response
     
     except HTTPException as e :
@@ -50,7 +53,7 @@ async def login_user(details : AuthModel):
     API where users can login to there accounts by providing valid username and password
     """
     try:
-        response = await user_login(details)
+        response = await user_login(details, collection)
         return response
     
     except HTTPException as e :
@@ -75,7 +78,7 @@ async def fetch_user_profile(credentials : HTTPAuthorizationCredentials = Securi
     API for retrieving logged-in user's profile information.
     """
     try :
-        response = await get_user_profile(credentials)
+        response = await get_user_profile(credentials, collection)
         return response
     
     except HTTPException as http_exc:
