@@ -24,7 +24,6 @@ async def organizer_profile_get(credentials : HTTPAuthorizationCredentials, coll
     # Exclude fields that are not required
     del organizer["password"]     
     del organizer["_id"]  
-    del organizer['last_login_time']
 
     organizer = jsonable_encoder(organizer)        
 
@@ -95,7 +94,6 @@ async def update_organizer(
     # Exclude fields that are not required
     del updated_data['password']
     del updated_data['_id']
-    del updated_data['last_login_time']
 
     return JSONResponse(
         status_code=status.HTTP_200_OK,
