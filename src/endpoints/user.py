@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Security
 from src.schemas.auth_schema import AuthModel
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from src.common.constants import USERS_COLLECTION
 from src.schemas.registration_schema import user_registration
 from src.common.db import MongoDB
 from src.common.status_codes import status_codes
@@ -11,7 +12,7 @@ from src.endpoints.user_management.get_user_profile import get_user_profile
 
 router = APIRouter(tags=["User Management"])
 token = HTTPBearer()
-collection = MongoDB("users")
+collection = MongoDB(USERS_COLLECTION)
 
 @router.post('/user-register',
             status_code=201,
