@@ -4,7 +4,7 @@ from src.schemas.auth_schema import AuthModel
 from src.common.utils import authenticate_user, response_content
 from src.common.db import MongoDB
 from src.auth.auth_token import create_access_token
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 
 async def organizer_login(details : AuthModel, collection : MongoDB):
     """ 
@@ -73,6 +73,12 @@ async def organizer_login(details : AuthModel, collection : MongoDB):
         expires_delta = access_token_expires
         )
     
+    # Get current timestamp for last login
+    last_login_time = datetime.now(timezone.utc).isoformat()
+
+    # Update last login timestamp in the organizer's document
+    await collection.update({"user_name": details.username}, {"last_login_time": last_login_time})
+    
     return JSONResponse(
         content=response_content(
             200,
@@ -80,10 +86,9 @@ async def organizer_login(details : AuthModel, collection : MongoDB):
             data={
                     "access_token": access_token,
                     "token_type": "bearer",
-                    "expires_in": 1800
+                    "expires_in": 1800,
+                    "last_login": last_login_time
                 }
         ),
         status_code=status.HTTP_200_OK
     )
-
-

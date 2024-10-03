@@ -6,4 +6,4 @@ CONFLICT_ERROR_CONSTANT = "Conflict : The provided value already exists."
 ORGANIZERS_COLLECTION = 'organizers'
 USERS_COLLECTION = 'users'
 ADMINS_COLLECTION = 'admins'
-EVENT_COLLECTION = 'events'
+EVENTS_COLLECTION = 'events'
