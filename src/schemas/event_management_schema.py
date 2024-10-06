@@ -34,3 +34,18 @@ class create_event(BaseModel):
     cast : list[str] = Field(..., description = "Cast involved in the event")
     crew : Optional[list[str]] = Field( None, description = "Crew involved in making of the event")
     venues : list[venue_list] = Field(...)
+
+
+class update_event(BaseModel):
+    """
+    Model representing the data required for creating a event
+    """
+
+    title : Optional[str] = Field(None,description = "Title of the event")
+    release_date : Optional[date] = Field(None,description = "Release date of the event")
+    duration : Optional[int] = Field( None, description = "Duration of the event")
+    language : Optional[str] = Field(None, examples = ["English","Hindi","Kannada"], description = "Duration of the event")
+    genre : Optional[list[str]] = Field(None, examples = [["Thriller"],["Comedy"]], description = "Genre of the event")
+    cast : Optional[list[str]] = Field(None, description = "Cast involved in the event")
+    crew : Optional[list[str]] = Field( None, description = "Crew involved in making of the event")
+    venues : Optional[list[venue_list]] = Field(None)
