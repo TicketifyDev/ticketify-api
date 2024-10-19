@@ -36,6 +36,22 @@ def authenticate_user(data : dict, username: str, password: str):
         print(f"An error occurred due to '{e}' : {exception_details}")
         return False
     
+def authenticate_admin(data : dict, username: str, password: str):
+    """
+    Function to Authenticate an admin by verifying their `username` and `password`.
+    """
+    try:
+        if data["username"] == username:
+            hashed_password = data["password"]
+            if not verify_password(password, hashed_password):
+                return False
+            return True
+        
+    except Exception as e :
+        exception_details = traceback.format_exc()
+        print(f"An error occurred due to '{e}' : {exception_details}")
+        return False
+    
 
 def handle_internal_server_error(exc: Exception):
     """
