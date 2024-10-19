@@ -6,7 +6,7 @@ from src.endpoints.admin_management.pending_organizer_requests import pending_or
 from src.common.db import MongoDB
 from src.common.constants import ORGANIZERS_COLLECTION
 
-router = APIRouter(tags=["Admin Management"])
+router = APIRouter(prefix="/api/v1", tags=["Admin Management"])
 token = HTTPBearer()
 
 organizers_collection = MongoDB(ORGANIZERS_COLLECTION)
