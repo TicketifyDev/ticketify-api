@@ -10,7 +10,7 @@ from src.endpoints.user_management.user_register import user_register
 from src.endpoints.user_management.user_login import user_login
 from src.endpoints.user_management.get_user_profile import get_user_profile
 
-router = APIRouter(tags=["User Management"])
+router = APIRouter(prefix="/api/v1", tags=["User Management"])
 token = HTTPBearer()
 collection = MongoDB(USERS_COLLECTION)
 

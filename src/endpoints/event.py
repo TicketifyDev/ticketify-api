@@ -10,7 +10,7 @@ from src.common.utils import handle_internal_server_error
 from src.common.db import MongoDB
 from src.common.constants import EVENTS_COLLECTION
 
-router=APIRouter(tags=["Event Management"])
+router=APIRouter(prefix="/api/v1", tags=["Event Management"])
 token = HTTPBearer()
 
 collection = MongoDB(EVENTS_COLLECTION)
@@ -38,7 +38,7 @@ async def add_new_event(request: create_event, credentials : HTTPAuthorizationCr
         handle_internal_server_error(exc)
     
 
-@router.get('/check-event-status',
+@router.get('/event-status',
              status_code=200,
              responses={
                 200 : status_codes["response_200"],

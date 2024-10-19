@@ -12,7 +12,7 @@ from src.endpoints.organizer_management.organizer_login import organizer_login
 from src.endpoints.organizer_management.organizer_status import organizer_status
 from src.endpoints.organizer_management.organizer_profile import organizer_profile_get, update_organizer
 
-router = APIRouter(tags=["Organizer Management"])
+router = APIRouter(prefix="/api/v1", tags=["Organizer Management"])
 token = HTTPBearer()
 
 # Create an instance of MongoDB class by providing a collection name
@@ -65,7 +65,7 @@ async def login_as_organizer(details : AuthModel):
         handle_internal_server_error(exc)
 
 
-@router.get('/check-organizer-status',
+@router.get('/organizer-status',
             status_code=200,
             responses={
                 400 : status_codes["response_400"],
