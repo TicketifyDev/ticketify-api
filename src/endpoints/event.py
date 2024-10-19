@@ -8,7 +8,7 @@ from src.common.utils import handle_internal_server_error
 from src.common.db import MongoDB
 from src.common.constants import EVENTS_COLLECTION
 
-router=APIRouter(tags=["Event Management"])
+router=APIRouter(prefix="/api/v1", tags=["Event Management"])
 token = HTTPBearer()
 
 collection = MongoDB(EVENTS_COLLECTION)
