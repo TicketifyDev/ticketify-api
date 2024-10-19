@@ -31,6 +31,6 @@ async def read_root():
 
 @app.on_event("startup")
 async def startup_event():
-    check_initial_admin()
+    await check_initial_admin()
 
 app.include_router(router)

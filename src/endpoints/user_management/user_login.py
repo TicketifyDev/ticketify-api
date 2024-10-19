@@ -1,27 +1,18 @@
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from src.schemas.auth_schema import AuthModel
-from src.common.json_operations import read_json_data
-from src.common.utils import authenticate_user, response_content
+from src.common.utils import response_content, authenticate_user
 from src.auth.auth_token import create_access_token
-from pathlib import Path
-from datetime import timedelta
+from datetime import timedelta, timezone, datetime
 
-async def user_login(details : AuthModel):
+async def user_login(details : AuthModel, collection):
     """ 
     Function for authenticating users and generating access tokens by validating their `username` and `password`.
     """
-    # Navigate to the directory where json file with user details exists
-    parent_directory= Path(__file__).parents[2]
-    response_file="user_details.json"
-    filename = parent_directory / 'responses' / response_file
-
-    # Get user information
-    existing_data = read_json_data(filename)
 
     # Authenticate User details
-    user = authenticate_user(existing_data, details.username, details.password)
-    if not user:
+    user = await collection.read({"user_name": details.username})
+    if not user or not authenticate_user(user, details.username, details.password):
         raise HTTPException(
             detail=response_content(
                 401,
@@ -47,6 +38,12 @@ async def user_login(details : AuthModel):
         expires_delta = access_token_expires
         )
     
+    # Get current timestamp for last login
+    last_login_time = datetime.now(timezone.utc).isoformat()
+
+    # Update last login timestamp in the user's document
+    await collection.update({"user_name": details.username}, {"last_login_time": last_login_time})
+    
     return JSONResponse(
         content=response_content(
             200,
@@ -54,7 +51,8 @@ async def user_login(details : AuthModel):
             data={
                     "access_token": access_token,
                     "token_type": "bearer",
-                    "expires_in": 1800
+                    "expires_in": 1800,
+                    "last_login": last_login_time
                 }
         ),
         status_code=status.HTTP_200_OK
