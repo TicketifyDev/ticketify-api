@@ -77,7 +77,7 @@ async def check_event_status(title: str = Query(..., description="Title of the e
                 })
 async def update_event(title: str, request: update_event, credentials : HTTPAuthorizationCredentials = Security(token)):
     """
-    API for organizers to create new events (movies).
+    API for organizers to update existing events (movies).
     """
     try:
         response = await event_updation(credentials, title, request, collection)

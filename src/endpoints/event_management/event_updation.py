@@ -25,9 +25,9 @@ async def event_updation(credentials, title, request, collection: MongoDB):
 
     if not request:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=response_content(
-                409,
+                400,
                 errors=[{"message": "At least one field is required for updation"}]
             )
         )

@@ -38,7 +38,7 @@ class create_event(BaseModel):
 
 class update_event(BaseModel):
     """
-    Model representing the data required for creating a event
+    Model representing the data required for updating an event
     """
 
     title : Optional[str] = Field(None,description = "Title of the event")
