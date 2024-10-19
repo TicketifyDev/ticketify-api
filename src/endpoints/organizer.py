@@ -65,7 +65,7 @@ async def login_as_organizer(details : AuthModel):
         handle_internal_server_error(exc)
 
 
-@router.get('/check-organizer-status',
+@router.get('/organizer-status',
             status_code=200,
             responses={
                 400 : status_codes["response_400"],

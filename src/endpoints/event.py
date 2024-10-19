@@ -36,7 +36,7 @@ async def add_new_event(request: create_event, credentials : HTTPAuthorizationCr
         handle_internal_server_error(exc)
     
 
-@router.get('/check-event-status',
+@router.get('/event-status',
              status_code=200,
              responses={
                 200 : status_codes["response_200"],
