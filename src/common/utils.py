@@ -149,7 +149,6 @@ async def validate_unique_fields(organizers_data : list, updated_data : dict, us
                     )
     # For user            
     else: 
-        print("data in utils===",organizers_data)
         for user in organizers_data:
             if user["user_name"] != username:  # Skip the current user being updated
 

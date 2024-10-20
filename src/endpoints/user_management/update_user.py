@@ -43,7 +43,7 @@ async def update_user(
 
     # Fetch all users information
     user_data = await collection.read_all()
-    print(updated_data)
+    
     # Iterate through all users information to validate uniqueness
     await validate_unique_fields(user_data, updated_data, username, role)
 
