@@ -69,7 +69,7 @@ async def create_initial_admin():
         "Invalid name. Name can only contain letters, spaces, apostrophes, and hyphens."
     )
 
-    username = get_valid_input(
+    user_name = get_valid_input(
         "\n Enter admin username : ",
         USERNAME_REGEX,
         "Invalid username. Username must consist of alphanumeric characters and underscores of 3-20 characters."
@@ -94,7 +94,7 @@ async def create_initial_admin():
     # Create admin data dictionary
     admin_data = {
         "name":name,
-        "username": username,
+        "user_name": user_name,
         "email": email,
         "password": hashed_password,
         "creation_date" : datetime.now(timezone.utc).isoformat(),

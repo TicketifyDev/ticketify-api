@@ -36,6 +36,7 @@ def authenticate_user(data : dict, username: str, password: str):
         print(f"An error occurred due to '{e}' : {exception_details}")
         return False
     
+    
 
 def handle_internal_server_error(exc: Exception):
     """
