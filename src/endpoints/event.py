@@ -4,6 +4,7 @@ from pathlib import Path
 from src.schemas.event_management_schema import create_event, update_event
 from src.endpoints.event_management.event_creation import event_creation
 from src.endpoints.event_management.event_status import event_status
+from src.endpoints.event_management.event_deletion import event_deletion
 from src.endpoints.event_management.event_updation import event_updation
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
@@ -63,6 +64,29 @@ async def check_event_status(title: str = Query(..., description="Title of the e
         handle_internal_server_error(exc)
 
 
+@router.delete('/delete-event',
+             status_code=200,
+             responses={
+                200 : status_codes["response_200"],
+                401 : status_codes["response_401"],
+                403 : status_codes["response_403"],
+                404 : status_codes["response_404"],
+                500 : status_codes["response_500"]
+                })
+async def delete_event(title: str = Query(..., description="Title of the event to delete"), credentials : HTTPAuthorizationCredentials = Security(token)):
+    """
+    Delete an event based on its title.
+
+    This endpoint allows you to delete an event. The event is identified by its title,
+    which must be provided as a query parameter. Access to this endpoint requires valid authorization credentials.
+    """
+    try:
+        response = await event_deletion(credentials, collection, title)
+        return response
+    except HTTPException as http_exc :
+        raise http_exc
+    except Exception as exc:
+        handle_internal_server_error(exc)
 
 @router.put('/update-event',
              status_code=202,
