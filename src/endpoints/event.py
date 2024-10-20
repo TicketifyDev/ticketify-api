@@ -64,6 +64,30 @@ async def check_event_status(title: str = Query(..., description="Title of the e
         handle_internal_server_error(exc)
 
 
+@router.put('/update-event',
+             status_code=202,
+             responses={
+                202 : status_codes["response_202"],
+                204 : status_codes["response_204"],
+                400 : status_codes["response_400"],
+                403 : status_codes["response_403"],
+                409 : status_codes["response_409"],
+                422 : status_codes["response_422"],
+                500 : status_codes["response_500"]
+                })
+async def update_event(title: str, request: update_event, credentials : HTTPAuthorizationCredentials = Security(token)):
+    """
+    API for organizers to update existing events (movies).
+    """
+    try:
+        response = await event_updation(credentials, title, request, collection)
+        return response
+    except HTTPException as http_exc :
+        raise http_exc
+    except Exception as exc:
+        handle_internal_server_error(exc)
+        
+
 @router.delete('/delete-event',
              status_code=200,
              responses={
@@ -88,25 +112,3 @@ async def delete_event(title: str = Query(..., description="Title of the event t
     except Exception as exc:
         handle_internal_server_error(exc)
 
-@router.put('/update-event',
-             status_code=202,
-             responses={
-                202 : status_codes["response_202"],
-                204 : status_codes["response_204"],
-                400 : status_codes["response_400"],
-                403 : status_codes["response_403"],
-                409 : status_codes["response_409"],
-                422 : status_codes["response_422"],
-                500 : status_codes["response_500"]
-                })
-async def update_event(title: str, request: update_event, credentials : HTTPAuthorizationCredentials = Security(token)):
-    """
-    API for organizers to update existing events (movies).
-    """
-    try:
-        response = await event_updation(credentials, title, request, collection)
-        return response
-    except HTTPException as http_exc :
-        raise http_exc
-    except Exception as exc:
-        handle_internal_server_error(exc)
