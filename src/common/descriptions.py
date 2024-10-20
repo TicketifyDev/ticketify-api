@@ -14,5 +14,9 @@ tags_metadata = [
     {
         "name" : "Event Management",
         "description" : "APIs for organizers to create,update and cancel the events."
+    },
+    {
+        "name" : "Admin Management",
+        "description" : "APIs for administrators to log in, review pending requests, and perform other administrative tasks."
     }
 ]
