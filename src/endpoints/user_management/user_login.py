@@ -1,14 +1,14 @@
 from fastapi import HTTPException, status, Request
 from fastapi.responses import JSONResponse
 from src.common.db import MongoDB
-from src.common.constants import STORE_USER_LOGIN_DETAILS
+from src.common.constants import USER_LOGIN_COLLECTION
 from src.schemas.auth_schema import AuthModel
 from src.common.utils import response_content, authenticate_user
 from src.auth.auth_token import create_access_token
 from datetime import timedelta, timezone, datetime
 
 
-storeCollection = MongoDB(STORE_USER_LOGIN_DETAILS)
+storeCollection = MongoDB(USER_LOGIN_COLLECTION)
 async def user_login(details : AuthModel, collection, request : Request):
     """ 
     Function for authenticating users and generating access tokens by validating their `username` and `password`.

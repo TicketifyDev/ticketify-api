@@ -1,13 +1,13 @@
 from fastapi import HTTPException, status, Request
 from fastapi.responses import JSONResponse
-from src.common.constants import STORE_ORGANIZER_LOGIN_DETAILS
+from src.common.constants import ORGANIZER_LOGIN_COLLECTION
 from src.schemas.auth_schema import AuthModel
 from src.common.utils import authenticate_user, response_content
 from src.common.db import MongoDB
 from src.auth.auth_token import create_access_token
 from datetime import timedelta, datetime, timezone
 
-storeCollection = MongoDB(STORE_ORGANIZER_LOGIN_DETAILS)
+storeCollection = MongoDB(ORGANIZER_LOGIN_COLLECTION)
 
 async def organizer_login(details : AuthModel, collection : MongoDB, request : Request):
     """ 
