@@ -15,5 +15,4 @@ router.include_router(admin.router)
 router.include_router(user.router)
 router.include_router(organizer.router)
 router.include_router(event.router)
-router.include_router(admin.router)
 

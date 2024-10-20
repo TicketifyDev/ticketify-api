@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from src.schemas.auth_schema import AuthModel
-from src.common.utils import response_content, authenticate_admin
+from src.common.utils import response_content, authenticate_user
 from src.common.db import MongoDB
 from src.auth.auth_token import create_access_token
 from datetime import timedelta, datetime, timezone
@@ -12,10 +12,10 @@ async def admin_login(details : AuthModel, collection : MongoDB):
     """
 
     # Fetch the admin data from MongoDB by username
-    admin = await collection.read({"username": details.username})
+    admin = await collection.read({"user_name": details.username})
 
     # If the admin doesn't exist or the password is incorrect
-    if not admin or not authenticate_admin(admin, details.username, details.password):
+    if not admin or not authenticate_user(admin, details.username, details.password):
         raise HTTPException(
             detail=response_content(
                 401,
@@ -62,7 +62,7 @@ async def admin_login(details : AuthModel, collection : MongoDB):
     last_login_time = datetime.now(timezone.utc).isoformat()
 
     # Update last login timestamp in the admin's document
-    await collection.update({"username": details.username}, {"last_login_time": last_login_time})
+    await collection.update({"user_name": details.username}, {"last_login_time": last_login_time})
     
     return JSONResponse(
         content=response_content(
