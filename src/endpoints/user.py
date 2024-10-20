@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Security
+from fastapi import APIRouter, HTTPException, Security, Request
 from src.schemas.auth_schema import AuthModel
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from src.common.constants import USERS_COLLECTION
@@ -49,12 +49,12 @@ async def new_user_registration(details : user_registration):
                 422 : status_codes["response_422"],
                 500 : status_codes["response_500"]
                 })
-async def login_user(details : AuthModel):
+async def login_user(details : AuthModel, request :Request):
     """
     API where users can login to there accounts by providing valid username and password
     """
     try:
-        response = await user_login(details, collection)
+        response = await user_login(details, collection, request)
         return response
     
     except HTTPException as e :
