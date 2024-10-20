@@ -95,22 +95,27 @@ class organizer_profile_update(BaseModel, extra = 'forbid'):
 class update_user_details(BaseModel, extra = 'forbid'):
     "Model for updating user credentials"
     name : Optional[str] = Field(
+        None,
         min_length=3,
         examples=["John Doe"],
         description="Full name of the user."
         )
     email : Optional[EmailStr] = Field(
+        None,
         min_length=10,
         examples=["john@gmail.com"],
         description="Email address for communication and login."
         )
     phone_number : Optional[str] = Field(
+        None,
         description="A contact number for communication and verification purposes."
         )
     date_of_birth : Optional[date] = Field(
+        None,
         description="To verify the user's age for age-restricted content or offers."
     )
     address : Optional[str] = Field(
+        None,
         examples=["Bangalore"],
         description="The user's address or region for regional services or offers."
         )
