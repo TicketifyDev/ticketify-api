@@ -39,7 +39,7 @@ async def update_user(
                 updated_data[key][nested_key] = nested_value
         else:
             # Update the non-nested fields with the new values
-            updated_data[key] = value
+            updated_data[key] = str(value)
 
     # Fetch all users information
     user_data = await collection.read_all()

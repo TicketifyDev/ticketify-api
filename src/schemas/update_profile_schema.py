@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
 import re
+from datetime import date, timedelta
 from src.schemas.registration_schema import NAME_REGEX, USERNAME_REGEX, EMAIL_REGEX, PHONE_NUMBER_REGEX, ORGANIZATION_NAME_REGEX, ORGANIZATION_PAN_REGEX, PASSWORD_REGEX
 
 class organization_details_update(BaseModel):
@@ -106,6 +107,9 @@ class update_user_details(BaseModel, extra = 'forbid'):
     phone_number : str = Field(
         description="A contact number for communication and verification purposes."
         )
+    date_of_birth : date = Field(
+        description="To verify the user's age for age-restricted content or offers."
+    )
     address : str = Field(
         examples=["Bangalore"],
         description="The user's address or region for regional services or offers."
@@ -127,4 +131,13 @@ class update_user_details(BaseModel, extra = 'forbid'):
     def validate_phone_number(cls, value):
         if not re.match(PHONE_NUMBER_REGEX, value):
             raise ValueError("Invalid phone number format")
+        return value
+
+    @field_validator("date_of_birth")
+    def date_of_birth_validator(cls, value):
+        if value >= date.today():
+            raise ValueError("Date of birth cannot be today or in the future")
+        ten_years_ago = date.today() - timedelta(days=10*365)  # Roughly 10 years ago
+        if value > ten_years_ago:
+            raise ValueError("User must be at least 10 years old")
         return value
