@@ -1,12 +1,15 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Request
 from fastapi.responses import JSONResponse
+from src.common.constants import ORGANIZER_LOGIN_COLLECTION
 from src.schemas.auth_schema import AuthModel
 from src.common.utils import authenticate_user, response_content
 from src.common.db import MongoDB
 from src.auth.auth_token import create_access_token
 from datetime import timedelta, datetime, timezone
 
-async def organizer_login(details : AuthModel, collection : MongoDB):
+storeCollection = MongoDB(ORGANIZER_LOGIN_COLLECTION)
+
+async def organizer_login(details : AuthModel, collection : MongoDB, request : Request):
     """ 
     Function for authenticating organizers and generating access tokens by validating their `username` and `password`.
     """
@@ -78,6 +81,21 @@ async def organizer_login(details : AuthModel, collection : MongoDB):
 
     # Update last login timestamp in the organizer's document
     await collection.update({"user_name": details.username}, {"last_login_time": last_login_time})
+    
+    # Replace with actual client IP and user agent
+    ip_address = request.client.host
+    user_agent = request.headers.get('user-agent')
+
+    # login details for storage
+    login_details = {
+        "user_name": details.username,
+        "login_time": last_login_time,
+        "login_status": "successful",
+        "ip_address": ip_address,  
+        "user_agent": user_agent   
+    }
+    
+    await storeCollection.create(login_details)
     
     return JSONResponse(
         content=response_content(
