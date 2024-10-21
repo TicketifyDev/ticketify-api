@@ -88,7 +88,7 @@ def response_content(
     return response
 
 
-async def validate_unique_fields(organizers_data : list, updated_data : dict, username : str):
+async def validate_unique_fields(organizers_data : list, updated_data : dict, username : str, role):
     """
     Utility function to validate the uniqueness of fields like `email`, `phone_number`,
     `organization_name`, and `organization_pan_card_number`.
@@ -101,49 +101,77 @@ async def validate_unique_fields(organizers_data : list, updated_data : dict, us
     Raises:
         HTTPException: If a unique field value already exists in another organizer's data.
     """
-    for organizer in organizers_data:
-        if organizer["user_name"] != username:  # Skip the current organizer being updated
+    if role == "organizer":
+        for organizer in organizers_data:
+            if organizer["user_name"] != username:  # Skip the current organizer being updated
 
-            # Check if the email already exists
-            if updated_data["email"] == organizer["email"]:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=response_content(
-                        409,
-                        "Email is already registered.",
-                        errors=[{"field": "email", "message": "Email must be unique."}]
+                # Check if the email already exists
+                if updated_data["email"] == organizer["email"]:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=response_content(
+                            409,
+                            "Email is already registered.",
+                            errors=[{"field": "email", "message": "Email must be unique."}]
+                        )
                     )
-                )
 
-            # Check if the phone number already exists
-            if updated_data["phone_number"] == organizer["phone_number"]:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=response_content(
-                        409,
-                        "Phone number is already registered.",
-                        errors=[{"field": "phone_number", "message": "Phone number must be unique."}]
+                # Check if the phone number already exists
+                if updated_data["phone_number"] == organizer["phone_number"]:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=response_content(
+                            409,
+                            "Phone number is already registered.",
+                            errors=[{"field": "phone_number", "message": "Phone number must be unique."}]
+                        )
                     )
-                )
 
-            # Check if the organization name already exists
-            if updated_data["organization_details"]["organization_name"] == organizer["organization_details"]["organization_name"]:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=response_content(
-                        409,
-                        "Organization name is already taken.",
-                        errors=[{"field": "organization_name", "message": "Organization name must be unique."}]
+                # Check if the organization name already exists
+                if updated_data["organization_details"]["organization_name"] == organizer["organization_details"]["organization_name"]:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=response_content(
+                            409,
+                            "Organization name is already taken.",
+                            errors=[{"field": "organization_name", "message": "Organization name must be unique."}]
+                        )
                     )
-                )
 
-            # Check if the organization PAN card number already exists
-            if updated_data["organization_details"]["organization_pan_card_number"] == organizer["organization_details"]["organization_pan_card_number"]:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=response_content(
-                        409,
-                        "Organization PAN card number is already taken.",
-                        errors=[{"field": "organization_pan_card_number", "message": "PAN card number must be unique."}]
+                # Check if the organization PAN card number already exists
+                if updated_data["organization_details"]["organization_pan_card_number"] == organizer["organization_details"]["organization_pan_card_number"]:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=response_content(
+                            409,
+                            "Organization PAN card number is already taken.",
+                            errors=[{"field": "organization_pan_card_number", "message": "PAN card number must be unique."}]
+                        )
                     )
-                )
+    # For user            
+    else: 
+        for user in organizers_data:
+            if user["user_name"] != username:  # Skip the current user being updated
+
+                # Check if the email already exists
+                if updated_data["email"] == user["email"]:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=response_content(
+                            409,
+                            "Email is already registered.",
+                            errors=[{"field": "email", "message": "Email must be unique."}]
+                        )
+                    )
+
+                # Check if the phone number already exists
+                if updated_data["phone_number"] == user["phone_number"]:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=response_content(
+                            409,
+                            "Phone number is already registered.",
+                            errors=[{"field": "phone_number", "message": "Phone number must be unique."}]
+                        )
+                    )
+
