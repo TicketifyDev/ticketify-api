@@ -70,7 +70,7 @@ async def login_as_admin(details : AuthModel, request : Request):
         handle_internal_server_error(exc)
         
 
-@router.patch('/review-organizer-request/{username}',
+@router.patch('/organizers-review/{username}',
               status_code = 200,
               responses={
                 400 : status_codes["response_400"],
