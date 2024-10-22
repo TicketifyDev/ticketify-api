@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Security, Query
+from fastapi import APIRouter, HTTPException, Security, Request, Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from src.schemas.auth_schema import AuthModel
 from src.common.status_codes import status_codes
@@ -29,13 +29,13 @@ class RegistrationStatus(str, Enum):
                 401 : status_codes["response_401"],
                 500 : status_codes["response_500"]
              })
-async def login_as_admin(details : AuthModel):
+async def login_as_admin(details : AuthModel, request : Request):
 
     """ 
     API for authenticating admins and generating access tokens by validating their `username` and `password`.
     """
     try :
-        response = await admin_login(details, collection)
+        response = await admin_login(details, collection, request)
         return response
     
     except HTTPException as http_exc:
