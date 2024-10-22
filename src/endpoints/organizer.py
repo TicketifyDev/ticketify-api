@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Query, Security
+from fastapi import APIRouter, HTTPException, Query, Security, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from src.schemas.auth_schema import AuthModel
 from src.schemas.registration_schema import organizer_registration
@@ -12,7 +12,7 @@ from src.endpoints.organizer_management.organizer_login import organizer_login
 from src.endpoints.organizer_management.organizer_status import organizer_status
 from src.endpoints.organizer_management.organizer_profile import organizer_profile_get, update_organizer
 
-router = APIRouter(tags=["Organizer Management"])
+router = APIRouter(prefix="/api/v1", tags=["Organizer Management"])
 token = HTTPBearer()
 
 # Create an instance of MongoDB class by providing a collection name
@@ -49,13 +49,13 @@ async def new_organizer_registration(details : organizer_registration):
                 401 : status_codes["response_401"],
                 500 : status_codes["response_500"]
              })
-async def login_as_organizer(details : AuthModel):
+async def login_as_organizer(details : AuthModel, request : Request):
 
     """ 
     API for authenticating organizers and generating access tokens by validating their `username` and `password`.
     """
     try :
-        response = await organizer_login(details, collection)
+        response = await organizer_login(details, collection, request)
         return response
     
     except HTTPException as http_exc:
@@ -65,7 +65,7 @@ async def login_as_organizer(details : AuthModel):
         handle_internal_server_error(exc)
 
 
-@router.get('/check-organizer-status',
+@router.get('/organizer-status',
             status_code=200,
             responses={
                 400 : status_codes["response_400"],

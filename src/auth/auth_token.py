@@ -1,12 +1,15 @@
 import jwt
-import secrets
+import os
 import traceback
 from typing import Optional
 from datetime import datetime, timedelta, timezone
 from fastapi import status, HTTPException
+from dotenv import load_dotenv
 from src.common.utils import response_content
 
-JWT_SECRET = secrets.token_hex(32)
+load_dotenv()
+
+JWT_SECRET = os.getenv('JWT_SECRET_KEY')
 JWT_ALGORITHM = "HS256"
 
 def create_access_token(data : dict, expires_delta : Optional[timedelta] = None) -> str:

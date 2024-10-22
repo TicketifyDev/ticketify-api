@@ -74,7 +74,7 @@ async def update_organizer(
     organizers_data = await collection.read_all()
 
     # Iterate through all organizers to validate uniqueness
-    await validate_unique_fields(organizers_data, updated_data, username)
+    await validate_unique_fields(organizers_data, updated_data, username, role)
 
     # Add additional fields
     updated_data["updation_date"] = datetime.now(timezone.utc).isoformat()
