@@ -43,8 +43,8 @@ async def get_pending_organizer_registration_requests(credentials : HTTPAuthoriz
     except HTTPException as http_exc:
         raise http_exc
     
-    except Exception as e :
-        handle_internal_server_error(e)
+    except Exception as exc :
+        handle_internal_server_error(exc)
 
 
 @router.post('/admin-login',
