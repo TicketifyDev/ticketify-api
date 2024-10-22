@@ -9,7 +9,7 @@ from src.common.constants import ORGANIZERS_COLLECTION
 from src.common.db import MongoDB
 from src.endpoints.admin_management.admin_login import admin_login
 
-router = APIRouter(prefix="/api/v1", tags=["Admin Management"])
+router = APIRouter(prefix="/api/v1/admins", tags=["Admin Management"])
 token = HTTPBearer()
 
 # Create an instance of MongoDB class by providing a collection name
@@ -41,7 +41,7 @@ async def get_pending_organizer_registration_requests(credentials : HTTPAuthoriz
         handle_internal_server_error(exc)
 
 
-@router.post('/admin-login',
+@router.post('/login',
              status_code=200,
              responses={
                 200 : status_codes["response_200"],

@@ -12,11 +12,11 @@ from src.endpoints.user_management.user_login import user_login
 from src.endpoints.user_management.get_user_profile import get_user_profile
 from src.endpoints.user_management.update_user import update_user
 
-router = APIRouter(prefix="/api/v1", tags=["User Management"])
+router = APIRouter(prefix="/api/v1/users", tags=["User Management"])
 token = HTTPBearer()
 collection = MongoDB(USERS_COLLECTION)
 
-@router.post('/user-register',
+@router.post('/register',
             status_code=201,
             responses={
                 201 : status_codes["response_201"],
@@ -40,7 +40,7 @@ async def new_user_registration(details : user_registration):
         handle_internal_server_error(exc)
 
 
-@router.post('/user-login',
+@router.post('/login',
             status_code=201,
             responses={
                 200 : status_codes["response_200"],
@@ -66,7 +66,7 @@ async def login_user(details : AuthModel, request :Request):
         handle_internal_server_error(exc)
 
 
-@router.get('/user-profile',
+@router.get('/profile',
            status_code=200,
            responses={
                400 : status_codes["response_400"],
@@ -90,7 +90,7 @@ async def fetch_user_profile(credentials : HTTPAuthorizationCredentials = Securi
         handle_internal_server_error(exc)
 
 
-@router.patch('/user-update',
+@router.patch('/update',
             status_code=200,
             responses={
                 400 : status_codes["response_400"],
