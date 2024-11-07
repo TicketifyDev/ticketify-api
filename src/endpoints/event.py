@@ -1,4 +1,4 @@
-from fastapi import APIRouter,HTTPException, Query, Security
+from fastapi import APIRouter,HTTPException, Query, Security, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pathlib import Path
 from src.schemas.event_management_schema import create_event, update_event
@@ -8,13 +8,11 @@ from src.endpoints.event_management.event_deletion import event_deletion
 from src.endpoints.event_management.event_updation import event_updation
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
-from src.common.db import MongoDB
+from src.common.db import MongoDB, MongoDBCollectionProvider
 from src.common.constants import EVENTS_COLLECTION
 
 router=APIRouter(prefix="/api/v1", tags=["Event Management"])
 token = HTTPBearer()
-
-collection = MongoDB(EVENTS_COLLECTION)
 
 @router.post('/create-event',
              status_code=202,
@@ -26,7 +24,11 @@ collection = MongoDB(EVENTS_COLLECTION)
                 422 : status_codes["response_422"],
                 500 : status_codes["response_500"]
                 })
-async def add_new_event(request: create_event, credentials : HTTPAuthorizationCredentials = Security(token)):
+async def add_new_event(
+    request: create_event, 
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(EVENTS_COLLECTION))
+):
     """
     API for organizers to create new events (movies).
     """
@@ -48,7 +50,11 @@ async def add_new_event(request: create_event, credentials : HTTPAuthorizationCr
                 404 : status_codes["response_404"],
                 500 : status_codes["response_500"]
                 })
-async def check_event_status(title: str = Query(..., description="Title of the event to check the status"), credentials : HTTPAuthorizationCredentials = Security(token)):
+async def check_event_status(
+    title: str = Query(..., description="Title of the event to check the status"), 
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(EVENTS_COLLECTION))
+):
     """
     Check the status of an event based on its title.
 
@@ -75,7 +81,12 @@ async def check_event_status(title: str = Query(..., description="Title of the e
                 422 : status_codes["response_422"],
                 500 : status_codes["response_500"]
                 })
-async def update_event(title: str, request: update_event, credentials : HTTPAuthorizationCredentials = Security(token)):
+async def update_event(
+    title: str, 
+    request: update_event, 
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(EVENTS_COLLECTION))
+):
     """
     API for organizers to update existing events (movies).
     """
@@ -97,7 +108,11 @@ async def update_event(title: str, request: update_event, credentials : HTTPAuth
                 404 : status_codes["response_404"],
                 500 : status_codes["response_500"]
                 })
-async def delete_event(title: str = Query(..., description="Title of the event to delete"), credentials : HTTPAuthorizationCredentials = Security(token)):
+async def delete_event(
+    title: str = Query(..., description="Title of the event to delete"), 
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(EVENTS_COLLECTION))
+):
     """
     Delete an event based on its title.
 
