@@ -16,7 +16,7 @@ async def event_deletion(credentials, collection : MongoDB, title):
     """
     
     token = credentials.credentials
-    _, role = decode_access_token(token)
+    user_name, role = decode_access_token(token)
 
     required_roles = ['admin','organizer']
     validate_roles(required_roles, role)
@@ -34,6 +34,17 @@ async def event_deletion(credentials, collection : MongoDB, title):
             status_code=status.HTTP_404_NOT_FOUND
         )
     
+
+    if existing_event["created_by"]!=user_name:
+        raise HTTPException(
+            detail=response_content(
+                403,
+                "You are not authorized to delete this event."
+            ),
+            status_code=status.HTTP_403_FORBIDDEN
+        )
+    
+
     await collection.delete(existing_event)
     del existing_event['_id']
 

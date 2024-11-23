@@ -18,7 +18,7 @@ async def event_updation(credentials, title, request, collection: MongoDB):
     """
     
     token = credentials.credentials
-    _, role = decode_access_token(token)
+    user_name, role = decode_access_token(token)
 
     required_roles = ['admin', 'organizer']
     validate_roles(required_roles, role)
@@ -41,6 +41,15 @@ async def event_updation(credentials, title, request, collection: MongoDB):
                 errors=[{"field": ["title"], "message": f"Provided event {title} not found"}]
             ),
             status_code=status.HTTP_404_NOT_FOUND
+        )
+    
+    if existing_event["created_by"]!=user_name:
+        raise HTTPException(
+            detail=response_content(
+                403,
+                "You are not authorized to update this event."
+            ),
+            status_code=status.HTTP_403_FORBIDDEN
         )
     
     # Convert request to dictionary if it's a Pydantic model
