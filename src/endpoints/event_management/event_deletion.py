@@ -35,7 +35,7 @@ async def event_deletion(credentials, collection : MongoDB, title):
         )
     
 
-    if existing_event["created_by"]!=user_name:
+    if existing_event["created_by"]!= user_name:
         raise HTTPException(
             detail=response_content(
                 403,
@@ -51,8 +51,7 @@ async def event_deletion(credentials, collection : MongoDB, title):
     return JSONResponse(
         content=response_content(
             200,
-            f"The event {title} has been successfully removed.",
-            title
+            f"The event {title} has been successfully removed."
         ),
         status_code=status.HTTP_200_OK
     )

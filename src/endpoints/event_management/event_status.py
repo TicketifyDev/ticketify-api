@@ -20,6 +20,8 @@ async def event_status(credentials, collection : MongoDB, title):
     required_roles = ['admin','organizer']
     validate_roles(required_roles, role)
 
+    title = title.lower()
+
     existing_event = await collection.read({"title": title})
         
     # Check if the title exists and get the status

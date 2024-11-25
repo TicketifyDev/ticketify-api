@@ -32,6 +32,8 @@ async def event_updation(credentials, title, request, collection: MongoDB):
             )
         )
     
+    title = title.lower()
+    
     existing_event = await collection.read({"title": title})
     if not existing_event:
         raise HTTPException(

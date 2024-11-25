@@ -50,9 +50,9 @@ async def add_new_event(request: create_event, credentials : HTTPAuthorizationCr
                 })
 async def check_event_status(title: str = Query(..., description="Title of the event to check the status"), credentials : HTTPAuthorizationCredentials = Security(token)):
     """
-    Check the status of an event based on its title.
+    API for organizers to check the status of an event created by them, based on the title.
 
-    This endpoint allows you to retrieve the current status of an event. The event is identified by its title,
+    This endpoint allows you to retrieve the current status of an event created. The event is identified by its title,
     which must be provided as a query parameter. Access to this endpoint requires valid authorization credentials.
     """
     try:
@@ -99,9 +99,9 @@ async def update_event(title: str, request: update_event, credentials : HTTPAuth
                 })
 async def delete_event(title: str = Query(..., description="Title of the event to delete"), credentials : HTTPAuthorizationCredentials = Security(token)):
     """
-    Delete an event based on its title.
+    API for organizers to Delete an event created by them, based on its title.
 
-    This endpoint allows you to delete an event. The event is identified by its title,
+    This endpoint allows you to delete an event created. The event is identified by its title,
     which must be provided as a query parameter. Access to this endpoint requires valid authorization credentials.
     """
     try:
