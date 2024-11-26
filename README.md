@@ -28,7 +28,7 @@ This project provides the backend APIs that supports user authentication, event 
 <h3><b>Installation</b></h3>
 <h4><b>Prerequisites</b></h4>
 <ul>
-  <li>Python 3.8+</li>
+  <li>Python 3.9+</li>
   <li>MongoDB</li>
   <li>Docker (optional for containerization)</li>
 </ul>
