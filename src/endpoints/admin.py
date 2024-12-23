@@ -6,10 +6,10 @@ from src.common.utils import handle_internal_server_error
 from src.endpoints.admin_management.admin_login import admin_login
 from src.endpoints.admin_management.organizer_requests import organizer_registration_requests
 from src.endpoints.admin_management.review_organizer_request import review_organizer_registration_request
+from src.schemas.admin_management_schema import RegistrationStatus, ReviewRequest
 from src.common.constants import ADMINS_COLLECTION
 from src.common.constants import ORGANIZERS_COLLECTION
 from src.common.db import MongoDB, MongoDBCollectionProvider
-from enum import Enum
 
 router = APIRouter(prefix="/api/v1/admins", tags=["Admin Management"])
 token = HTTPBearer()
@@ -17,16 +17,6 @@ token = HTTPBearer()
 # Create an instance of MongoDB class by providing a collection name
 collection = MongoDB(ADMINS_COLLECTION)
 organizers_collection = MongoDB(ORGANIZERS_COLLECTION)
-
-
-class RegistrationStatus(str, Enum):
-    UNDER_REVIEW = "under_review"
-    APPROVED = "approved"
-    REJECTED = "rejected"
-
-class ReviewRequest(str, Enum):
-    APPROVED = "approved"
-    REJECTED = "rejected"
 
 
 @router.post('/login',
@@ -76,8 +66,6 @@ async def add_new_admin():
     pass
 
 
-
-
 @router.get('/organizer-requests',
             status_code = 200,
             responses={
@@ -89,8 +77,8 @@ async def add_new_admin():
             }
         )
 async def get_organizer_registration_requests(
+    status : RegistrationStatus,
     credentials : HTTPAuthorizationCredentials = Security(token),
-    status : RegistrationStatus = None,
     page : int = Query(1, description="Page number"),
     page_size : int = Query(10, description="Number of records per page")
     ):
@@ -151,6 +139,6 @@ async def review_organizer_registration(
             responses={
 
             })
-async def get_admin_profile():
+async def get_event_registration_requests():
     # implementation goes here
     pass

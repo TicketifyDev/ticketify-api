@@ -5,11 +5,10 @@ from datetime import datetime, timezone
 from src.auth.auth_token import decode_access_token, validate_roles
 from src.common.utils import response_content
 from src.common.db import MongoDB
-from src.schemas.review_request_schema import ReviewRequest
 
 async def review_organizer_registration_request(
         username : str,
-        review: ReviewRequest,
+        review : str,
         organizers_collection : MongoDB,
         credentials : HTTPAuthorizationCredentials
 ):
@@ -49,15 +48,20 @@ async def review_organizer_registration_request(
                 errors=[
                     {
                         "field": "registration_status", 
-                        "message": "Organizer is not under review."
+                        "message": "Status is not 'under_review'."
                     }
                 ]
             )
         )
     
     # Update the registration status and add a review timestamp
+    if review == "approve":
+        review_status = "approved"
+    elif review == "reject":
+        review_status = "rejected"
+
     update_data = {
-        "registration_status": review,
+        "registration_status": review_status,
         "reviewed_at": datetime.now(timezone.utc).isoformat()
     }
     
@@ -73,10 +77,10 @@ async def review_organizer_registration_request(
         status_code=status.HTTP_200_OK,
         content=response_content(
             200,
-            f"Organizer {review.name} successfully.",
+            f"'{review_status.upper()}' Organizer successfully.",
             data={
                 "username": username,
-                "registration_status": review
+                "registration_status": review_status
             }
         )
     )
