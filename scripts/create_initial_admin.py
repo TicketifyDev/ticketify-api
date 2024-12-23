@@ -16,6 +16,7 @@ from src.common.utils import hash_password
 from src.schemas.registration_schema import NAME_REGEX, USERNAME_REGEX, PASSWORD_REGEX, EMAIL_REGEX
 from src.common.db import MongoDB
 from src.common.constants import ADMINS_COLLECTION
+from src.common.logging_config import logger
 
 collection = MongoDB(ADMINS_COLLECTION)
 
@@ -28,7 +29,10 @@ async def  check_initial_admin():
     is_empty = await collection.is_collection_empty()
     if is_empty:
         print("\n !! Initial Admin account does not exist. !! \n")
+        logger.info("Initial Admin account does not exist.")
         await create_initial_admin()
+    else :
+        logger.info("Initial Admin account already exists.")
 
 
 def get_valid_input(prompt: str, regex: str, error_message: str):
@@ -54,7 +58,7 @@ async def create_initial_admin():
     """
     Function to create the first/initial Admin for the application.
     """
-
+    logger.debug("Invoked create_initial_admin() function.")
     is_empty = await collection.is_collection_empty()
     if not is_empty:
         print("\n !! Initial Admin account already exists. !!")
@@ -62,7 +66,10 @@ async def create_initial_admin():
     
     # Continue to create new admin by prompting user to input admin details if file doesn't exist or is empty
     print("\nCreating Initial Admin account...")
+    logger.info("Creating Initial Admin account.")
+
     time.sleep(1)
+
     name = get_valid_input(
         "\n Enter admin full name : ",
         NAME_REGEX,
@@ -103,11 +110,14 @@ async def create_initial_admin():
 
     # Store admin data to DB
     await collection.create(admin_data)
+    logger.debug("Inserted initial admin data into db")
 
     print("\n !! Initial Admin account created successfully. !! \n")
+    logger.info("Initial Admin account created successfully.")
 
 
 # This block ensures that the create_initial_admin() function is called only when this script is run directly through command line.
 # If this script is imported as a module in another script, the function will not be executed automatically.
 if __name__ == "__main__":
+    logger.debug("'create_initial_admin.py' module is being executed from the command line.")
     asyncio.run(create_initial_admin())
