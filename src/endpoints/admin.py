@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Security, Request, Query
+from fastapi import APIRouter, HTTPException, Security, Request, Query, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from src.schemas.auth_schema import AuthModel
 from src.common.status_codes import status_codes
@@ -8,7 +8,7 @@ from src.endpoints.admin_management.organizer_requests import organizer_registra
 from src.endpoints.admin_management.review_organizer_request import review_organizer_registration_request
 from src.common.constants import ADMINS_COLLECTION
 from src.common.constants import ORGANIZERS_COLLECTION
-from src.common.db import MongoDB
+from src.common.db import MongoDB, MongoDBCollectionProvider
 from enum import Enum
 
 router = APIRouter(prefix="/api/v1/admins", tags=["Admin Management"])
@@ -36,13 +36,17 @@ class ReviewRequest(str, Enum):
                 401 : status_codes["response_401"],
                 500 : status_codes["response_500"]
              })
-async def login_as_admin(details : AuthModel, request : Request):
+async def login_as_admin(
+    details : AuthModel, 
+    request : Request,
+    admins_collection : MongoDB = Depends(MongoDBCollectionProvider(ADMINS_COLLECTION))
+    ):
 
     """ 
     API for authenticating admins and generating access tokens by validating their `username` and `password`.
     """
     try :
-        response = await admin_login(details, collection, request)
+        response = await admin_login(details, admins_collection, request)
         return response
     
     except HTTPException as http_exc:

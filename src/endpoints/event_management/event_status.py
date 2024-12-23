@@ -29,10 +29,14 @@ async def event_status(credentials, collection : MongoDB, title):
         event_status = existing_event["event_creation_request_status"]
         if existing_event["created_by"]==user_name:
             return JSONResponse(
-                content={
-                    "status_code": 200,
-                    "message": f"The status of the event is {event_status}"
-                },
+                content=response_content(
+                    status_code=200,
+                    message="Successfully retrieved event status.",
+                    data={
+                        "title" : title,
+                        "event_status" : event_status
+                    }
+                ),
                 status_code=status.HTTP_200_OK
             )
         else:

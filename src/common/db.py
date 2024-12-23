@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
+from motor.motor_asyncio import AsyncIOMotorClient
 import os
 
 # Load environment variables from the .env file
@@ -12,7 +12,7 @@ client = AsyncIOMotorClient(mongo_uri)
 db = client[mongo_db]
 
 class MongoDB:
-    def __init__(self, collection_name : AsyncIOMotorCollection) :
+    def __init__(self, collection_name) :
         """
         Initialize MongoDB with a specific collection.
         """
@@ -146,3 +146,14 @@ class MongoDB:
         except Exception as e:
             print(f"Error while reading documents with pagination: {e}")
             return []
+           
+           
+# Dependency Injection class
+class MongoDBCollectionProvider:
+    def __init__(self, collection_name: str):
+        self.collection_name = collection_name
+
+    def __call__(self):
+        # Returns the MongoDB collection for the given collection name
+        return MongoDB(self.collection_name)
+    
