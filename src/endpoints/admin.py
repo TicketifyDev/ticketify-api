@@ -5,6 +5,7 @@ from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
 from src.endpoints.admin_management.admin_login import admin_login
 from src.endpoints.admin_management.organizer_requests import organizer_registration_requests
+from src.endpoints.admin_management.review_organizer_request import review_organizer_registration_request
 from src.common.constants import ADMINS_COLLECTION
 from src.common.constants import ORGANIZERS_COLLECTION
 from src.common.db import MongoDB
@@ -17,10 +18,16 @@ token = HTTPBearer()
 collection = MongoDB(ADMINS_COLLECTION)
 organizers_collection = MongoDB(ORGANIZERS_COLLECTION)
 
+
 class RegistrationStatus(str, Enum):
     UNDER_REVIEW = "under_review"
     APPROVED = "approved"
     REJECTED = "rejected"
+
+class ReviewRequest(str, Enum):
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
 
 @router.post('/admin-login',
              status_code=200,
@@ -44,6 +51,28 @@ async def login_as_admin(details : AuthModel, request : Request):
     except Exception as exc :
         handle_internal_server_error(exc)
         
+
+@router.get('/profile',
+            status_code=200,
+            responses={
+
+            })
+async def get_admin_profile():
+    # Admin Profile implementation goes here
+    pass
+
+
+@router.post('/add',
+            status_code=200,
+            responses={
+
+            })
+async def add_new_admin():
+    # Add new Admin implementation goes here
+    pass
+
+
+
 
 @router.get('/organizer-requests',
             status_code = 200,
@@ -79,3 +108,45 @@ async def get_organizer_registration_requests(
     except Exception as exc :
         handle_internal_server_error(exc)
 
+        
+@router.patch('/organizers-review/{username}',
+              status_code = 200,
+              responses={
+                400 : status_codes["response_400"],
+                401 : status_codes["response_401"],
+                403 : status_codes["response_401"],
+                404 : status_codes["response_404"],
+                500 : status_codes["response_500"]
+            })
+async def review_organizer_registration(
+    username : str,
+    review : ReviewRequest,
+    credentials : HTTPAuthorizationCredentials = Security(token)
+):
+    """
+    API for administrators to review and approve/reject an organizer's registration request.
+    """
+    try :
+        response = await review_organizer_registration_request(
+            username,
+            review,
+            organizers_collection,
+            credentials
+        )
+        return response
+
+    except HTTPException as http_exc:
+        raise http_exc
+    
+    except Exception as e :
+        handle_internal_server_error(e)
+
+
+@router.get('/event-requests',
+            status_code=200,
+            responses={
+
+            })
+async def get_admin_profile():
+    # implementation goes here
+    pass

@@ -90,7 +90,6 @@ async def get_organizer_status(username : str = Query(..., min_length=3),
 
 
 @router.get('/organizer-profile', 
-           tags=["Organizer Management"],
            status_code=200,
            responses={
                400 : status_codes["response_400"],
@@ -115,7 +114,6 @@ async def get_organizer_profile(credentials : HTTPAuthorizationCredentials = Sec
 
 
 @router.patch('/organizer-profile',
-            tags=["Organizer Management"],
             status_code=200,
             responses={
                 400 : status_codes["response_400"],
