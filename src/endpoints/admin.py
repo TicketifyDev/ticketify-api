@@ -11,7 +11,7 @@ from src.common.constants import ORGANIZERS_COLLECTION
 from src.common.db import MongoDB
 from enum import Enum
 
-router = APIRouter(prefix="/api/v1", tags=["Admin Management"])
+router = APIRouter(prefix="/api/v1/admins", tags=["Admin Management"])
 token = HTTPBearer()
 
 # Create an instance of MongoDB class by providing a collection name
@@ -29,7 +29,7 @@ class ReviewRequest(str, Enum):
     REJECTED = "rejected"
 
 
-@router.post('/admin-login',
+@router.post('/login',
              status_code=200,
              responses={
                 200 : status_codes["response_200"],
