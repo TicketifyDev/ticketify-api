@@ -12,10 +12,13 @@ from src.endpoints.organizer_management.organizer_login import organizer_login
 from src.endpoints.organizer_management.organizer_status import organizer_status
 from src.endpoints.organizer_management.organizer_profile import organizer_profile_get, update_organizer
 
-router = APIRouter(prefix="/api/v1", tags=["Organizer Management"])
+router = APIRouter(prefix="/api/v1/organizers", tags=["Organizer Management"])
 token = HTTPBearer()
 
-@router.post('/organizer-register',
+# Create an instance of MongoDB class by providing a collection name
+collection = MongoDB(ORGANIZERS_COLLECTION)
+
+@router.post('/register',
             status_code=202,
             responses={
                 202 : status_codes["response_202"],
@@ -42,7 +45,7 @@ async def new_organizer_registration(
         handle_internal_server_error(exc)
     
 
-@router.post('/organizer-login',
+@router.post('/login',
              status_code=200,
              responses={
                 200 : status_codes["response_200"],
@@ -68,7 +71,7 @@ async def login_as_organizer(
         handle_internal_server_error(exc)
 
 
-@router.get('/organizer-status',
+@router.get('/status',
             status_code=200,
             responses={
                 400 : status_codes["response_400"],
@@ -95,8 +98,7 @@ async def get_organizer_status(
         handle_internal_server_error(exc)
 
 
-@router.get('/organizer-profile', 
-           tags=["Organizer Management"],
+@router.get('/profile', 
            status_code=200,
            responses={
                400 : status_codes["response_400"],
@@ -123,8 +125,7 @@ async def get_organizer_profile(
         handle_internal_server_error(exc)
 
 
-@router.patch('/organizer-profile',
-            tags=["Organizer Management"],
+@router.patch('/profile',
             status_code=200,
             responses={
                 400 : status_codes["response_400"],
