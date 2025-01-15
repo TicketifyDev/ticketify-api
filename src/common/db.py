@@ -146,6 +146,29 @@ class MongoDB:
         except Exception as e:
             print(f"Error while reading documents with pagination: {e}")
             return []
+        
+    async def find(self, query: dict, projection: dict = None, skip: int = 0, limit: int = 10):
+        """
+        Method to find multiple documents based on a query with optional projection and pagination.
+
+        Args:
+            query (dict): The query to filter the documents.
+            projection (dict): The projection to include or exclude fields. Default is None.
+            skip (int): The number of documents to skip for pagination.
+            limit (int): The maximum number of documents to return.
+
+        Returns:
+            List[dict]: A list of the documents matching the query.
+        """
+        try:
+            cursor = self.collection.find(query, projection).skip(skip).limit(limit)
+            results = []
+            async for document in cursor:
+                results.append(document)
+            return results
+        except Exception as e:
+            print(f"Error while finding documents: {e}")
+            return []
            
            
 # Dependency Injection class
