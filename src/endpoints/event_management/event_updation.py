@@ -3,6 +3,7 @@ from src.auth.auth_token import decode_access_token, validate_roles
 from fastapi.responses import JSONResponse
 from src.common.utils import response_content
 from src.common.db import MongoDB
+from src.common.logging_config import logger
 from datetime import date, datetime
 
 
@@ -22,7 +23,7 @@ async def event_updation(credentials, title, request, collection: MongoDB):
 
     required_roles = ['admin', 'organizer']
     validate_roles(required_roles, role)
-
+    logger.debug("Checking if the required fields are given for updation.")
     if not request:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -32,8 +33,10 @@ async def event_updation(credentials, title, request, collection: MongoDB):
             )
         )
     
+    logger.debug(f"Checking if the event '{title}' exists")
     existing_event = await collection.read({"title": title})
     if not existing_event:
+        logger.error(f"Event '{title}' not found in db.")
         raise HTTPException(
             detail=response_content(
                 404,
@@ -60,17 +63,21 @@ async def event_updation(credentials, title, request, collection: MongoDB):
             update_data[key] = value
 
     # Merge existing event data with update data
+    logger.debug("Merging the existing event data with the updated data.")
     for key, value in update_data.items():
         existing_event[key] = value
 
+    logger.debug(f"Updating the event '{title}'")
     modified_count = await collection.update({"title": title}, existing_event)
 
     if modified_count == 0:
+        logger.debug(f"No changes made for the event '{title}'")
         raise HTTPException(
             status_code=status.HTTP_304_NOT_MODIFIED,
             detail="No changes made to the event."
         )
 
+    logger.debug(f"The event '{title}' has been updated successfully")
     return JSONResponse(
         content=response_content(
             200,

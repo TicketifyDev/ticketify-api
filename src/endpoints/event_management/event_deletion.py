@@ -3,6 +3,7 @@ from src.auth.auth_token import decode_access_token, validate_roles
 from fastapi.responses import JSONResponse
 from src.common.utils import response_content
 from src.common.db import MongoDB
+from src.common.logging_config import logger
 
 
 async def event_deletion(credentials, collection : MongoDB, title):
@@ -22,9 +23,10 @@ async def event_deletion(credentials, collection : MongoDB, title):
     validate_roles(required_roles, role)
 
     title = title.lower()
-
+    logger.debug(f"Checking if the event '{title}' exists")
     existing_event = await collection.read({"title": title})
     if not existing_event:
+        logger.error(f"Event '{title}' not found in db.")
         raise HTTPException(
             detail=response_content(
                 404,
@@ -35,6 +37,7 @@ async def event_deletion(credentials, collection : MongoDB, title):
         )
     
     await collection.delete(existing_event)
+    logger.debug(f"The event '{title}' has been deleted successfully")
     del existing_event['_id']
 
     return JSONResponse(
