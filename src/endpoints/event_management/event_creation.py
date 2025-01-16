@@ -66,7 +66,7 @@ async def event_creation(credentials, request, collection : MongoDB):
     # Add extra fields to the response data
     response['title'] = title
     response['event_creation_date_and_time'] = datetime.now().isoformat()
-    response['event_creation_request_status'] = "Under Review"
+    response['event_creation_request_status'] = "under_review"
     response['created_by'] = username
     
     # Store the response in the DB
