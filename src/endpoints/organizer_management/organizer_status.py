@@ -2,6 +2,7 @@ from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from src.common.utils import response_content, authenticate_user
 from src.common.db import MongoDB
+from src.common.logging_config import logger
 
 async def organizer_status(
         username : str,
@@ -11,6 +12,7 @@ async def organizer_status(
     """
     Function to check the status of organizers account registration request.
     """
+    logger.info(f"Fetching registration status for organizer '{username}'.")
 
     # Fetch the organizer data from MongoDB by username
     organizer = await collection.read({"user_name": username})
@@ -51,6 +53,7 @@ async def organizer_status(
             )
         )
 
+    logger.debug(f"The registration status for username '{username}' is '{registration_status}'")
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content=response_content(
