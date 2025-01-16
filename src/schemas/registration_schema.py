@@ -8,7 +8,7 @@ USERNAME_REGEX = r"^[a-zA-Z0-9_.]+$"
 EMAIL_REGEX = r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,3})+$"
 PHONE_NUMBER_REGEX = r"^[6-9]\d{9}$"
 PASSWORD_REGEX = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$"
-ORGANIZATION_NAME_REGEX = r"^[A-Za-z0-9À-ÖØ-öø-ÿ' -]+$"
+ORGANIZATION_NAME_REGEX = r"^[A-Za-z0-9À-ÖØ-öø-ÿ' .-]+$"
 ORGANIZATION_PAN_REGEX = r"^[A-Z]{5}\d{4}[A-Z]$"
 
 
