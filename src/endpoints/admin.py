@@ -4,6 +4,7 @@ from src.schemas.auth_schema import AuthModel
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
 from src.endpoints.admin_management.admin_login import admin_login
+from src.endpoints.admin_management.get_admin_profile import get_admin_profile
 from src.endpoints.admin_management.organizer_requests import organizer_registration_requests
 from src.endpoints.admin_management.review_organizer_request import review_organizer_registration_request
 from src.schemas.admin_management_schema import RegistrationStatus, ReviewRequest
@@ -49,11 +50,28 @@ async def login_as_admin(
 @router.get('/profile',
             status_code=200,
             responses={
+               400 : status_codes["response_400"],
+               401 : status_codes["response_401"],
+               403 : status_codes["response_401"],
+               404 : status_codes["response_404"],
+               500 : status_codes["response_500"]
+           })
+async def fetch_admin_profile(
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(ADMINS_COLLECTION))
+):
+    """
+    API for retrieving logged-in admin's profile information.
+    """
+    try :
+        response = await get_admin_profile(credentials, collection)
+        return response
+    
+    except HTTPException as http_exc:
+        raise http_exc
 
-            })
-async def get_admin_profile():
-    # Admin Profile implementation goes here
-    pass
+    except Exception as exc :
+        handle_internal_server_error(exc)
 
 
 @router.post('/add',
