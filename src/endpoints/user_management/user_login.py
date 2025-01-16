@@ -4,14 +4,14 @@ from src.common.db import MongoDB
 from src.common.constants import USER_LOGIN_COLLECTION
 from src.schemas.auth_schema import AuthModel
 from src.common.utils import response_content, authenticate_user
-from src.auth.auth_token import create_access_token
+from src.auth.auth_token import create_access_token, create_refresh_token
 from datetime import timedelta, timezone, datetime
 
 
 storeCollection = MongoDB(USER_LOGIN_COLLECTION)
 async def user_login(details : AuthModel, collection, request : Request):
     """ 
-    Function for authenticating users and generating access tokens by validating their `username` and `password`.
+    Function for authenticating users and generating access and refresh tokens by validating their `username` and `password`.
     """
 
     # Authenticate User details
@@ -40,7 +40,18 @@ async def user_login(details : AuthModel, collection, request : Request):
             "role" : "user"
         }, 
         expires_delta = access_token_expires
-        )
+    )
+    
+    # Generate JWT Refresh Token For User
+    refresh_token_expires = timedelta(days=7)  # Refresh token valid for 7 days
+    refresh_token = create_refresh_token(
+        data={
+            "sub": details.username,
+            "name": user["name"],
+            "role": "user"
+        },
+        expires_delta=refresh_token_expires
+    )
     
     # Get current timestamp for last login
     last_login_time = datetime.now(timezone.utc).isoformat()
@@ -67,11 +78,13 @@ async def user_login(details : AuthModel, collection, request : Request):
             200,
             "Login successful",
             data={
-                    "access_token": access_token,
-                    "token_type": "bearer",
-                    "expires_in": 1800,
-                    "last_login": last_login_time
-                }
+                "access_token": access_token,
+                "refresh_token": refresh_token,  # Include refresh token in the response
+                "token_type": "bearer",
+                "access_token_expires_in": 1800,  # Access token expiry time (in seconds)
+                "refresh_token_expires_in": 604800, # Refresh token expiry time (in seconds)
+                "last_login": last_login_time
+            }
         ),
         status_code=status.HTTP_200_OK
     )
