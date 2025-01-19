@@ -6,6 +6,8 @@ from src.schemas.registration_schema import user_registration
 from src.schemas.update_profile_schema import update_user_details
 from src.common.db import MongoDB, MongoDBCollectionProvider
 from src.common.status_codes import status_codes
+from src.common.logging_config import logger
+
 from src.common.utils import handle_internal_server_error
 from src.endpoints.user_management.user_register import user_register
 from src.endpoints.user_management.user_login import user_login
@@ -31,14 +33,18 @@ async def new_user_registration(
     """
     API for allowing new users to create accounts by providing user details.
     """
+    logger.info("POST '/users/register' API is invoked.")
     try:
+        logger.debug(f"User Registration details received : {details.model_dump()}")
         response = await user_register(details, collection)
+        logger.info("User registration successful.")
         return response
     
     except HTTPException as e :
         raise e
 
     except Exception as exc:
+        logger.error(f"Unexpected error occurred in '/users/register' : {exc}")
         handle_internal_server_error(exc)
 
 
@@ -61,14 +67,18 @@ async def login_user(
     """
     API where users can login to there accounts by providing valid username and password
     """
+    logger.info(" POST'/users/login' API is invoked.")
     try:
+        logger.debug(f"Login attempt by user '{details.username}'.")
         response = await user_login(details, collection, request)
+        logger.info("User logged in successfully.")
         return response
     
     except HTTPException as e :
         raise e
 
     except Exception as exc:
+        logger.error(f"Unexpected error occurred in '/users/login' for user: {exc}")
         handle_internal_server_error(exc)
 
 
@@ -88,14 +98,18 @@ async def fetch_user_profile(
     """
     API for retrieving logged-in user's profile information.
     """
+    logger.info("GET '/user/profile' API is invoked.")
     try :
+        logger.debug("Validating token for user profile retrieval.")
         response = await get_user_profile(credentials, collection)
+        logger.info("User profile retrieved successfully.")
         return response
     
     except HTTPException as http_exc:
         raise http_exc
 
     except Exception as exc :
+        logger.error(f"Unexpected error occurred in GET '/user/profile' : {exc}")
         handle_internal_server_error(exc)
 
 
@@ -114,16 +128,20 @@ async def update_user_profile(
     collection : MongoDB = Depends(MongoDBCollectionProvider(USERS_COLLECTION))
 ):
     """
-    API for organizers to update their profile information.
+    API for Users to update their profile information.
     """
+    logger.info("PATCH '/user/update' API is invoked.")
     try :
+        logger.debug(f"Update details received for user with details : {details.model_dump()}")
         response = await update_user(details, credentials, collection)
+        logger.info("User profile updated successfully.")
         return response
 
     except HTTPException as http_exc:
         raise http_exc
 
     except Exception as exc :
+        logger.error(f"Unexpected error occurred in PATCH '/user/update' : {exc}")
         handle_internal_server_error(exc)
 
 

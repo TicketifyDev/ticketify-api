@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status, Request
 from fastapi.responses import JSONResponse
 from src.common.db import MongoDB
+from src.common.logging_config import logger
 from src.common.constants import USER_LOGIN_COLLECTION
 from src.schemas.auth_schema import AuthModel
 from src.common.utils import response_content, authenticate_user
@@ -13,8 +14,10 @@ async def user_login(details : AuthModel, collection, request : Request):
     """ 
     Function for authenticating users and generating access tokens by validating their `username` and `password`.
     """
-
+    logger.info(f"Starting user login process for user '{details.username}'.")
+    
     # Authenticate User details
+    logger.debug(f"Fetching user details for username '{details.username}'")
     user = await collection.read({"user_name": details.username})
     if not user or not authenticate_user(user, details.username, details.password):
         raise HTTPException(
@@ -32,6 +35,7 @@ async def user_login(details : AuthModel, collection, request : Request):
         )
     
     # Generate JWT Access Token For User
+    logger.debug(f"Generating access token for username '{details.username}'")
     access_token_expires = timedelta(minutes=30)
     access_token = create_access_token(
         data = {
@@ -46,6 +50,7 @@ async def user_login(details : AuthModel, collection, request : Request):
     last_login_time = datetime.now(timezone.utc).isoformat()
 
     # Update last login timestamp in the user's document
+    logger.debug(f"Updating last login time for username '{details.username}'")
     await collection.update({"user_name": details.username}, {"last_login_time": last_login_time})
 
     # Replace with actual client IP and user agent
@@ -61,7 +66,10 @@ async def user_login(details : AuthModel, collection, request : Request):
         "user_agent": user_agent   
     }
     
+    logger.debug(f"Storing login history of username '{details.username}' into db.")
     await storeCollection.create(login_details)
+
+    logger.debug(f"Login successful for username '{details.username}'.")
     return JSONResponse(
         content=response_content(
             200,
