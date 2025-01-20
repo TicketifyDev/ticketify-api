@@ -27,6 +27,7 @@ async def event_creation(credentials, request, collection : MongoDB):
     title = request.title.lower()
     release_date = request.release_date
 
+    # Check if the title already exists
     existing_event = await collection.read({"title": title})
     if existing_event:
         raise HTTPException(
@@ -66,7 +67,9 @@ async def event_creation(credentials, request, collection : MongoDB):
     
     # Store the response in the DB
     await collection.create(response)
-    del response['_id']
+
+    del response['_id']     # Remove _id from the response
+
     return JSONResponse(
         content=response_content(
             202,
