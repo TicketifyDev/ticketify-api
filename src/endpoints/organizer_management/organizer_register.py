@@ -6,6 +6,7 @@ from src.schemas.registration_schema import organizer_registration
 from src.common.utils import hash_password, response_content
 from src.common.constants import CONFLICT_ERROR_CONSTANT
 from src.common.db import MongoDB
+from src.common.logging_config import logger
 
 async def organizer_register(details : organizer_registration, collection : MongoDB):
     """
@@ -15,8 +16,10 @@ async def organizer_register(details : organizer_registration, collection : Mong
         details : The registration details of the organizer.
         collection : MongoDB collection to store organizer details.
     """
-    
+    logger.info(f"Starting organizer registration process for organizer '{details.user_name}'.")
+
     # Check if username already exists
+    logger.debug(f"Checking if username '{details.user_name}' already exists.")
     existing_user = await collection.read({"user_name": details.user_name})
     if existing_user:
         raise HTTPException(
@@ -34,6 +37,7 @@ async def organizer_register(details : organizer_registration, collection : Mong
         )
 
     # Check if email already exists
+    logger.debug(f"Checking if email '{details.email}' is already registered.")
     existing_email = await collection.read({"email": details.email})
     if existing_email:
         raise HTTPException(
@@ -51,6 +55,7 @@ async def organizer_register(details : organizer_registration, collection : Mong
         )
 
     # Check if phone number already exists
+    logger.debug(f"Checking if phone number '{details.phone_number}' is already registered.")
     existing_phone = await collection.read({"phone_number": details.phone_number})
     if existing_phone:
         raise HTTPException(
@@ -68,6 +73,7 @@ async def organizer_register(details : organizer_registration, collection : Mong
         )
 
     # Check if organization name already exists
+    logger.debug(f"Checking if organization name '{details.organization_details.organization_name}' already exists.")
     existing_org = await collection.read({"organization_details.organization_name": details.organization_details.organization_name})
     if existing_org:
         raise HTTPException(
@@ -85,6 +91,7 @@ async def organizer_register(details : organizer_registration, collection : Mong
         )
 
     # Check if organization PAN already exists
+    logger.debug(f"Checking if PAN card number '{details.organization_details.organization_pan_card_number}' already exists.")
     existing_pan = await collection.read({"organization_details.organization_pan_card_number": details.organization_details.organization_pan_card_number})
     if existing_pan:
         raise HTTPException(
@@ -115,9 +122,11 @@ async def organizer_register(details : organizer_registration, collection : Mong
     data["registration_date"] = datetime.now(timezone.utc).isoformat()
 
     # Insert the organizer's details into the MongoDB collection
+    logger.debug(f"Inserting organizer details of username '{details.user_name}' into db.")
     await collection.create(data)
 
     # Return a success response
+    logger.debug(f"Organizer registration successful for username '{details.user_name}'.")
     return JSONResponse(
         status_code=status.HTTP_202_ACCEPTED,
         content=response_content(

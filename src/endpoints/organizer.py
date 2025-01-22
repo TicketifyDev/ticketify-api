@@ -1,12 +1,16 @@
 from fastapi import APIRouter, HTTPException, Query, Security, Request, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
 from src.schemas.auth_schema import AuthModel
 from src.schemas.registration_schema import organizer_registration
 from src.schemas.update_profile_schema import organizer_profile_update
+
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
 from src.common.constants import ORGANIZERS_COLLECTION
 from src.common.db import MongoDB, MongoDBCollectionProvider
+from src.common.logging_config import logger
+
 from src.endpoints.organizer_management.organizer_register import organizer_register
 from src.endpoints.organizer_management.organizer_login import organizer_login
 from src.endpoints.organizer_management.organizer_status import organizer_status
@@ -34,14 +38,18 @@ async def new_organizer_registration(
     """
     API for allowing new organizers to create accounts by providing organizer details.
     """
+    logger.info("'/organizer-register' API is invoked.")
     try :
+        logger.debug(f"Organizer Registration details received : {details.model_dump()}")
         response = await organizer_register(details, collection)
+        logger.info("Organizer registration successful.")
         return response
     
     except HTTPException as http_exc:
         raise http_exc
     
     except Exception as exc:
+        logger.error(f"Unexpected error occurred in '/organizer-register' : {exc}")
         handle_internal_server_error(exc)
     
 
@@ -60,14 +68,18 @@ async def login_as_organizer(
     """ 
     API for authenticating organizers and generating access tokens by validating their `username` and `password`.
     """
+    logger.info("'/organizer-login' API is invoked.")
     try :
+        logger.debug(f"Login attempt by organizer '{details.username}'.")
         response = await organizer_login(details, collection, request)
+        logger.info("Organizer login successful.")
         return response
     
     except HTTPException as http_exc:
         raise http_exc
 
     except Exception as exc :
+        logger.error(f"Unexpected error occurred in '/organizer-login' : {exc}")
         handle_internal_server_error(exc)
 
 
@@ -87,14 +99,18 @@ async def get_organizer_status(
     """
     API for organizers to check the status of their account registration request.
     """
+    logger.info("'/organizer-status' API is invoked.")
     try :
+        logger.debug(f"Checking Organizer account registration request status for username '{username}'.")
         response = await organizer_status(username, password, collection)
+        logger.info(f"Status retrieved for organizer '{username}'.")
         return response
     
     except HTTPException as http_exc:
         raise http_exc
 
     except Exception as exc :
+        logger.error(f"Unexpected error occurred in '/organizer-status' : {exc}")
         handle_internal_server_error(exc)
 
 
@@ -114,14 +130,18 @@ async def get_organizer_profile(
     """
     API for retrieving logged in organizer's profile information.
     """
+    logger.info("GET '/organizer-profile' API is invoked.")
     try :
+        logger.debug("Validating token for organizer profile retrieval.")
         response = await organizer_profile_get(credentials, collection)
+        logger.info("Organizer profile retrieved successfully.")
         return response
     
     except HTTPException as http_exc:
         raise http_exc
 
     except Exception as exc :
+        logger.error(f"Unexpected error occurred in GET '/organizer-profile' : {exc}")
         handle_internal_server_error(exc)
 
 
@@ -142,12 +162,16 @@ async def update_organizer_profile(
     """
     API for organizers to update their profile information.
     """
+    logger.info("PATCH '/organizer-profile' API is invoked.")
     try :
+        logger.debug(f"Update details received : {details.model_dump()}")
         response = await update_organizer(details, credentials, collection)
+        logger.info("Organizer profile updated successfully.")
         return response
     
     except HTTPException as http_exc:
         raise http_exc
 
     except Exception as exc :
+        logger.error(f"Unexpected error occurred in PATCH '/organizer-profile' : {exc}")
         handle_internal_server_error(exc)
