@@ -4,6 +4,7 @@ from src.common.constants import ORGANIZER_LOGIN_COLLECTION
 from src.schemas.auth_schema import AuthModel
 from src.common.utils import authenticate_user, response_content
 from src.common.db import MongoDB
+from src.common.logging_config import logger
 from src.auth.auth_token import create_access_token
 from src.auth.auth_token import create_access_token, create_refresh_token
 from datetime import timedelta, datetime, timezone
@@ -14,8 +15,10 @@ async def organizer_login(details : AuthModel, collection : MongoDB, request : R
     """ 
     Function for authenticating organizers and generating access tokens by validating their `username` and `password`.
     """
+    logger.info(f"Starting organizer login process for organizer '{details.username}'.")
 
     # Fetch the organizer data from MongoDB by username
+    logger.debug(f"Fetching organizer details for username '{details.username}'")
     organizer = await collection.read({"user_name": details.username})
 
     # If the organizer doesn't exist or the password is incorrect
@@ -67,6 +70,7 @@ async def organizer_login(details : AuthModel, collection : MongoDB, request : R
         )
     
     # Generate JWT Access Token
+    logger.debug(f"Generating access token for username '{details.username}'")
     access_token_expires = timedelta(minutes=30)
     access_token = create_access_token(
         data = {
@@ -92,6 +96,7 @@ async def organizer_login(details : AuthModel, collection : MongoDB, request : R
     last_login_time = datetime.now(timezone.utc).isoformat()
 
     # Update last login timestamp in the organizer's document
+    logger.debug(f"Updating last login time for username '{details.username}'")
     await collection.update({"user_name": details.username}, {"last_login_time": last_login_time})
     
     # Replace with actual client IP and user agent
@@ -107,8 +112,11 @@ async def organizer_login(details : AuthModel, collection : MongoDB, request : R
         "user_agent": user_agent   
     }
     
+    # Store login details into the login history collection
+    logger.debug(f"Storing login history of username '{details.username}' into db.")
     await storeCollection.create(login_details)
     
+    logger.debug(f"Login successful for username '{details.username}'.")
     return JSONResponse(
         content=response_content(
             200,
