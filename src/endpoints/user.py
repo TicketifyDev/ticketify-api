@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException, Security, Request
+from fastapi import APIRouter, HTTPException, Security, Request, Depends
 from src.schemas.auth_schema import AuthModel
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from src.common.constants import USERS_COLLECTION
 from src.schemas.registration_schema import user_registration
 from src.schemas.update_profile_schema import update_user_details
-from src.common.db import MongoDB
+from src.common.db import MongoDB, MongoDBCollectionProvider
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
 from src.endpoints.user_management.user_register import user_register
@@ -12,11 +12,10 @@ from src.endpoints.user_management.user_login import user_login
 from src.endpoints.user_management.get_user_profile import get_user_profile
 from src.endpoints.user_management.update_user import update_user
 
-router = APIRouter(prefix="/api/v1", tags=["User Management"])
+router = APIRouter(prefix="/api/v1/users", tags=["User Management"])
 token = HTTPBearer()
-collection = MongoDB(USERS_COLLECTION)
 
-@router.post('/user-register',
+@router.post('/register',
             status_code=201,
             responses={
                 201 : status_codes["response_201"],
@@ -25,7 +24,10 @@ collection = MongoDB(USERS_COLLECTION)
                 422 : status_codes["response_422"],
                 500 : status_codes["response_500"]
                 })
-async def new_user_registration(details : user_registration):
+async def new_user_registration(
+    details : user_registration,
+    collection : MongoDB = Depends(MongoDBCollectionProvider(USERS_COLLECTION))
+):
     """
     API for allowing new users to create accounts by providing user details.
     """
@@ -40,7 +42,7 @@ async def new_user_registration(details : user_registration):
         handle_internal_server_error(exc)
 
 
-@router.post('/user-login',
+@router.post('/login',
             status_code=201,
             responses={
                 200 : status_codes["response_200"],
@@ -51,7 +53,11 @@ async def new_user_registration(details : user_registration):
                 422 : status_codes["response_422"],
                 500 : status_codes["response_500"]
                 })
-async def login_user(details : AuthModel, request :Request):
+async def login_user(
+    details : AuthModel, 
+    request :Request,
+    collection : MongoDB = Depends(MongoDBCollectionProvider(USERS_COLLECTION))
+):
     """
     API where users can login to there accounts by providing valid username and password
     """
@@ -66,7 +72,7 @@ async def login_user(details : AuthModel, request :Request):
         handle_internal_server_error(exc)
 
 
-@router.get('/user-profile',
+@router.get('/profile',
            status_code=200,
            responses={
                400 : status_codes["response_400"],
@@ -75,7 +81,10 @@ async def login_user(details : AuthModel, request :Request):
                404 : status_codes["response_404"],
                500 : status_codes["response_500"]
            })
-async def fetch_user_profile(credentials : HTTPAuthorizationCredentials = Security(token)):
+async def fetch_user_profile(
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(USERS_COLLECTION))
+):
     """
     API for retrieving logged-in user's profile information.
     """
@@ -90,7 +99,7 @@ async def fetch_user_profile(credentials : HTTPAuthorizationCredentials = Securi
         handle_internal_server_error(exc)
 
 
-@router.patch('/user-update',
+@router.patch('/update',
             status_code=200,
             responses={
                 400 : status_codes["response_400"],
@@ -101,8 +110,9 @@ async def fetch_user_profile(credentials : HTTPAuthorizationCredentials = Securi
             })
 async def update_user_profile(
     details : update_user_details,
-    credentials : HTTPAuthorizationCredentials = Security(token)
-    ):
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(USERS_COLLECTION))
+):
     """
     API for organizers to update their profile information.
     """

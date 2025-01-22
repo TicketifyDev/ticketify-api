@@ -28,7 +28,7 @@ This project provides the backend APIs that supports user authentication, event 
 <h3><b>Installation</b></h3>
 <h4><b>Prerequisites</b></h4>
 <ul>
-  <li>Python 3.8+</li>
+  <li>Python 3.11+</li>
   <li>MongoDB</li>
   <li>Docker (optional for containerization)</li>
 </ul>
@@ -56,15 +56,16 @@ ticketify_env\Scripts\activate     # On Linux use, `source ticketify_env/bin/act
 <h5>4. Install dependencies</h5>
 
 ```bash
+cd ticketify-api
 pip install -r requirements.txt
 ```
 
 <h5>5. Setup `.env`  </h5>
 
 ```bash
-1. Create a new file named `.env` under root directory.
+1. Create a new file named `.env` under root(/ticketify-api/) directory.
 2. Copy the content of `.env.example` to `.env`.
-3. Update the `.env` file with your actual database credentials and other configuration details.
+3. Update the `.env` file content with your actual database credentials and other configuration details.
 ```
 
 <h5>6. Start the Server</h5>
