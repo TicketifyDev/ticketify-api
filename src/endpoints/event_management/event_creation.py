@@ -28,6 +28,8 @@ async def event_creation(credentials, request, collection : MongoDB):
     title = request.title.lower()
     release_date = request.release_date
     logger.info(f"Starting event creation process")
+
+    # Check if the title already exists
     existing_event = await collection.read({"title": title})
     logger.debug(f"Checking if event '{title}' already exists.")
     if existing_event:
@@ -72,8 +74,10 @@ async def event_creation(credentials, request, collection : MongoDB):
     # Store the response in the DB
     logger.debug(f"Inserting event details into db.")
     await collection.create(response)
-    del response['_id']
     logger.debug(f"Event details added to db")
+
+    del response['_id']     # Remove _id from the response
+
     return JSONResponse(
         content=response_content(
             202,
