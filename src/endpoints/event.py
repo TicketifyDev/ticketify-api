@@ -42,7 +42,7 @@ async def add_new_event(
     except HTTPException as http_exc :
         raise http_exc
     except Exception as exc:
-        logger.error(f"Unexpected error occurred in '/create-event' : {exc}")
+        logger.error(f"Unexpected error occurred in create '/events' : {exc}")
         handle_internal_server_error(exc)
     
 
@@ -75,7 +75,7 @@ async def check_event_status(
     except HTTPException as http_exc :
         raise http_exc
     except Exception as exc:
-        logger.error(f"Unexpected error occurred in '/event-status' : {exc}")
+        logger.error(f"Unexpected error occurred in '/event/status' : {exc}")
         handle_internal_server_error(exc)
 
 
@@ -108,7 +108,7 @@ async def update_event(
     except HTTPException as http_exc :
         raise http_exc
     except Exception as exc:
-        logger.error(f"Unexpected error occurred in '/event-status' : {exc}")
+        logger.error(f"Unexpected error occurred in update '/events' : {exc}")
         handle_internal_server_error(exc)
         
 
@@ -141,6 +141,6 @@ async def delete_event(
     except HTTPException as http_exc :
         raise http_exc
     except Exception as exc:
-        logger.error(f"Unexpected error occurred in '/delete-event' : {exc}")
+        logger.error(f"Unexpected error occurred in delete '/events' : {exc}")
         handle_internal_server_error(exc)
 
