@@ -12,6 +12,7 @@ from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
 from src.common.db import MongoDB, MongoDBCollectionProvider
 from src.common.constants import EVENTS_COLLECTION
+from src.common.logging_config import logger
 
 router=APIRouter(prefix="/api/v1", tags=["Event Management"])
 token = HTTPBearer()
@@ -34,12 +35,16 @@ async def add_new_event(
     """
     API for organizers to create new events (movies).
     """
+    logger.info("POST '/events' API is invoked.")
     try:
+        logger.debug(f"Event details received : {request.model_dump()}")
         response = await event_creation(credentials, request, collection)
+        logger.info(f"Event '{request.title}' added successful.")
         return response
     except HTTPException as http_exc :
         raise http_exc
     except Exception as exc:
+        logger.error(f"Unexpected error occurred in POST '/events' : {exc}")
         handle_internal_server_error(exc)
     
 
@@ -63,12 +68,16 @@ async def check_event_status(
     The event is identified by its `title`, which must be provided as a query parameter.\n 
     Access to this endpoint requires valid authorization credentials of an approved organizer.
     """
+    logger.info("'/events/status' API is invoked.")
     try:
+        logger.debug(f"Checking the event status for the event '{title}'")
         response = await event_status(credentials, collection, title)
+        logger.info(f"Event status for the event '{title}' fetched successfully")
         return response
     except HTTPException as http_exc :
         raise http_exc
     except Exception as exc:
+        logger.error(f"Unexpected error occurred in '/events/status' : {exc}")
         handle_internal_server_error(exc)
 
 
@@ -92,12 +101,16 @@ async def update_event(
     """
     API for organizers to update existing events (movies).
     """
+    logger.info(" PUT '/events' API is invoked.")
     try:
+        logger.debug(f"Starting the process of event updation for '{title}'.")
         response = await event_updation(credentials, title, request, collection)
+        logger.info(f"Event '{title}' updated successfully")
         return response
     except HTTPException as http_exc :
         raise http_exc
     except Exception as exc:
+        logger.error(f"Unexpected error occurred in PUT '/events' : {exc}")
         handle_internal_server_error(exc)
         
 
@@ -121,12 +134,16 @@ async def delete_event(
     This endpoint allows you to delete an event created. The event is identified by its title,
     which must be provided as a query parameter. Access to this endpoint requires valid authorization credentials.
     """
+    logger.info("DELETE '/events' API is invoked.")
     try:
+        logger.debug(f"Starting the process of event deletion for '{title}'.")
         response = await event_deletion(credentials, collection, title)
+        logger.info(f"Event '{title}' deleted successfully")
         return response
     except HTTPException as http_exc :
         raise http_exc
     except Exception as exc:
+        logger.error(f"Unexpected error occurred in DELETE '/events' : {exc}")
         handle_internal_server_error(exc)
 
 
@@ -153,6 +170,7 @@ async def browse_events(
     API for users to browse for upcoming and ongoing events.\n
     Users can filter by language, genre, and location, and sort results.
     """
+    logger.info("GET '/events' API is invoked.")
     try:
         response = await event_browse(
             title,
@@ -164,8 +182,10 @@ async def browse_events(
             page_size,
             collection
         )
+        logger.info("Successfully fetched events based on filters")
         return response
     except HTTPException as http_exc :
         raise http_exc
     except Exception as exc:
+        logger.error(f"Unexpected error occurred in GET '/events' : {exc}")
         handle_internal_server_error(exc)
