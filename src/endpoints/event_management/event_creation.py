@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from src.common.utils import response_content
 from src.common.constants import CONFLICT_ERROR_CONSTANT
 from src.common.db import MongoDB
+from src.common.logging_config import logger
 from datetime import date, datetime
 
 
@@ -26,10 +27,13 @@ async def event_creation(credentials, request, collection : MongoDB):
 
     title = request.title.lower()
     release_date = request.release_date
+    logger.info(f"Starting event creation process")
 
     # Check if the title already exists
     existing_event = await collection.read({"title": title})
+    logger.debug(f"Checking if event '{title}' already exists.")
     if existing_event:
+        logger.error(f"Event '{title}' already exists.")
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=response_content(
@@ -50,7 +54,9 @@ async def event_creation(credentials, request, collection : MongoDB):
     response=data
 
     # Check if the release date is less than or equal to todays date
+    logger.debug(f"Checking if the release date is a future date")
     if release_date <= date.today():
+        logger.error(f"The provided release date '{release_date} is not a future date")
         return JSONResponse(
             content=response_content(
                 400,
@@ -66,7 +72,9 @@ async def event_creation(credentials, request, collection : MongoDB):
     response['created_by'] = username
     
     # Store the response in the DB
+    logger.debug(f"Inserting event details into db.")
     await collection.create(response)
+    logger.debug(f"Event details added to db")
 
     del response['_id']     # Remove _id from the response
 
