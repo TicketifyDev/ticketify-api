@@ -19,7 +19,7 @@ async def organizer_profile_get(credentials : HTTPAuthorizationCredentials, coll
     username, role = decode_access_token(token)
     logger.debug(f"Decoded token for username '{username}' , role : '{role}'.")
 
-    required_roles = ['admin','organizer']
+    required_roles = ['organizer']
     validate_roles(required_roles, role)
 
     organizer = await collection.read({"user_name": username})
@@ -55,7 +55,7 @@ async def update_organizer(
     username, role = decode_access_token(token)
     logger.debug(f"Decoded token for username '{username}' , role : '{role}'.")
 
-    required_roles = ['admin','organizer']
+    required_roles = ['organizer']
     validate_roles(required_roles, role)
 
     organizer = await collection.read({"user_name": username})

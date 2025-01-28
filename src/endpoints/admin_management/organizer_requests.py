@@ -4,6 +4,7 @@ from fastapi.security import HTTPAuthorizationCredentials
 from src.auth.auth_token import decode_access_token, validate_roles
 from src.common.utils import response_content
 from src.common.db import MongoDB
+from src.common.logging_config import logger
 import math
 
 async def organizer_registration_requests(
@@ -16,8 +17,13 @@ async def organizer_registration_requests(
     """
     Function to fetch paginated registration requests based on status submitted by Organizers.
     """
+
+    logger.info("Fetching organizer registration requests with status: %s, page: %d, page_size: %d", status, page, page_size)
+
     token = credentials.credentials
-    _, role = decode_access_token(token)
+    username, role = decode_access_token(token)
+
+    logger.debug(f"Decoded token for username '{username}' , role : '{role}'.")
 
     required_roles = ['admin']
     validate_roles(required_roles, role)
@@ -26,12 +32,15 @@ async def organizer_registration_requests(
     query = {}
     if status:
         query["registration_status"] = status
+        logger.debug("Query filter applied: %s", query)
 
     # Fetch the total number of organizers based on the filter
     total_organizers_count = await collection.count_documents(query)
+    logger.debug("Total organizers count matching the query: %d", total_organizers_count)
 
     # Calculate total pages
     total_pages = math.ceil(total_organizers_count / page_size)
+    logger.debug("Total pages calculated: %d", total_pages)
 
     # Prevent page overflow
     if page > total_pages and total_organizers_count > 0:
@@ -62,6 +71,8 @@ async def organizer_registration_requests(
         
     # Convert the enum status value to a user-friendly message format
     status_message = status.value.replace("_", " ").title()  
+
+    logger.debug("Successfully fetched organizer registration requests with status: %s", status)
 
     # Return paginated response
     return JSONResponse(

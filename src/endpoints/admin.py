@@ -11,6 +11,7 @@ from src.schemas.admin_management_schema import RegistrationStatus, ReviewReques
 from src.common.constants import ADMINS_COLLECTION
 from src.common.constants import ORGANIZERS_COLLECTION
 from src.common.db import MongoDB, MongoDBCollectionProvider
+from src.common.logging_config import logger
 
 router = APIRouter(prefix="/api/v1/admins", tags=["Admin Management"])
 token = HTTPBearer()
@@ -36,14 +37,18 @@ async def login_as_admin(
     """ 
     API for authenticating admins and generating access tokens by validating their `username` and `password`.
     """
+    logger.info("'/admins/login' API is invoked.")
     try :
+        logger.debug(f"Login attempt by admin '{details.username}'.")
         response = await admin_login(details, admins_collection, request)
+        logger.info("Admin login successful.")
         return response
     
     except HTTPException as http_exc:
         raise http_exc
 
     except Exception as exc :
+        logger.error(f"Unexpected error occurred in '/admins/login' : {exc}")
         handle_internal_server_error(exc)
         
 
@@ -63,14 +68,18 @@ async def fetch_admin_profile(
     """
     API for retrieving logged-in admin's profile information.
     """
+    logger.info("GET '/admins/profile' API is invoked.")
     try :
+        logger.debug("Validating token for admin profile retrieval.")
         response = await get_admin_profile(credentials, collection)
+        logger.info("Admin profile retrieved successfully.")
         return response
     
     except HTTPException as http_exc:
         raise http_exc
 
     except Exception as exc :
+        logger.error(f"Unexpected error occurred in '/admins/profile' : {exc}")
         handle_internal_server_error(exc)
 
 
@@ -108,14 +117,18 @@ async def get_organizer_registration_requests(
         page : The current page number (default = 1)
         page_size : The number of records per page (default = 10)
     """
+    logger.info("GET '/admins/organizer-requests' API is invoked.")
     try:
+        logger.debug("Validating token and checking administrator privileges.")
         response = await organizer_registration_requests(credentials, organizers_collection, status, page, page_size)
+        logger.info("Successfully fetched organizer registration requests.")
         return response
     
     except HTTPException as http_exc:
         raise http_exc
 
     except Exception as exc :
+        logger.error(f"Unexpected error occurred in '/admins/organizer-requests' : {exc}")
         handle_internal_server_error(exc)
 
         
@@ -136,19 +149,23 @@ async def review_organizer_registration(
     """
     API for administrators to review and approve/reject an organizer's registration request.
     """
+    logger.info(f"GET '/admins/organizer-review/{username}' API is invoked.")
     try :
+        logger.debug("Validating token and checking administrator privileges.")
         response = await review_organizer_registration_request(
             username,
             review,
             organizers_collection,
             credentials
         )
+        logger.info("Successfully reviewed organizer registration requests.")
         return response
 
     except HTTPException as http_exc:
         raise http_exc
     
     except Exception as e :
+        logger.error(f"Unexpected error occurred in '/admins/organizer-review/{username}' : {e}")
         handle_internal_server_error(e)
 
 
