@@ -15,7 +15,7 @@ async def get_user_profile(credentials : HTTPAuthorizationCredentials, collectio
     token = credentials.credentials
     username, role = decode_access_token(token)
 
-    required_roles = ['user','admin']
+    required_roles = ['user']
     validate_roles(required_roles, role)
 
     # Get the details of logged in user
