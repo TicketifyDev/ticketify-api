@@ -7,7 +7,8 @@ from src.endpoints.admin_management.admin_login import admin_login
 from src.endpoints.admin_management.get_admin_profile import get_admin_profile
 from src.endpoints.admin_management.organizer_requests import organizer_registration_requests
 from src.endpoints.admin_management.review_organizer_request import review_organizer_registration_request
-from src.schemas.admin_management_schema import RegistrationStatus, ReviewRequest
+from src.endpoints.admin_management.add_admin import add_admin
+from src.schemas.admin_management_schema import RegistrationStatus, ReviewRequest, AddNewAdmin
 from src.common.constants import ADMINS_COLLECTION
 from src.common.constants import ORGANIZERS_COLLECTION
 from src.common.db import MongoDB, MongoDBCollectionProvider
@@ -84,13 +85,36 @@ async def fetch_admin_profile(
 
 
 @router.post('/add',
-            status_code=200,
+            status_code=201,
             responses={
-
+               400 : status_codes["response_400"],
+               401 : status_codes["response_401"],
+               403 : status_codes["response_401"],
+               409 : status_codes["response_409"],
+               500 : status_codes["response_500"]
             })
-async def add_new_admin():
-    # Add new Admin implementation goes here
-    pass
+async def add_new_admin(
+    details : AddNewAdmin,
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(ADMINS_COLLECTION))
+):
+    """
+    API for administrators to add a new admin to the application.\n
+    Only existing admins can add another admin.
+    """
+    logger.info("'/admins/add' API is invoked.")
+    try :
+        logger.debug("Validating token for adding new admin.")
+        response = await add_admin(details, credentials, collection)
+        logger.info("New Admin added successfully.")
+        return response
+    
+    except HTTPException as http_exc:
+        raise http_exc
+
+    except Exception as exc :
+        logger.error(f"Unexpected error occurred in '/admins/add' : {exc}")
+        handle_internal_server_error(exc)
 
 
 @router.get('/organizer-requests',

@@ -36,7 +36,7 @@ async def admin_login(details : AuthModel, collection : MongoDB, request : Reque
     
 
     # Check if the account is inactive
-    if admin.get("status") != "active":
+    if admin.get("status") == "inactive":
         raise HTTPException(
             detail=response_content(
                 401,
@@ -49,6 +49,19 @@ async def admin_login(details : AuthModel, collection : MongoDB, request : Reque
                 ]
             ),
             status_code=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    # Update the status to 'active' if the admin is logging in for the first time after creation.
+    if admin.get("status") == "new_user":
+        logger.info(f"First login detected for admin: {details.username}. Updating status to 'active'.")
+
+        await collection.update(
+            {"user_name": details.username}, 
+            {
+                "status": "active",
+                "last_updated_by": details.username,
+                "last_updated_at": datetime.now(timezone.utc).isoformat()
+            }
         )
     
     logger.info("Authentication successful for username: %s", details.username)
