@@ -6,3 +6,6 @@ ticketify_env
 
 # Environment variables
 .env
+
+# Logs
+*.log

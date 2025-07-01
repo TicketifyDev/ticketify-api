@@ -2,6 +2,7 @@ from pathlib import Path
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from datetime import datetime, timezone
+from src.common.logging_config import logger
 from src.common.json_operations import read_json_data, create_json_response
 from src.common.utils import response_content, validate_unique_fields
 from src.schemas.update_profile_schema import update_user_details
@@ -16,8 +17,11 @@ async def update_user(
 ):
     ''' Function to update user's profile information. '''
 
+    logger.info("Updating user profile information.")
+
     token = credentials.credentials
     username, role = decode_access_token(token)
+    logger.debug(f"Decoded token for username '{username}' , role : '{role}'.")
 
     required_roles = ['user']
     validate_roles(required_roles, role)
@@ -27,6 +31,7 @@ async def update_user(
 
     # Copy the existing data
     updated_data = user.copy()
+    logger.debug("Applying updates to user profile.")
 
     # Loop through the key-value pairs of the payload, excluding unset fields
     for key, value in details.model_dump(exclude_unset=True).items():
@@ -45,6 +50,7 @@ async def update_user(
     user_data = await collection.read_all()
     
     # Iterate through all users information to validate uniqueness
+    logger.debug(f"Validating uniqueness for updated data of username '{username}'.")
     await validate_unique_fields(user_data, updated_data, username, role)
 
     # additional fields
@@ -65,6 +71,7 @@ async def update_user(
     # Exclude fields that are not required
     del updated_data['_id']
 
+    logger.debug(f"User profile successfully updated for username '{username}'.")
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content=response_content(

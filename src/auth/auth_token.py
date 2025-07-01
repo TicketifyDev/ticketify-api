@@ -81,6 +81,35 @@ def decode_access_token(token : str):
         )
 
 
+def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """
+    Function to generate a JSON Web Token (JWT) for refreshing user authentication.
+
+    Args:
+        data (dict): The user data to encode into the refresh token.
+        expires_delta (Optional[timedelta]): An optional timedelta object specifying the refresh token's expiration time.
+                                             If not provided, the refresh token will expire in 7 days.
+
+    Returns:
+        str: The encoded JWT token (refresh token).
+    """
+    try:
+        to_encode = data.copy()
+        if expires_delta:
+            expire = datetime.now(timezone.utc) + expires_delta
+        else:
+            expire = datetime.now(timezone.utc) + timedelta(days=7)  # Default expiration for refresh token is 7 days
+        to_encode.update({"iat": datetime.now(timezone.utc),
+                          "exp": expire})
+        encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+        return encoded_jwt
+
+    except Exception as e:
+        exception_details = traceback.format_exc()
+        print(f"An error occurred due to '{e}' : {exception_details}")
+
+
+
 def validate_roles(roles_list : list, role : str):
     """
     Function to check if a user/role has necessary permissions to access a resource. 

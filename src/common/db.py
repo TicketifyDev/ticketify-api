@@ -125,7 +125,7 @@ class MongoDB:
             print(f"Error while counting documents: {e}")
             return 0  # Return 0 if there's an error
         
-    async def read_many(self, query: dict, skip: int = 0, limit: int = 10):
+    async def read_many(self, query: dict, skip: int = 0, limit: int = 10, sort_criteria: list = None):
         """
         Method to retrieve multiple documents with pagination support.
 
@@ -133,12 +133,22 @@ class MongoDB:
             query (dict): The query to filter the documents.
             skip (int): The number of documents to skip for pagination.
             limit (int): The maximum number of documents to return.
+            sort_criteria (list): A list of tuples specifying the fields and order for sorting. 
+                              E.g., [("field_name", 1)] for ascending or [("field_name", -1)] for descending.
 
         Returns:
             List[dict]: A list of the retrieved documents.
         """
         try:
-            cursor = self.collection.find(query).skip(skip).limit(limit)
+            cursor = self.collection.find(query)
+
+            # Apply sorting if sort_criteria is provided
+            if sort_criteria:
+                cursor = cursor.sort(sort_criteria)
+            
+            # Apply skip and limit for pagination
+            cursor = cursor.skip(skip).limit(limit)
+            
             results = []
             async for document in cursor:
                 results.append(document)

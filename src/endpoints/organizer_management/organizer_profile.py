@@ -6,17 +6,20 @@ from src.schemas.update_profile_schema import organizer_profile_update
 from src.auth.auth_token import decode_access_token, validate_roles
 from src.common.utils import response_content, validate_unique_fields
 from src.common.db import MongoDB
+from src.common.logging_config import logger
 from datetime import datetime, timezone
 
 async def organizer_profile_get(credentials : HTTPAuthorizationCredentials, collection : MongoDB):
     """
     Function for retrieving logged in organizer's profile information.
     """
+    logger.info("Fetching organizer profile information.")
 
     token = credentials.credentials
     username, role = decode_access_token(token)
+    logger.debug(f"Decoded token for username '{username}' , role : '{role}'.")
 
-    required_roles = ['admin','organizer']
+    required_roles = ['organizer']
     validate_roles(required_roles, role)
 
     organizer = await collection.read({"user_name": username})
@@ -27,6 +30,7 @@ async def organizer_profile_get(credentials : HTTPAuthorizationCredentials, coll
 
     organizer = jsonable_encoder(organizer)        
 
+    logger.debug(f"Organizer profile retrieved successfully for username '{username}'.")
     return JSONResponse(
         content=response_content(
             200,
@@ -45,17 +49,20 @@ async def update_organizer(
     """
     Function to update organizers profile information.
     """
+    logger.info("Updating organizer profile information.")
 
     token = credentials.credentials
     username, role = decode_access_token(token)
+    logger.debug(f"Decoded token for username '{username}' , role : '{role}'.")
 
-    required_roles = ['admin','organizer']
+    required_roles = ['organizer']
     validate_roles(required_roles, role)
 
     organizer = await collection.read({"user_name": username})
 
     # Copy the existing data
     updated_data = organizer.copy()
+    logger.debug("Applying updates to organizer profile.")
 
     # Loop through the key-value pairs of the payload, excluding unset fields
     for key, value in details.model_dump(exclude_unset=True).items():  
@@ -74,6 +81,7 @@ async def update_organizer(
     organizers_data = await collection.read_all()
 
     # Iterate through all organizers to validate uniqueness
+    logger.debug(f"Validating uniqueness for updated data of username '{username}'.")
     await validate_unique_fields(organizers_data, updated_data, username, role)
 
     # Add additional fields
@@ -95,6 +103,7 @@ async def update_organizer(
     del updated_data['password']
     del updated_data['_id']
 
+    logger.debug(f"Organizer profile successfully updated for username '{username}'.")
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content=response_content(
