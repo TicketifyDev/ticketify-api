@@ -21,7 +21,7 @@ async def events_created_by_logged_in_user(credentials, collection : MongoDB):
     required_roles = ['admin','organizer']
     validate_roles(required_roles, role)
     logger.debug(f"Checking if any event exists which are created by the '{user_name}'.")
-    existing_events = await collection.find(
+    existing_events = await collection.read_many(
         {"created_by": user_name},  # Filter by created_by field
         {"_id": 0, "title": 1}      # Projection: Only include 'title', exclude '_id'
     )
