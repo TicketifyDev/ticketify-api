@@ -1,4 +1,4 @@
-from fastapi import APIRouter,HTTPException, Query, Security, Depends
+from fastapi import APIRouter,HTTPException, Query, Security, Depends, Path
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 from src.schemas.event_management_schema import create_event
@@ -131,7 +131,7 @@ async def delete_event(
         handle_internal_server_error(exc)
 
 
-@router.get('/events/details',
+@router.get('/events/{title}',
              status_code=200,
              responses={
                 200 : status_codes["response_200"],
@@ -141,15 +141,14 @@ async def delete_event(
                 500 : status_codes["response_500"]
                 })
 async def details_of_an_event(
-    title : str = Query(..., description="Title of the event to retrieve its complete details"),
-    credentials : HTTPAuthorizationCredentials = Security(token),
+    title : str = Path(..., description="Title of the event to retrieve its complete details"),
     collection : MongoDB = Depends(MongoDBCollectionProvider(EVENTS_COLLECTION))
 ):
     """
     API to fetch complete information about an event, based on its title.
     """
     try:
-        response = await event_information(credentials, collection, title)
+        response = await event_information( collection, title)
         return response
     except HTTPException as http_exc :
         raise http_exc
