@@ -1,9 +1,10 @@
-from fastapi import APIRouter,HTTPException, Query, Security, Depends
+from fastapi import APIRouter,HTTPException, Query, Security, Depends, Path
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 from src.schemas.event_management_schema import create_event
 from src.schemas.event_management_schema import update_event as update_event_model
 from src.endpoints.event_management.event_creation import event_creation
+from src.endpoints.event_management.event_information import event_information
 from src.endpoints.event_management.event_status import event_status
 from src.endpoints.event_management.event_deletion import event_deletion
 from src.endpoints.event_management.event_updation import event_updation
@@ -178,6 +179,33 @@ async def check_events_created(
     except Exception as exc:
         logger.error(f"Unexpected error occurred in '/event-status' : {exc}")
         handle_internal_server_error(exc)
+
+@router.get('/events/{title}',
+            status_code=200,
+             responses={
+                200 : status_codes["response_200"],
+                401 : status_codes["response_401"],
+                403 : status_codes["response_403"],
+                404 : status_codes["response_404"],
+                500 : status_codes["response_500"]
+                })
+async def details_of_an_event(
+    title : str = Path(..., description="Title of the event to retrieve its complete details"),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(EVENTS_COLLECTION))
+):
+    """
+    API to fetch complete information about an event, based on its title.
+    """
+    try:
+        response = await event_information( collection, title)
+        return response
+    except HTTPException as http_exc :
+        raise http_exc
+    except Exception as exc:
+        logger.error(f"Unexpected error occurred in '/event-status' : {exc}")
+        handle_internal_server_error(exc)
+
+
 
 @router.get('/events',
             status_code=200,
