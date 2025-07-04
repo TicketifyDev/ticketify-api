@@ -1,4 +1,4 @@
--->/user-register
+-->/users/register
 
 {
   "name": "Alia Bhat",
@@ -11,7 +11,7 @@
 }
 
 
--->/organizer-register
+-->/organizers/register
 
 {
   "name": "John Doe",
@@ -26,7 +26,7 @@
   }
 }
 
--->/create-event
+-->/events
 
 {
   "title": "Batman",
@@ -62,4 +62,14 @@
       }
     }
   ]
+}
+
+
+--> /admins/add
+
+{
+  "name": "John Doe",
+  "user_name": "john",
+  "email": "john@gmail.com",
+  "password": "John@123"
 }

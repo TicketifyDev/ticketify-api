@@ -7,6 +7,7 @@ from src.endpoints.admin_management.admin_login import admin_login
 from src.endpoints.admin_management.event_requests import event_registration_requests
 from src.endpoints.admin_management.get_admin_profile import get_admin_profile
 from src.endpoints.admin_management.organizer_requests import organizer_registration_requests
+from src.endpoints.admin_management.review_event_request import review_event_registration_request
 from src.endpoints.admin_management.review_organizer_request import review_organizer_registration_request
 from src.endpoints.admin_management.add_admin import add_admin
 from src.schemas.admin_management_schema import RegistrationStatus, ReviewRequest, AddNewAdmin
@@ -210,7 +211,7 @@ async def get_event_registration_requests(
     credentials : HTTPAuthorizationCredentials = Security(token),
     page : int = Query(1, description="Page number"),
     page_size : int = Query(10, description="Number of records per page")
-    ):
+):
     """
     API for administrators to view event registration requests based on their registration status.\n
 
@@ -232,3 +233,41 @@ async def get_event_registration_requests(
     except Exception as exc :
         logger.error(f"Unexpected error occurred in '/admins/event-requests' : {exc}")
         handle_internal_server_error(exc)
+
+
+@router.patch('/events-review/{title}',
+              status_code = 200,
+              responses={
+                400 : status_codes["response_400"],
+                401 : status_codes["response_401"],
+                403 : status_codes["response_401"],
+                404 : status_codes["response_404"],
+                500 : status_codes["response_500"]
+            })
+async def review_event_registration(
+    title : str,
+    review : ReviewRequest,
+    credentials : HTTPAuthorizationCredentials = Security(token)
+):
+    """
+    API for administrators to review and approve/reject an event's registration request.
+    """
+    logger.info(f"GET '/admins/events-review/{title}' API is invoked.")
+    try :
+        logger.debug("Validating token and checking administrator privileges.")
+        response = await review_event_registration_request(
+            title,
+            review,
+            events_collection,
+            credentials
+        )
+        logger.info("Successfully reviewed event registration requests.")
+        return response
+
+    except HTTPException as http_exc:
+        raise http_exc
+    
+    except Exception as e :
+        logger.error(f"Unexpected error occurred in '/admins/events-review/{title}' : {e}")
+        handle_internal_server_error(e)
+
