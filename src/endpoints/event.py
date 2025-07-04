@@ -8,6 +8,7 @@ from src.endpoints.event_management.event_information import event_information
 from src.endpoints.event_management.event_status import event_status
 from src.endpoints.event_management.event_deletion import event_deletion
 from src.endpoints.event_management.event_updation import event_updation
+from src.endpoints.event_management.event_created_by_organizer import events_created_by_logged_in_user
 from src.endpoints.event_management.event_browse import event_browse
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
@@ -148,8 +149,39 @@ async def delete_event(
         handle_internal_server_error(exc)
 
 
-@router.get('/events/{title}',
+@router.get('/events/created',
              status_code=200,
+             responses={
+                200 : status_codes["response_200"],
+                401 : status_codes["response_401"],
+                403 : status_codes["response_403"],
+                404 : status_codes["response_404"],
+                500 : status_codes["response_500"]
+                })
+async def check_events_created(
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(EVENTS_COLLECTION))
+):
+    """
+    API to fetch the title of the events that are created by the logged in user.
+
+    This endpoint allows you to retrieve the events created by the logged in user. 
+    Access to this endpoint requires valid authorization credentials.
+    """
+    logger.info("'/events/created' API is invoked.")
+    try:
+        logger.debug("Checking the events created by the logged in user")
+        response = await events_created_by_logged_in_user(credentials, collection)
+        logger.info("Succcessfully retrieved the events created by the logged in user")
+        return response
+    except HTTPException as http_exc :
+        raise http_exc
+    except Exception as exc:
+        logger.error(f"Unexpected error occurred in '/event-status' : {exc}")
+        handle_internal_server_error(exc)
+
+@router.get('/events/{title}',
+            status_code=200,
              responses={
                 200 : status_codes["response_200"],
                 401 : status_codes["response_401"],
@@ -170,6 +202,7 @@ async def details_of_an_event(
     except HTTPException as http_exc :
         raise http_exc
     except Exception as exc:
+        logger.error(f"Unexpected error occurred in '/event-status' : {exc}")
         handle_internal_server_error(exc)
 
 
