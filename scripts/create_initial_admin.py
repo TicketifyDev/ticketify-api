@@ -105,7 +105,8 @@ async def create_initial_admin():
         "email": email,
         "password": hashed_password,
         "creation_date" : datetime.now(timezone.utc).isoformat(),
-        "status" : "active"
+        "status" : "new_user",
+        "initial_admin" : True
     }
 
     # Store admin data to DB
