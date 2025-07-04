@@ -4,11 +4,13 @@ from src.schemas.auth_schema import AuthModel
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
 from src.endpoints.admin_management.admin_login import admin_login
+from src.endpoints.admin_management.event_requests import event_registration_requests
 from src.endpoints.admin_management.get_admin_profile import get_admin_profile
 from src.endpoints.admin_management.organizer_requests import organizer_registration_requests
 from src.endpoints.admin_management.review_event_request import review_event_registration_request
 from src.endpoints.admin_management.review_organizer_request import review_organizer_registration_request
-from src.schemas.admin_management_schema import RegistrationStatus, ReviewRequest
+from src.endpoints.admin_management.add_admin import add_admin
+from src.schemas.admin_management_schema import RegistrationStatus, ReviewRequest, AddNewAdmin
 from src.common.constants import ADMINS_COLLECTION
 from src.common.constants import EVENTS_COLLECTION
 from src.common.constants import ORGANIZERS_COLLECTION
@@ -87,13 +89,36 @@ async def fetch_admin_profile(
 
 
 @router.post('/add',
-            status_code=200,
+            status_code=201,
             responses={
-
+               400 : status_codes["response_400"],
+               401 : status_codes["response_401"],
+               403 : status_codes["response_401"],
+               409 : status_codes["response_409"],
+               500 : status_codes["response_500"]
             })
-async def add_new_admin():
-    # Add new Admin implementation goes here
-    pass
+async def add_new_admin(
+    details : AddNewAdmin,
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(ADMINS_COLLECTION))
+):
+    """
+    API for administrators to add a new admin to the application.\n
+    Only existing admins can add another admin.
+    """
+    logger.info("'/admins/add' API is invoked.")
+    try :
+        logger.debug("Validating token for adding new admin.")
+        response = await add_admin(details, credentials, collection)
+        logger.info("New Admin added successfully.")
+        return response
+    
+    except HTTPException as http_exc:
+        raise http_exc
+
+    except Exception as exc :
+        logger.error(f"Unexpected error occurred in '/admins/add' : {exc}")
+        handle_internal_server_error(exc)
 
 
 @router.get('/organizer-requests',
@@ -173,13 +198,41 @@ async def review_organizer_registration(
 
 
 @router.get('/event-requests',
-            status_code=200,
+            status_code = 200,
             responses={
-
+                400 : status_codes["response_400"],
+                401 : status_codes["response_401"],
+                403 : status_codes["response_401"],
+                404 : status_codes["response_404"],
+                500 : status_codes["response_500"]
             })
-async def get_event_registration_requests():
-    # implementation goes here
-    pass
+async def get_event_registration_requests(
+    status : RegistrationStatus,
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    page : int = Query(1, description="Page number"),
+    page_size : int = Query(10, description="Number of records per page")
+):
+    """
+    API for administrators to view event registration requests based on their registration status.\n
+
+    Args:\n
+        status : The registration status to filter by
+        page : The current page number (default = 1)
+        page_size : The number of records per page (default = 10)
+    """
+    logger.info("GET '/admins/event-requests' API is invoked.")
+    try:
+        logger.debug("Validating token and checking administrator privileges.")
+        response = await event_registration_requests(credentials, events_collection, status, page, page_size)
+        logger.info("Successfully fetched event registration requests.")
+        return response
+    
+    except HTTPException as http_exc:
+        raise http_exc
+
+    except Exception as exc :
+        logger.error(f"Unexpected error occurred in '/admins/event-requests' : {exc}")
+        handle_internal_server_error(exc)
 
 
 @router.patch('/events-review/{title}',

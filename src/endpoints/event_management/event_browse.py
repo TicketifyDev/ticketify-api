@@ -90,10 +90,10 @@ async def event_browse(
     skip = (page - 1) * page_size
     logger.debug("Fetching events with skip: %d, limit: %d", skip, page_size)
     events_data = await collection.read_many(
-        filters,
-        skip,
-        page_size,
-        sort_criteria
+        query = filters,
+        skip = skip,
+        limit = page_size,
+        sort_criteria = sort_criteria
     )
 
     if not events_data:
