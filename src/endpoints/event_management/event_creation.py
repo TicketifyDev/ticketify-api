@@ -6,7 +6,7 @@ from src.common.utils import response_content
 from src.common.constants import CONFLICT_ERROR_CONSTANT
 from src.common.db import MongoDB
 from src.common.logging_config import logger
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 
 async def event_creation(credentials, request, collection : MongoDB):
@@ -65,11 +65,15 @@ async def event_creation(credentials, request, collection : MongoDB):
             status_code=status.HTTP_400_BAD_REQUEST
         )
     
+    # Add additional fields 
+    current_time = datetime.now(timezone.utc).isoformat()
     # Add extra fields to the response data
     response['title'] = title
     response['event_creation_date_and_time'] = datetime.now().isoformat()
     response['event_creation_request_status'] = "under_review"
     response['created_by'] = username
+    response["last_updated_by"] = username
+    response["last_updated_at"] = current_time
     
     # Store the response in the DB
     logger.debug(f"Inserting event details into db.")

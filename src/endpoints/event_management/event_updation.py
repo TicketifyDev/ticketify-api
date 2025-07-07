@@ -1,10 +1,11 @@
 from fastapi import status, HTTPException
+from fastapi.encoders import jsonable_encoder
 from src.auth.auth_token import decode_access_token, validate_roles
 from fastapi.responses import JSONResponse
 from src.common.utils import response_content
 from src.common.db import MongoDB
 from src.common.logging_config import logger
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 
 async def event_updation(credentials, title, request, collection: MongoDB):
@@ -67,17 +68,16 @@ async def event_updation(credentials, title, request, collection: MongoDB):
     update_data = {}
     
     for key, value in request_data.items():
-        if isinstance(value, date) and not isinstance(value, datetime):
-            # Convert date to datetime if necessary
-            update_data[key] = datetime(value.year, value.month, value.day)
-        else:
-            update_data[key] = value
-
+        update_data[key] = value
+    update_data = jsonable_encoder(update_data)
     # Merge existing event data with update data
     logger.debug("Merging the existing event data with the updated data.")
+    
+    current_time = datetime.now(timezone.utc).isoformat()
     for key, value in update_data.items():
         existing_event[key] = value
-
+    existing_event["last_updated_by"] = user_name
+    existing_event["last_updated_at"] = current_time
     logger.debug(f"Updating the event '{title}'")
     modified_count = await collection.update({"title": title}, existing_event)
 
