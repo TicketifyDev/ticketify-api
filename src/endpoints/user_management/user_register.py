@@ -72,11 +72,14 @@ async def user_register(details : user_registration, collection):
         )
     #hash the password
     hashed_password = hash_password(details.password)
-
+    # Add additional fields 
+    current_time = datetime.now(timezone.utc).isoformat()
     username = details.user_name
     data = jsonable_encoder(details)
     data["password"] = hashed_password
     data["registered_date"]=datetime.now(timezone.utc).isoformat()
+    data["last_updated_by"] = username
+    data["last_updated_at"] = current_time
 
     #Storing data in db
     logger.debug(f"Inserting user details of username '{username}' into db.")

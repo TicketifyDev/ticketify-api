@@ -113,13 +113,16 @@ async def organizer_register(details : organizer_registration, collection : Mong
 
     # Convert details to JSON-encodable format 
     data = jsonable_encoder(details)
-
+    # Add additional fields 
+    current_time = datetime.now(timezone.utc).isoformat()
     # Store Hashed password instead of plain password
     data["password"] = hashed_password
 
     # Add additional fields 
     data["registration_status"] = "under_review"
     data["registration_date"] = datetime.now(timezone.utc).isoformat()
+    data["last_updated_by"] = details.user_name
+    data["last_updated_at"] = current_time
 
     # Insert the organizer's details into the MongoDB collection
     logger.debug(f"Inserting organizer details of username '{details.user_name}' into db.")

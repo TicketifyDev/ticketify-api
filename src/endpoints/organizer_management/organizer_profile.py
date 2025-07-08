@@ -85,8 +85,10 @@ async def update_organizer(
     await validate_unique_fields(organizers_data, updated_data, username, role)
 
     # Add additional fields
+    current_time = datetime.now(timezone.utc).isoformat()
     updated_data["updation_date"] = datetime.now(timezone.utc).isoformat()
-
+    updated_data["last_updated_by"] = username
+    updated_data["last_updated_at"] = current_time
     # Update the target document if validation passes
     modified_count = await collection.update({"user_name": username}, updated_data)
 
