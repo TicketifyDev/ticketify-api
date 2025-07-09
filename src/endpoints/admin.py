@@ -10,6 +10,7 @@ from src.endpoints.admin_management.organizer_requests import organizer_registra
 from src.endpoints.admin_management.review_event_request import review_event_registration_request
 from src.endpoints.admin_management.review_organizer_request import review_organizer_registration_request
 from src.endpoints.admin_management.add_admin import add_admin
+from src.endpoints.admin_management.fetch_listOf_admins import list_of_admins
 from src.schemas.admin_management_schema import RegistrationStatus, ReviewRequest, AddNewAdmin
 from src.common.constants import ADMINS_COLLECTION
 from src.common.constants import EVENTS_COLLECTION
@@ -271,3 +272,33 @@ async def review_event_registration(
         logger.error(f"Unexpected error occurred in '/admins/events-review/{title}' : {e}")
         handle_internal_server_error(e)
 
+
+@router.get('/admins',
+            status_code=200,
+            responses={
+               400 : status_codes["response_400"],
+               401 : status_codes["response_401"],
+               403 : status_codes["response_401"],
+               404 : status_codes["response_404"],
+               500 : status_codes["response_500"]
+           })
+async def admin_info(
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(ADMINS_COLLECTION))
+):
+    """
+    Retrieves complete information for all administrators from the database.
+    """
+    logger.info("GET '/admins' API is invoked.")
+    try :
+        logger.debug("Validating token for admin profile retrieval.")
+        response = await list_of_admins(credentials, collection)
+        logger.info("Admins information is successfully retrieved.")
+        return response
+    
+    except HTTPException as http_exc:
+        raise http_exc
+
+    except Exception as ex :
+        logger.error(f"Unexpected error occurred in '/admins' : {ex}")
+        handle_internal_server_error(ex)
