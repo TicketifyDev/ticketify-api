@@ -4,22 +4,22 @@ from src.schemas.venue_manager_schema import VenueManagerRegistration
 
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
-from src.common.constants import VENUE_MANAGER_COLLECTION
+from src.common.constants import VENUE_MANAGERs_COLLECTION
 from src.common.db import MongoDB, MongoDBCollectionProvider
 from src.common.logging_config import logger
 
 from src.endpoints.venue_management.venue_manager_register import venue_manager_register
 
-router = APIRouter(prefix="/api/v1/venue-managers", tags=["Venue Management"])
+router = APIRouter(prefix="/api/v1", tags=["Venue Management"])
 token = HTTPBearer()
 
 # Create an instance of MongoDB class by providing a collection name
-collection = MongoDB(VENUE_MANAGER_COLLECTION)
+collection = MongoDB(VENUE_MANAGERs_COLLECTION)
 
-@router.post('/register',
+@router.post('/venue-managers/register',
             status_code=202,
             responses={
-                202 : status_codes["response_202"],
+                201 : status_codes["response_202"],
                 400 : status_codes["response_400"],
                 409 : status_codes["response_409"],
                 422 : status_codes["response_422"],
@@ -27,7 +27,7 @@ collection = MongoDB(VENUE_MANAGER_COLLECTION)
                 })
 async def new_venue_manager_registration(
     details : VenueManagerRegistration, 
-    collection : MongoDB = Depends(MongoDBCollectionProvider(VENUE_MANAGER_COLLECTION))
+    collection : MongoDB = Depends(MongoDBCollectionProvider(VENUE_MANAGERs_COLLECTION))
 ):
     """
     API for allowing new venue managers to create accounts by providing his details.

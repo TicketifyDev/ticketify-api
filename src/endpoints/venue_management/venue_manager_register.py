@@ -103,9 +103,9 @@ async def venue_manager_register(details : VenueManagerRegistration, collection 
     # Add additional fields 
     data["registration_date"] = current_time
     data["last_updated_at"] = current_time
-    data["is_active"] = False
+    data["is_active"] = True
 
-    # Insert the organizer's details into the MongoDB collection
+    # Insert the venue manager's details into the MongoDB collection
     logger.debug(f"Inserting venue manager details of venue manager '{details.username}' into db.")
     await collection.create(data)
 
@@ -114,7 +114,7 @@ async def venue_manager_register(details : VenueManagerRegistration, collection 
     return JSONResponse(
         status_code=status.HTTP_202_ACCEPTED,
         content=response_content(
-            202,
+            201,
             "Venue Manager registration successful",
             {
                 "username": data["username"],
