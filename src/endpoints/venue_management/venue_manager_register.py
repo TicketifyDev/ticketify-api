@@ -112,7 +112,7 @@ async def venue_manager_register(details : VenueManagerRegistration, collection 
     # Return a success response
     logger.debug(f"Venue Manager registration successful for username '{details.username}'.")
     return JSONResponse(
-        status_code=status.HTTP_202_ACCEPTED,
+        status_code=status.HTTP_201_CREATED,
         content=response_content(
             201,
             "Venue Manager registration successful",
