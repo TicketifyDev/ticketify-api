@@ -41,7 +41,7 @@ async def add_new_event(
     try:
         logger.debug(f"Event details received : {request.model_dump()}")
         response = await event_creation(credentials, request, collection)
-        logger.info(f"Event '{request.title}' added successful.")
+        logger.info(f"Event '{request.title}' added successfully.")
         return response
     except HTTPException as http_exc :
         raise http_exc

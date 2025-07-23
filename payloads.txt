@@ -73,3 +73,90 @@
   "email": "john@gmail.com",
   "password": "John@123"
 }
+
+--> /venue-managers/register
+
+{
+  "full_name": "Ankit Sharma",
+  "user_name": "ankitsharma92",
+  "email": "ankit@example.com",
+  "phone_number": "9876543210",
+  "password": "StrongPassword@123",
+  "company_details":{
+  "company_name": "INOX Leisure Ltd",
+    "gstin": "29ABCDE1234F2Z5", 
+    "address": {
+      "line1": "No. 14, MG Road",
+      "line2": "Opp. Central Mall",
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "pincode": "560001"
+    }
+  }
+}
+
+
+--> /venues
+
+{
+  "name": "INOX Vega City",
+  "location": {
+    "address_line1": "172, Bannerghatta Main Rd",
+    "address_line2": "Inside Vega City Mall",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "pincode": "560076"
+  },
+  "screens": [
+    {
+      "screen_name": "Screen 1",
+      "seating_layout": {
+        "rows": 10,
+        "columns": 15
+      },
+      "pricing": {
+        "zones": [
+          {
+            "zone_name": "Silver",
+            "price": 150,
+            "rows": ["A", "B", "C", "D"]
+          },
+          {
+            "zone_name": "Gold",
+            "price": 200,
+            "rows": ["E", "F", "G"]
+          },
+          {
+            "zone_name": "Platinum",
+            "price": 300,
+            "rows": ["H", "I", "J"]
+          }
+        ]
+      },
+      "features": ["Dolby Atmos", "Recliner", "Air Conditioning"]
+    },
+    {
+      "screen_name": "Screen 2",
+      "seating_layout": {
+        "rows": 8,
+        "columns": 12
+      },
+      "pricing": {
+        "zones": [
+          {
+            "zone_name": "Classic",
+            "price": 180,
+            "rows": ["A", "B", "C", "D"]
+          },
+          {
+            "zone_name": "Premium",
+            "price": 250,
+            "rows": ["E", "F", "G", "H"]
+          }
+        ]
+      },
+      "features": ["4K Projection", "Recliner"]
+    }
+  ],
+  "features": ["Parking", "Snacks"]
+}

@@ -2,21 +2,18 @@ from fastapi import APIRouter, HTTPException, Security, Request, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from src.schemas.venue_manager_schema import VenueManagerRegistration
 from src.schemas.auth_schema import AuthModel
-
+from src.schemas.venues_schema import VenueBase
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
-from src.common.constants import VENUE_MANAGERS_COLLECTION
+from src.common.constants import VENUE_MANAGERS_COLLECTION, VENUES_COLLECTION
 from src.common.db import MongoDB, MongoDBCollectionProvider
 from src.common.logging_config import logger
-
 from src.endpoints.venue_management.venue_manager_register import venue_manager_register
 from src.endpoints.venue_management.venue_manager_login import venueManager_login
+from src.endpoints.venue_management.venue_creation import create_venue
 
 router = APIRouter(prefix="/api/v1", tags=["Venue Management"])
 token = HTTPBearer()
-
-# Create an instance of MongoDB class by providing a collection name
-collection = MongoDB(VENUE_MANAGERS_COLLECTION)
 
 @router.post('/venue-managers/register',
             status_code=201,
@@ -49,7 +46,7 @@ async def new_venue_manager_registration(
         handle_internal_server_error(exc)
 
 
-@router.post('/login',
+@router.post('/venue-managers/login',
              status_code=200,
              responses={
                 200 : status_codes["response_200"],
@@ -77,4 +74,37 @@ async def venue_manager_login(
 
     except Exception as exc :
         logger.error(f"Unexpected error occurred in '/venue_managers/login' : {exc}")
+        handle_internal_server_error(exc)
+
+
+@router.post('/venues',
+            status_code=201,
+            responses={
+                201 : status_codes["response_201"],
+                400 : status_codes["response_400"],
+                403 : status_codes["response_403"],
+                409 : status_codes["response_409"],
+                422 : status_codes["response_422"],
+                500 : status_codes["response_500"]
+                })
+async def add_new_venue(
+    details : VenueBase,
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(VENUES_COLLECTION))
+):
+    """
+    API for venue managers to add a new venue(centre).
+    """
+    logger.info("POST '/venues' API is invoked.")
+    try:
+        logger.debug(f"Venue details received : {details.model_dump()}")
+        response = await create_venue(credentials, details, collection)
+        logger.info(f"Venue '{details.name}' added successfully.")
+        return response
+    
+    except HTTPException as http_exc:
+        raise http_exc
+    
+    except Exception as exc:
+        logger.error(f"Unexpected error occurred in 'POST '/venues' : {exc}")
         handle_internal_server_error(exc)
