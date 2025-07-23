@@ -16,11 +16,11 @@ async def venue_manager_register(details : VenueManagerRegistration, collection 
         details : The registration details of the venue manager.
         collection : MongoDB collection to store venue manager details.
     """
-    logger.info(f"Starting venue manager registration process for venue manager '{details.username}'.")
+    logger.info(f"Starting venue manager registration process for venue manager '{details.user_name}'.")
 
     # Check if username already exists
-    logger.debug(f"Checking if username '{details.username}' already exists.")
-    existing_user = await collection.read({"username": details.username})
+    logger.debug(f"Checking if username '{details.user_name}' already exists.")
+    existing_user = await collection.read({"username": details.user_name})
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -30,7 +30,7 @@ async def venue_manager_register(details : VenueManagerRegistration, collection 
                 errors=[
                     {
                         "field": "username", 
-                        "message": f"The username '{details.username}' is already taken."
+                        "message": f"The username '{details.user_name}' is already taken."
                     }
                 ]
             )
@@ -106,18 +106,18 @@ async def venue_manager_register(details : VenueManagerRegistration, collection 
     data["is_active"] = True
 
     # Insert the venue manager's details into the MongoDB collection
-    logger.debug(f"Inserting venue manager details of venue manager '{details.username}' into db.")
+    logger.debug(f"Inserting venue manager details of venue manager '{details.user_name}' into db.")
     await collection.create(data)
 
     # Return a success response
-    logger.debug(f"Venue Manager registration successful for username '{details.username}'.")
+    logger.debug(f"Venue Manager registration successful for username '{details.user_name}'.")
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
         content=response_content(
             201,
             "Venue Manager registration successful",
             {
-                "username": data["username"],
+                "username": data["user_name"],
                 "email": data["email"],
                 "company_name": data["company_details"]["company_name"]
             }

@@ -72,10 +72,10 @@ class VenueManagerRegistration(BaseModel, extra='forbid'):
         examples=["John Sharma"],
         description="Full name of the venue manager"
     )
-    username: str = Field(
+    user_name: str = Field(
         min_length=3,
         examples=["johnsharma12"],
-        description="Unique username for the venue manager"
+        description="Unique user_name for the venue manager"
     )
     email: EmailStr = Field(
         min_length=10,
@@ -102,10 +102,10 @@ class VenueManagerRegistration(BaseModel, extra='forbid'):
             raise ValueError("Invalid full name format")
         return value
 
-    @field_validator("username")
+    @field_validator("user_name")
     def validate_username(cls, value):
         if not re.match(USERNAME_REGEX, value):
-            raise ValueError("Invalid username format")
+            raise ValueError("Invalid user_name format")
         return value
 
     @field_validator("phone_number")
