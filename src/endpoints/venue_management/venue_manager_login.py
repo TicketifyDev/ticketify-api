@@ -44,7 +44,7 @@ async def venueManager_login(details : AuthModel, collection, request : Request)
         data = {
             "sub" : details.username,
             "name" : user["full_name"],
-            "role" : "user"
+            "role" : "venue_manager"
         }, 
         expires_delta = access_token_expires
     )
@@ -55,7 +55,7 @@ async def venueManager_login(details : AuthModel, collection, request : Request)
         data={
             "sub": details.username,
             "name": user["full_name"],
-            "role": "user"
+            "role": "venue_manager"
         },
         expires_delta=refresh_token_expires
     )
