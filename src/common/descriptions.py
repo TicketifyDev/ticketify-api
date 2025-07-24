@@ -18,5 +18,9 @@ tags_metadata = [
     {
         "name" : "Admin Management",
         "description" : "APIs for administrators to log in, review pending requests, and perform other administrative tasks."
+    },
+    {
+        "name" : "Venue Management",
+        "description" : "APIs for Venue Managers to sign up, login, Add and maintain venues."
     }
 ]

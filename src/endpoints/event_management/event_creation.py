@@ -27,7 +27,7 @@ async def event_creation(credentials, request, collection : MongoDB):
 
     title = request.title.lower()
     release_date = request.release_date
-    logger.info(f"Starting event creation process")
+    logger.info("Starting event creation process")
 
     # Check if the title already exists
     existing_event = await collection.read({"title": title})
@@ -54,7 +54,7 @@ async def event_creation(credentials, request, collection : MongoDB):
     response=data
 
     # Check if the release date is less than or equal to todays date
-    logger.debug(f"Checking if the release date is a future date")
+    logger.debug("Checking if the release date is a future date")
     if release_date <= date.today():
         logger.error(f"The provided release date '{release_date} is not a future date")
         return JSONResponse(
@@ -76,9 +76,9 @@ async def event_creation(credentials, request, collection : MongoDB):
     response["last_updated_at"] = current_time
     
     # Store the response in the DB
-    logger.debug(f"Inserting event details into db.")
+    logger.debug("Inserting event details into db.")
     await collection.create(response)
-    logger.debug(f"Event details added to db")
+    logger.debug("Event details added to db")
 
     del response['_id']     # Remove _id from the response
 
