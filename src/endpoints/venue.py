@@ -108,3 +108,86 @@ async def add_new_venue(
     except Exception as exc:
         logger.error(f"Unexpected error occurred in 'POST '/venues' : {exc}")
         handle_internal_server_error(exc)
+
+
+@router.get('/venues',
+            status_code=200,
+            responses={
+                200 : status_codes["response_200"],
+                403 : status_codes["response_403"],
+                409 : status_codes["response_409"],
+                422 : status_codes["response_422"],
+                500 : status_codes["response_500"]
+                })
+async def browse_venues():
+    """
+    API for users to fetch all venues(centres) and it's details available inside the specified city.
+    """
+    pass
+
+
+@router.patch('/venues',
+            status_code=200,
+            responses={
+                200 : status_codes["response_200"],
+                403 : status_codes["response_403"],
+                409 : status_codes["response_409"],
+                422 : status_codes["response_422"],
+                500 : status_codes["response_500"]
+                })
+async def update_venue():
+    """
+    API for venue managers to update a venue added by them.
+    """
+    pass
+
+
+@router.delete('/venues',
+            status_code=200,
+            responses={
+                200 : status_codes["response_200"],
+                403 : status_codes["response_403"],
+                409 : status_codes["response_409"],
+                422 : status_codes["response_422"],
+                500 : status_codes["response_500"]
+                })
+async def delete_venue():
+    """
+    API for venue managers to delete a venue added by them.
+    """
+    pass
+
+
+@router.get('/venues/added',
+            status_code=200,
+            responses={
+                200 : status_codes["response_200"],
+                403 : status_codes["response_403"],
+                409 : status_codes["response_409"],
+                422 : status_codes["response_422"],
+                500 : status_codes["response_500"]
+                })
+async def fetch_venues_added():
+    """
+    API for venue managers to fetch venues added by them.
+    """
+    pass
+
+
+@router.post('/venues/seats/block',
+            status_code=200,
+            responses={
+                200 : status_codes["response_200"],
+                403 : status_codes["response_403"],
+                409 : status_codes["response_409"],
+                422 : status_codes["response_422"],
+                500 : status_codes["response_500"]
+                })
+async def update_booked_seats():
+    """
+    API for venue managers to block seats that have been booked externally (e.g., at the venue or via a third-party system).
+
+    These seats will be marked as booked in our database to prevent them from being shown as available to users on the platform.
+    """
+
+    pass
