@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, Security, Request, Depends
+from fastapi import APIRouter, HTTPException, Security, Request, Depends, Query
+from typing import Optional
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from src.schemas.venue_manager_schema import VenueManagerRegistration
 from src.schemas.auth_schema import AuthModel
@@ -11,6 +12,7 @@ from src.common.logging_config import logger
 from src.endpoints.venue_management.venue_manager_register import venue_manager_register
 from src.endpoints.venue_management.venue_manager_login import venueManager_login
 from src.endpoints.venue_management.venue_creation import create_venue
+from src.endpoints.venue_management.venue_browse import get_venue
 
 router = APIRouter(prefix="/api/v1", tags=["Venue Management"])
 token = HTTPBearer()
@@ -115,15 +117,34 @@ async def add_new_venue(
             responses={
                 200 : status_codes["response_200"],
                 403 : status_codes["response_403"],
+                404 : status_codes["response_404"],
                 409 : status_codes["response_409"],
                 422 : status_codes["response_422"],
                 500 : status_codes["response_500"]
                 })
-async def browse_venues():
+async def browse_venues(
+    city: str = Query(..., description="city of the venue"), 
+    venue_name: Optional[str] = Query(None, description="name of the venue"), 
+    collection : MongoDB = Depends(MongoDBCollectionProvider(VENUES_COLLECTION)),
+    page : int = Query(1, description="Page number"),
+    page_size : int = Query(10, description="Number of records per page")
+):
     """
     API for users to fetch all venues(centres) and it's details available inside the specified city.
     """
-    pass
+    logger.info("GET '/venues' API is invoked.")
+    try:
+        response = await get_venue(collection, city, venue_name, page, page_size)
+        logger.info(f"Venue(s) fetched successfully.")
+        return response
+    
+    except HTTPException as http_exc:
+        raise http_exc
+    
+    except Exception as exc:
+        logger.error(f"Unexpected error occurred in 'GET '/venues' : {exc}")
+        handle_internal_server_error(exc)
+
 
 
 @router.patch('/venues',
