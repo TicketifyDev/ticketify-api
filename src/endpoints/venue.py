@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Security, Request, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from src.schemas.venue_manager_schema import VenueManagerRegistration
 from src.schemas.auth_schema import AuthModel
-from src.schemas.venues_schema import VenueBase
+from src.schemas.venues_schema import VenueBase, VenueUpdateRequest
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
 from src.common.constants import VENUE_MANAGERS_COLLECTION, VENUES_COLLECTION
@@ -11,6 +11,7 @@ from src.common.logging_config import logger
 from src.endpoints.venue_management.venue_manager_register import venue_manager_register
 from src.endpoints.venue_management.venue_manager_login import venueManager_login
 from src.endpoints.venue_management.venue_creation import create_venue
+from src.endpoints.venue_management.venue_updation import venue_updation
 
 router = APIRouter(prefix="/api/v1", tags=["Venue Management"])
 token = HTTPBearer()
@@ -126,20 +127,39 @@ async def browse_venues():
     pass
 
 
-@router.patch('/venues',
+@router.patch('/venues/{venue_id}',
             status_code=200,
             responses={
                 200 : status_codes["response_200"],
+                204 : status_codes["response_204"],
+                400 : status_codes["response_400"],
                 403 : status_codes["response_403"],
                 409 : status_codes["response_409"],
                 422 : status_codes["response_422"],
                 500 : status_codes["response_500"]
                 })
-async def update_venue():
+async def update_venue(
+    venue_id: str,
+    details : VenueUpdateRequest,
+    credentials: HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(VENUES_COLLECTION))
+):
     """
     API for venue managers to update a venue added by them.
     """
-    pass
+    logger.info(f" PATCH '/venues/{venue_id}' API is invoked.")
+    try:
+        logger.debug(f"Starting the process of venue updation for venue '{venue_id}'.")
+        response = await venue_updation(credentials, venue_id, details, collection)
+        logger.info(f"Venue '{venue_id}' updated successfully")
+        return response
+    
+    except HTTPException as http_exc :
+        raise http_exc
+    
+    except Exception as exc:
+        logger.error(f"Unexpected error occurred in PATCH '/venues/{venue_id}' : {exc}")
+        handle_internal_server_error(exc)
 
 
 @router.delete('/venues',
