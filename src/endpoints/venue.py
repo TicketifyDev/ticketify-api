@@ -11,6 +11,7 @@ from src.common.logging_config import logger
 from src.endpoints.venue_management.venue_manager_register import venue_manager_register
 from src.endpoints.venue_management.venue_manager_login import venueManager_login
 from src.endpoints.venue_management.venue_creation import create_venue
+from src.endpoints.venue_management.venues_managed_by_venue_manager import venues_managed_by_logged_in_venue_manager
 
 router = APIRouter(prefix="/api/v1", tags=["Venue Management"])
 token = HTTPBearer()
@@ -167,11 +168,27 @@ async def delete_venue():
                 422 : status_codes["response_422"],
                 500 : status_codes["response_500"]
                 })
-async def fetch_venues_added():
+async def fetch_venues_added(
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(VENUES_COLLECTION))
+):
     """
     API for venue managers to fetch venues added by them.
+
+    This endpoint allows you to retrieve the venues created by the logged in user. 
+    Access to this endpoint requires valid authorization credentials.
     """
-    pass
+    logger.info("'/venues/added' API is invoked.")
+    try:
+        logger.debug("Checking the venues created by the logged in user")
+        response = await venues_managed_by_logged_in_venue_manager(credentials, collection)
+        logger.info("Succcessfully retrieved the venues created by the logged in user")
+        return response
+    except HTTPException as http_exc :
+        raise http_exc
+    except Exception as exc:
+        logger.error(f"Unexpected error occurred in '/venues/added' : {exc}")
+        handle_internal_server_error(exc)
 
 
 @router.post('/venues/seats/block',
