@@ -32,3 +32,10 @@ class VenueBase(BaseModel, extra = 'forbid'):
     screens: List[Screen]
     features: Optional[List[str]] = []
 
+
+class VenueUpdateRequest(BaseModel, extra = 'forbid'):
+    name: Optional[str] = None
+    location: Optional[Location] = None
+    screens: Optional[List[Screen]] = None
+    features: Optional[List[str]] = None
+
