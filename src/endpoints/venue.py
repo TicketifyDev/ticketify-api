@@ -195,7 +195,7 @@ async def update_venue(
                 500 : status_codes["response_500"]
                 })
 async def delete_venue(
-    venue_id: str,
+    venue_id: str = Query(..., description="venue id for deletion"),
     credentials: HTTPAuthorizationCredentials = Security(token),
     collection : MongoDB = Depends(MongoDBCollectionProvider(VENUES_COLLECTION))
 ):
