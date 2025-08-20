@@ -15,6 +15,7 @@ from src.endpoints.venue_management.venue_creation import create_venue
 from src.endpoints.venue_management.venue_browse import get_venue
 from src.endpoints.venue_management.venues_managed_by_venue_manager import venues_managed_by_logged_in_venue_manager
 from src.endpoints.venue_management.venue_updation import venue_updation
+from src.endpoints.venue_management.venue_deletion import venue_deletion
 
 router = APIRouter(prefix="/api/v1", tags=["Venue Management"])
 token = HTTPBearer()
@@ -193,11 +194,28 @@ async def update_venue(
                 422 : status_codes["response_422"],
                 500 : status_codes["response_500"]
                 })
-async def delete_venue():
+async def delete_venue(
+    venue_id: str = Query(..., description="venue id for deletion"),
+    credentials: HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(VENUES_COLLECTION))
+):
     """
     API for venue managers to delete a venue added by them.
+    For venue_id , refer Browse Venues
     """
-    pass
+    logger.info(f" DELETE '/venues/' API is invoked.")
+    try:
+        logger.debug(f"Deleting the Venue with ID :'{venue_id}'.")
+        response = await venue_deletion(credentials, venue_id, collection)
+        logger.info(f"Venue '{venue_id}' deleted successfully")
+        return response
+    
+    except HTTPException as http_exc :
+        raise http_exc
+    
+    except Exception as exc:
+        logger.error(f"Unexpected error occurred in DELETE '/venues/{venue_id}' : {exc}")
+        handle_internal_server_error(exc)
 
 
 @router.get('/venues/added',
