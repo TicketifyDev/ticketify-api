@@ -52,6 +52,19 @@ async def organizer_status(
                 "Registration status not found."
             )
         )
+        
+    if registration_status == "rejected":
+        rejection_reason = organizer.get('rejection_reason')
+        response_data = {
+            "username": username,
+            "registration_status": registration_status,
+            "rejection_reason": rejection_reason
+        }
+    else :
+        response_data = {
+            "username": username,
+            "registration_status": registration_status,
+        }
 
     logger.debug(f"The registration status for username '{username}' is '{registration_status}'")
     return JSONResponse(
@@ -59,9 +72,6 @@ async def organizer_status(
         content=response_content(
             200,
             "Successfully retrieved Registration status.",
-            data={
-                    "username": username,
-                    "registration_status": registration_status
-                }
+            data=response_data
         )
     )

@@ -30,15 +30,26 @@ async def event_status(credentials, collection : MongoDB, title):
     if existing_event:
         logger.debug(f"Fetching the status of the event '{title}'")
         event_status = existing_event["event_creation_request_status"]
+
+        if event_status == "rejected":
+            event_rejection_reason = existing_event["rejection_reason"]
+            response_data = {
+                "title" : title,
+                "event_status" : event_status,
+                "event_rejection_reason": event_rejection_reason
+            }
+        else :
+            response_data = {
+                "title" : title,
+                "event_status" : event_status,
+            }
+          
         if existing_event["created_by"]==user_name:
             return JSONResponse(
                 content=response_content(
                     status_code=200,
                     message="Successfully retrieved event status.",
-                    data={
-                        "title" : title,
-                        "event_status" : event_status
-                    }
+                    data=response_data
                 ),
                 status_code=status.HTTP_200_OK
             )

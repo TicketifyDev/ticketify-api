@@ -11,7 +11,8 @@ async def review_organizer_registration_request(
         username : str,
         review : str,
         organizers_collection : MongoDB,
-        credentials : HTTPAuthorizationCredentials
+        credentials : HTTPAuthorizationCredentials,
+        rejection_reason : str
 ):
     """
     Function to review an organizer's request and approve/reject it.
@@ -20,12 +21,27 @@ async def review_organizer_registration_request(
     logger.info("Reviewing organizer registration request for username: %s, action: %s", username, review)
 
     token = credentials.credentials
-    _, role = decode_access_token(token)
+    logged_in_user_name, role = decode_access_token(token)
 
-    logger.debug(f"Decoded token for username '{_}' , role : '{role}'.")
+    logger.debug(f"Decoded token for username '{logged_in_user_name}' , role : '{role}'.")
 
     required_roles = ['admin']
     validate_roles(required_roles, role)
+    print("reason :", rejection_reason)
+    if review == "reject" and not rejection_reason:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=response_content(
+                400,
+                "Missing Field.",
+                errors=[
+                    {
+                        "field": "rejection_reason", 
+                        "message": "Reason is required when review is set to 'reject'."
+                    }
+                ]
+            )
+        )
 
     # Find the organizer in the database by username
     logger.debug("Fetching organizer with username: %s", username)
@@ -45,8 +61,8 @@ async def review_organizer_registration_request(
             )
         )
     
-    # Ensure the organizer is still under review
-    if organizer["registration_status"] != "under_review":
+    # Ensure the organizer is not approved
+    if organizer["registration_status"] == "approved":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=response_content(
@@ -55,7 +71,7 @@ async def review_organizer_registration_request(
                 errors=[
                     {
                         "field": "registration_status", 
-                        "message": "Status is not 'under_review'."
+                        "message": "Status is already 'approved'."
                     }
                 ]
             )
@@ -69,6 +85,8 @@ async def review_organizer_registration_request(
 
     update_data = {
         "registration_status": review_status,
+        "rejection_reason": rejection_reason if rejection_reason is not None else "",
+        "reviewed_by": logged_in_user_name,
         "reviewed_at": datetime.now(timezone.utc).isoformat()
     }
     
