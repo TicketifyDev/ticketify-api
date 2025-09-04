@@ -1,3 +1,4 @@
+from bson import ObjectId
 from fastapi import status, HTTPException
 from fastapi.encoders import jsonable_encoder
 from src.auth.auth_token import decode_access_token, validate_roles
@@ -9,7 +10,7 @@ from src.common.logging_config import logger
 from datetime import date, datetime, timezone
 
 
-async def event_creation(credentials, request, collection : MongoDB):
+async def event_creation(credentials, request, collection : MongoDB, venue_collection: MongoDB):
     """
     Function to add a new event in MongoDB.
 
@@ -50,6 +51,57 @@ async def event_creation(credentials, request, collection : MongoDB):
 
         
     data = jsonable_encoder(request)
+    # Venue validation
+    for venue in data.get("venues", []):
+        venue_id = venue.get("venue_id")
+        venue_name = venue.get("venue_name")
+
+        try:
+            venue_object_id = ObjectId(venue_id)
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=response_content(
+                    400,
+                    f"Invalid venue_id format '{venue_id}'. Must be a valid ObjectId."
+                )
+            )
+        # Check if venue_id exists in VENUE_COLLECTION
+        db_venue = await venue_collection.read({"_id": venue_object_id})
+        if not db_venue:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=response_content(
+                    400,
+                    f"Invalid venue_id '{venue_id}'. Venue not found."
+                )
+            )
+
+        # Validate venue name
+        if db_venue["name"] != venue_name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=response_content(
+                    400,
+                    f"Venue name mismatch for venue_id '{venue_id}'. Expected '{db_venue['name']}'."
+                )
+            )
+
+        # Validate screen name
+        db_screens = db_venue.get("screens", [])
+        db_screen_map = {s["screen_name"] for s in db_screens}
+
+        for screen in venue.get("screens", []):
+            screen_name = screen.get("screen_name")
+
+            if screen_name not in db_screen_map:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=response_content(
+                        400,
+                        f"Invalid screen_name '{screen_name}' for venue_id '{venue_id}'."
+                    )
+                )
     response = {}
     response=data
 

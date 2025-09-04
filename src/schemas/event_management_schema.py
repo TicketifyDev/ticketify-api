@@ -9,7 +9,6 @@ class Venue_dates(BaseModel):
     times: list[time]
 
 class Screens(BaseModel):
-    screen_id: str = Field(..., description = "ID of the screen")
     screen_name: str = Field(...,examples = ["Screen1"], description = "Name of the screen")
     dates: list[Venue_dates]
 
