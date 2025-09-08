@@ -13,7 +13,7 @@ from src.endpoints.event_management.event_browse import event_browse
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
 from src.common.db import MongoDB, MongoDBCollectionProvider
-from src.common.constants import EVENTS_COLLECTION
+from src.common.constants import EVENTS_COLLECTION, VENUES_COLLECTION
 from src.common.logging_config import logger
 
 router=APIRouter(prefix="/api/v1", tags=["Event Management"])
@@ -32,7 +32,8 @@ token = HTTPBearer()
 async def add_new_event(
     request: create_event, 
     credentials : HTTPAuthorizationCredentials = Security(token),
-    collection : MongoDB = Depends(MongoDBCollectionProvider(EVENTS_COLLECTION))
+    event_collection : MongoDB = Depends(MongoDBCollectionProvider(EVENTS_COLLECTION)),
+    venue_collection : MongoDB = Depends(MongoDBCollectionProvider(VENUES_COLLECTION))
 ):
     """
     API for organizers to create new events (movies).
@@ -40,7 +41,7 @@ async def add_new_event(
     logger.info("POST '/events' API is invoked.")
     try:
         logger.debug(f"Event details received : {request.model_dump()}")
-        response = await event_creation(credentials, request, collection)
+        response = await event_creation(credentials, request, event_collection, venue_collection)
         logger.info(f"Event '{request.title}' added successfully.")
         return response
     except HTTPException as http_exc :
