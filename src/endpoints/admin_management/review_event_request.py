@@ -11,7 +11,8 @@ async def review_event_registration_request(
         title : str,
         review : str,
         event_collection : MongoDB,
-        credentials : HTTPAuthorizationCredentials
+        credentials : HTTPAuthorizationCredentials,
+        rejection_reason : str
 ):
     """
     Function to review an event's request and approve/reject it.
@@ -20,12 +21,27 @@ async def review_event_registration_request(
     logger.info("Reviewing event registration request for title: %s, action: %s", title, review)
 
     token = credentials.credentials
-    _, role = decode_access_token(token)
+    logged_in_user_name, role = decode_access_token(token)
 
-    logger.debug(f"Decoded token for username '{_}' , role : '{role}'.")
+    logger.debug(f"Decoded token for username '{logged_in_user_name}' , role : '{role}'.")
 
     required_roles = ['admin']
     validate_roles(required_roles, role)
+
+    if review == "reject" and not rejection_reason:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=response_content(
+                400,
+                "Missing Field.",
+                errors=[
+                    {
+                        "field": "rejection_reason", 
+                        "message": "Reason is required when review is set to 'reject'."
+                    }
+                ]
+            )
+        )
 
     # Find the event in the database by title
     logger.debug("Fetching event with title: %s", title)
@@ -45,8 +61,8 @@ async def review_event_registration_request(
             )
         )
     
-    # Ensure the event is still under review
-    if event["event_creation_request_status"] != "under_review":
+    # Ensure the event is not approved
+    if event["event_creation_request_status"] == "approved":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=response_content(
@@ -69,6 +85,8 @@ async def review_event_registration_request(
 
     update_data = {
         "event_creation_request_status": review_status,
+        "rejection_reason": rejection_reason if rejection_reason is not None else "",
+        "reviewed_by": logged_in_user_name,
         "reviewed_at": datetime.now(timezone.utc).isoformat()
     }
     

@@ -17,6 +17,7 @@ from src.common.constants import EVENTS_COLLECTION
 from src.common.constants import ORGANIZERS_COLLECTION
 from src.common.db import MongoDB, MongoDBCollectionProvider
 from src.common.logging_config import logger
+from typing import Optional
 
 router = APIRouter(prefix="/api/v1/admins", tags=["Admin Management"])
 token = HTTPBearer()
@@ -173,6 +174,7 @@ async def get_organizer_registration_requests(
 async def review_organizer_registration(
     username : str,
     review : ReviewRequest,
+    rejection_reason : Optional[str] = Query(None, description="Reason is required if the parameter 'review' is set to 'reject'."),
     credentials : HTTPAuthorizationCredentials = Security(token)
 ):
     """
@@ -185,7 +187,8 @@ async def review_organizer_registration(
             username,
             review,
             organizers_collection,
-            credentials
+            credentials,
+            rejection_reason
         )
         logger.info("Successfully reviewed organizer registration requests.")
         return response
@@ -248,6 +251,7 @@ async def get_event_registration_requests(
 async def review_event_registration(
     title : str,
     review : ReviewRequest,
+    rejection_reason : Optional[str] = Query(None, description="Reason is required if the parameter 'review' is set to 'reject'."),
     credentials : HTTPAuthorizationCredentials = Security(token)
 ):
     """
@@ -260,7 +264,8 @@ async def review_event_registration(
             title,
             review,
             events_collection,
-            credentials
+            credentials,
+            rejection_reason
         )
         logger.info("Successfully reviewed event registration requests.")
         return response

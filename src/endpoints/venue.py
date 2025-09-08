@@ -138,7 +138,7 @@ async def browse_venues(
     logger.info("GET '/venues' API is invoked.")
     try:
         response = await get_venue(collection, city, venue_name, page, page_size)
-        logger.info(f"Venue(s) fetched successfully.")
+        logger.info("Venue(s) fetched successfully.")
         return response
     
     except HTTPException as http_exc:
@@ -203,7 +203,7 @@ async def delete_venue(
     API for venue managers to delete a venue added by them.
     For venue_id , refer Browse Venues
     """
-    logger.info(f" DELETE '/venues/' API is invoked.")
+    logger.info(" DELETE '/venues/' API is invoked.")
     try:
         logger.debug(f"Deleting the Venue with ID :'{venue_id}'.")
         response = await venue_deletion(credentials, venue_id, collection)
