@@ -28,7 +28,7 @@ class create_event(BaseModel):
     title : str = Field(...,description = "Title of the event")
     release_date : date = Field(...,description = "Release date of the event")
     duration : int = Field( default=180, description = "Duration of the event")
-    language : str = Field(..., examples = ["English","Hindi","Kannada"], description = "Language of the event")
+    languages : list[str] = Field(..., examples = [["English"],["Hindi"],["Kannada"]], description = "Languages of the event")
     genre : list[str] = Field(..., examples = [["Thriller"],["Comedy"]], description = "Genre of the event")
     censor: str = Field(..., examples = ["UA13+"], description = "Censorship of the event")
     dimension: list[str] = Field(..., examples = [["3D"],["2D"]], description = "Dimension of the event")

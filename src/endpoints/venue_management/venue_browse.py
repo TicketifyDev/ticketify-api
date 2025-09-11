@@ -20,8 +20,7 @@ def exclude_fields(document: dict, fields_to_exclude: list) -> dict:
 async def get_venue(collection: MongoDB, city: str, venue_name: str, page: int, page_size: int):
     logger.debug(f"Fetching venue(s) for city='{city}', venue_name='{venue_name}'")
     
-    city = city.lower()
-    city_query = {"location.city": city}
+    city_query = {"location.city": {"$regex": f"^{city}$", "$options": "i"}}
 
     # First check if the city exists
     venues_in_city = await collection.read_many(city_query)
