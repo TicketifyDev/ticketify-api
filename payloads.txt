@@ -1,3 +1,5 @@
+**This file contains example payloads(request body) for all POST APIs
+
 -->/users/register
 
 {
@@ -8,6 +10,14 @@
   "phone_number": "9087654321",
   "date_of_birth": "2001-01-01", // while entering make sure the user is 10 years old.
   "address": "Bangalore"
+}
+
+
+-->/users/login
+
+{
+	"username": "Alia",
+	"password": "Aliabhat@21"
 }
 
 
@@ -26,40 +36,63 @@
   }
 }
 
--->/events
+
+-->/organizers/login
 
 {
-  "title": "Batman",
-  "release_date": "2024-08-26",
+  "username": "john_doe",
+  "password": "John@123"
+}
+
+
+-->/events POST
+**This is an example payload. Actual payload should be constructed as per venue details stored in your 'venues' collection in your MongoDB.
+
+{
+  "title": "Avatar: Fire and Ash",
+  "release_date": "2025-12-19",
   "duration": 180,
-  "language": "English",
-  "genre": [
-    "Thriller","action"
-  ],
-  "cast": [
-    "Robert Pattinson","Zoë Kravitz"
-  ],
-  "crew": [
-    "Paul Dano","Peter Sarsgaard"
-  ],
+  "languages": ["English", "Hindi", "Telugu", "Tamil", "Malayalam", "Kannada"],
+  "genre": ["Action", "Adventure", "Fantasy", "Sci-Fi"],
+  "censor": "UA13+",
+  "dimension": ["2D", "3D"],
+  "cast": ["Sam Worthington", "Zoe Saldana"],
+  "crew": ["James Cameron", "Amanda Silver"],
+  "description": "In the aftermath of great loss, Jake Sully and Neytiri confront a new and dangerous force on Pandora. As tensions rise, their family`s strength and unity are tested like never before.",
   "venues": [
     {
-      "name": "PVR",
-      "location": "yalahanka",
-      "ticket_details": {
-        "price": 150,
-        "total_tickets": 100,
-        "available_tickets": 100
-      }
+      "venue_id": "68810805c15a0fd9ebd20bc0", 
+      "venue_name": "INOX Vega City", 
+      "screens": [
+        {
+          "screen_name": "Screen 1",
+          "dates": [
+            {
+              "date": "2025-12-19",
+              "times": ["09:00", "13:00", "17:00"]
+            },
+            {
+              "date": "2025-12-20",
+              "times": ["10:00", "14:00", "18:00"]
+            }
+          ]
+        }
+      ]
     },
     {
-      "name": "INOX",
-      "location": "vijayanagar",
-      "ticket_details": {
-        "price": 300,
-        "total_tickets": 78,
-        "available_tickets": 78
-      }
+      "venue_id": "68810848c15a0fd9ebd20bc1",
+      "venue_name": "Cinepolis Royal Meenakshi",
+      "screens": [
+        {
+          "screen_name": "Screen Alpha",
+          "dates": [
+            {
+              "date": "2025-12-19",
+              "times": ["12:00", "15:00"]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
@@ -73,6 +106,7 @@
   "email": "john@gmail.com",
   "password": "John@123"
 }
+
 
 --> /venue-managers/register
 
@@ -96,7 +130,7 @@
 }
 
 
---> /venues
+--> /venues POST
 
 {
   "name": "INOX Vega City",

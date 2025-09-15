@@ -6,6 +6,7 @@ from src.auth.auth_token import decode_access_token, validate_roles
 from src.common.utils import response_content
 from src.common.db import MongoDB
 from src.common.logging_config import logger
+from src.endpoints.admin_management.generate_show_slots import generate_show_slots
 
 async def review_event_registration_request(
         title : str,
@@ -16,6 +17,7 @@ async def review_event_registration_request(
 ):
     """
     Function to review an event's request and approve/reject it.
+    If status is approved, auto-generate show slots.
     """
 
     logger.info("Reviewing event registration request for title: %s, action: %s", title, review)
@@ -102,6 +104,10 @@ async def review_event_registration_request(
         )
 
     logger.debug("Successfully %s event registration for title: %s", review_status, title)
+
+    # If event approved, generate show slots
+    if review.lower() == "approve":
+        await generate_show_slots(title, event)
 
     return JSONResponse(
         status_code=status.HTTP_200_OK,
