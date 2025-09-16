@@ -24,6 +24,34 @@ def normalize_time(t: str) -> str:
         return t  # fallback if something unexpected
 
 
+def validate_screen_time_conflict(approved_events, venue_id, venue_name, screen_name, date_str, event_time):
+    for approved in approved_events:
+        for a_venue in approved.get("venues", []):
+            if a_venue["venue_id"] == venue_id and a_venue["venue_name"] == venue_name:
+                for a_screen in a_venue.get("screens", []):
+                    if a_screen["screen_name"] == screen_name:
+                        for a_date in a_screen.get("dates", []):
+                            if a_date["date"] == date_str:  # same date
+                                for a_time in a_date.get("times", []):
+                                    approved_time = normalize_time(a_time)
+                                    if approved_time == event_time:
+                                        raise HTTPException(
+                                            status_code=status.HTTP_400_BAD_REQUEST,
+                                            detail=response_content(
+                                                400,
+                                                "Showtime conflict detected.",
+                                                errors=[{
+                                                    "field": "time",
+                                                    "message": (
+                                                        f"Conflict with existing event '{approved['title']}' "
+                                                        f"on {date_str} at {event_time} "
+                                                        f"in {venue_name}, {screen_name}."
+                                                    )
+                                                }]
+                                            )
+                                        )
+
+
 async def review_event_registration_request(
         title : str,
         review : str,
@@ -143,33 +171,8 @@ async def review_event_registration_request(
 
                     for time_str in date_entry.get("times", []):
                         event_time = normalize_time(time_str)
-                        print(event_time,"event_time line 119")
                         # Check against approved events
-                        for approved in approved_events:
-                            for a_venue in approved.get("venues", []):
-                                if a_venue["venue_id"] == venue_id and a_venue["venue_name"] == venue_name:
-                                    for a_screen in a_venue.get("screens", []):
-                                        if a_screen["screen_name"] == screen_name:
-                                            for a_date in a_screen.get("dates", []):
-                                                if a_date["date"] == date_str:  # same date
-                                                    for a_time in a_date.get("times", []):
-                                                        approved_time = normalize_time(a_time)
-                                                        if approved_time == event_time:
-                                                            raise HTTPException(
-                                                                status_code=status.HTTP_400_BAD_REQUEST,
-                                                                detail=response_content(
-                                                                    400,
-                                                                    "Showtime conflict detected.",
-                                                                    errors=[{
-                                                                        "field": "time",
-                                                                        "message": (
-                                                                            f"Conflict with existing event '{approved['title']}' "
-                                                                            f"on {date_str} at {event_time} "
-                                                                            f"in {venue_name}, {screen_name}."
-                                                                        )
-                                                                    }]
-                                                                )
-                                                            )
+                        validate_screen_time_conflict(approved_events, venue_id, venue_name, screen_name, date_str, event_time)
 
     update_data = {
         "event_creation_request_status": review_status,
