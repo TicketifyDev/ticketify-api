@@ -1,6 +1,8 @@
 from fastapi import status, HTTPException
 from src.common.utils import response_content
 from fastapi.responses import JSONResponse
+from bson import json_util
+import json
 
 async def event_information(collection, title):
     """ Function to fetch the complete information of an event"""
@@ -29,11 +31,11 @@ async def event_information(collection, title):
         del existing_event["created_by"]
 
         return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content=response_content(
-            200,
-            "Successfully fetched event information.",
-            existing_event
+            status_code=status.HTTP_200_OK,
+            content=json.loads(json_util.dumps(response_content(
+                200,
+                "Successfully fetched event information.",
+                existing_event
+            )))
         )
-    )
         
