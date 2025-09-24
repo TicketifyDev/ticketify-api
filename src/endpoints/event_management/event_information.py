@@ -21,7 +21,12 @@ async def event_information(collection, title):
             status_code=status.HTTP_404_NOT_FOUND
         )
     else:
-        del existing_event["_id"] 
+        existing_event["id"] = str(existing_event["_id"])
+        del existing_event["_id"]
+
+        for venue in existing_event["venues"]:
+            venue["venue_id"] = str(venue["venue_id"])
+        
         del existing_event["event_creation_request_status"]
         del existing_event["created_by"]
 

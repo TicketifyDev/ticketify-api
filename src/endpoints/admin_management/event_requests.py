@@ -59,15 +59,25 @@ async def event_registration_requests(
     # Only include necessary fields for reviewing
     registration_requests = []
     for event in events_data:
+        # Convert _id if present
+        event_id = str(event["_id"]) if "_id" in event else None
+
+        # Convert venue_id for each venue if present
+        venues = event.get("venues", [])
+        for v in venues:
+            if "venue_id" in v:
+                v["venue_id"] = str(v["venue_id"])
+
         registration_requests.append({
+                "id": event_id,
                 "title": event.get('title'),
                 "release_date": event.get('release_date'),
                 "duration": event.get('duration'),
-                "language": event.get('language'),
+                "languages": event.get('languages'),
                 "genre": event.get('genre'),
                 "cast": event.get('cast'),
                 "crew": event.get('crew'),
-                "venues": event.get('venues'),
+                "venues": venues,
                 "event_creation_date_and_time": event.get('event_creation_date_and_time'),
                 "event_creation_request_status": event.get('event_creation_request_status')
             })

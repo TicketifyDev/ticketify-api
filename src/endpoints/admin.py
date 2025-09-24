@@ -12,9 +12,7 @@ from src.endpoints.admin_management.review_organizer_request import review_organ
 from src.endpoints.admin_management.add_admin import add_admin
 from src.endpoints.admin_management.fetch_listOf_admins import list_of_admins
 from src.schemas.admin_management_schema import RegistrationStatus, ReviewRequest, AddNewAdmin
-from src.common.constants import ADMINS_COLLECTION
-from src.common.constants import EVENTS_COLLECTION
-from src.common.constants import ORGANIZERS_COLLECTION
+from src.common.constants import ADMINS_COLLECTION, EVENTS_COLLECTION, ORGANIZERS_COLLECTION
 from src.common.db import MongoDB, MongoDBCollectionProvider
 from src.common.logging_config import logger
 from typing import Optional

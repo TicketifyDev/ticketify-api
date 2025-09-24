@@ -86,6 +86,9 @@ async def event_creation(credentials, request, collection : MongoDB, venue_colle
                     f"Venue name mismatch for venue_id '{venue_id}'. Expected '{db_venue['name']}'."
                 )
             )
+        
+        # Overwrite venue_id with ObjectId for storage
+        venue["venue_id"] = venue_object_id
 
         # Validate screen name
         db_screens = db_venue.get("screens", [])
@@ -102,6 +105,7 @@ async def event_creation(credentials, request, collection : MongoDB, venue_colle
                         f"Invalid screen_name '{screen_name}' for venue_id '{venue_id}'."
                     )
                 )
+
     response = {}
     response=data
 
@@ -132,7 +136,11 @@ async def event_creation(credentials, request, collection : MongoDB, venue_colle
     await collection.create(response)
     logger.debug("Event details added to db")
 
-    del response['_id']     # Remove _id from the response
+    response["id"] = str(response["_id"])
+    del response["_id"]
+
+    for venue in response["venues"]:
+        venue["venue_id"] = str(venue["venue_id"])
 
     return JSONResponse(
         content=response_content(
