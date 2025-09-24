@@ -8,6 +8,7 @@ class venue_dates(BaseModel):
 
 class Screens(BaseModel):
     screen_name: str = Field(...,examples = ["Screen1"], description = "Name of the screen")
+    language: str = Field(...,examples = ["English"], description = "Language of the event")
     dates: list[venue_dates]
 
 class venue_list(BaseModel):

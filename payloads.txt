@@ -36,30 +36,53 @@
   "genre": [
     "Thriller","action"
   ],
+  "censor": "UA13+",
+  "dimension": [
+    "3D","2D"
+  ],
   "cast": [
     "Robert Pattinson","Zoë Kravitz"
   ],
   "crew": [
     "Paul Dano","Peter Sarsgaard"
   ],
+  "description": "Batman is called to intervene when the mayor of Gotham City is murdered. Soon, his investigation leads him to uncover a web of corruption, linked to his own dark past.",
   "venues": [
     {
-      "name": "PVR",
-      "location": "yalahanka",
-      "ticket_details": {
-        "price": 150,
-        "total_tickets": 100,
-        "available_tickets": 100
-      }
+      "venue_id": "65a87d9fc87b4d0012a68a7e", 
+      "venue_name": "PVR Yelahanka", 
+      "screens": [
+        {
+          "screen_name": "Screen 1",
+          "language": "English",
+          "dates": [
+            {
+              "date": "2024-12-26",
+              "times": ["09:00", "13:00", "17:00"]
+            },
+            {
+              "date": "2024-12-27",
+              "times": ["10:00", "14:00", "18:00"]
+            }
+          ]
+        }
+      ]
     },
     {
-      "name": "INOX",
-      "location": "vijayanagar",
-      "ticket_details": {
-        "price": 300,
-        "total_tickets": 78,
-        "available_tickets": 78
-      }
+      "venue_id": "65a87fa2c87b4d0012a68a95",
+      "venue_name": "INOX Galleria",
+      "screens": [
+        {
+          "screen_name": "Screen A",
+          "language": "Hindi"
+          "dates": [
+            {
+              "date": "2024-12-27",
+              "times": ["12:00", "15:00"]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
