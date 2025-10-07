@@ -1,6 +1,7 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
 import re
-
+from typing import List
+from datetime import date
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 #Constants for Regex Patterns
 NAME_REGEX = r"^[A-Za-zÀ-ÖØ-öø-ÿ' -]+$"
@@ -9,6 +10,9 @@ EMAIL_REGEX = r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,3}
 PHONE_NUMBER_REGEX = r"^[6-9]\d{9}$"
 PASSWORD_REGEX = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$"
 GSTIN_REGEX = r"^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$"
+SEAT_REGEX = r"^[A-Z]\d{1,3}$"  # Like A1, B12, etc.
+OBJECT_ID_REGEX = r"^[a-f\d]{24}$"  # MongoDB ObjectId (24 hex chars)
+
 
 class CompanyAddress(BaseModel, extra='forbid'):
     line1: str = Field(
@@ -120,4 +124,75 @@ class VenueManagerRegistration(BaseModel, extra='forbid'):
             raise ValueError(
                 "Password must be 8-32 characters, include uppercase, lowercase, digit, and special character"
             )
+        return value
+
+class SeatBookedByVenueManager(BaseModel,extra='forbid'):
+    show_slot_id: str = Field(
+        ...,
+        description="Show Slot identifier",
+        examples=["68c440b74afbd8670b3d0b43"]
+    )
+    event_id: str = Field(
+        ...,
+        description="Event identifier",
+        examples=["68c440604afbd8670b3d0b41"]
+    )
+    event_title: str = Field(
+        ...,
+        min_length=1,
+        description="Event title",
+        examples=["Avatar: Fire and Ash"]
+    )
+    venue_id: str = Field(
+        ...,
+        description="Venue identifier",
+        examples=["68810805c15a0fd9ebd20bc0"]
+    )
+    venue_name: str = Field(
+        ...,
+        min_length=2,
+        description="Venue name",
+        examples=["INOX Vega City"]
+    )
+    screen_name: str = Field(
+        ...,
+        min_length=2,
+        description="Screen identifier",
+        examples=["Screen 1"]
+    )
+    date: str = Field(
+        ...,
+        description="Show date (YYYY-MM-DD)",
+        examples=["2025-12-19"]
+    )
+    language: str = Field(
+        ...,
+        min_length=1,
+        description="Language of the movie/show",
+        examples=["English"]
+    )
+    show_time: str = Field(
+        ...,
+        pattern=r"^\d{2}:\d{2}:\d{2}$",
+        description="Show time in HH:MM:SS format",
+        examples=["09:00:00"]
+    )
+    seats: List[str] = Field(
+        ...,
+        min_items=1,
+        description="List of seat identifiers to block as offline booked",
+        examples=[["A4", "A5", "A6"]]
+    )
+
+    @field_validator("show_slot_id", "event_id", "venue_id")
+    def validate_object_ids(cls, value, field):
+        if not re.match(OBJECT_ID_REGEX, value):
+            raise ValueError(f"Invalid {field.name}: must be a 24-character hex string")
+        return value
+    
+    @field_validator("seats")
+    def validate_seats(cls, value):
+        invalid = [s for s in value if not re.match(SEAT_REGEX, s)]
+        if invalid:
+            raise ValueError(f"Invalid seat IDs: {invalid}")
         return value
