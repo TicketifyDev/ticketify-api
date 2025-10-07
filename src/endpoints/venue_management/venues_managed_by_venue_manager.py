@@ -139,6 +139,35 @@ async def update_seats_bookedby_venuemanager(credentials, collection: MongoDB, d
             )
         )
 
+    event_obj_id = ObjectId(data["event_id"])
+    venue_obj_id = ObjectId(data["venue_id"])
+    
+
+    # Build filter for event, venue, screen, date, show_time
+    filter_query = {
+        "_id": slot_id,
+        "event_id": event_obj_id,
+        "venue_id": venue_obj_id,
+        "screen_name": data["screen_name"],
+        "date": data["date"],
+        "show_time": data["show_time"]
+    }
+
+    show_slot = await collection.collection.find_one(filter_query)
+
+    if not show_slot:
+        logger.error(
+            f"No show slot found for event_id={data['event_id']}, venue_id={data['venue_id']}, "
+            f"screen_name={data['screen_name']}, date={data['date']}, show_time={data['show_time']}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=response_content(
+                404,
+                "Show slot with the specified combination does not exist."
+            )
+        )
+    
     newly_blocked = 0
     # Step 7: Mark requested seats as booked_external
     for seat in seats_to_block:
