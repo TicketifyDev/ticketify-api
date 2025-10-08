@@ -280,5 +280,3 @@ async def update_booked_seats(
     except Exception as exc:
         logger.error(f"Unexpected error occurred in '/venues/seats/block' : {exc}")
         handle_internal_server_error(exc)
-
-    pass
