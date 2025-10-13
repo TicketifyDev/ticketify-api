@@ -46,7 +46,7 @@
 
 
 -->/events POST
-**This is an example payload. Actual payload should be constructed as per venue details stored in your 'venues' collection in your MongoDB.
+**This is an example payload. Actual values for payload should be constructed as per venue details stored in 'venues' collection in your MongoDB.
 
 {
   "title": "Avatar: Fire and Ash",
@@ -96,7 +96,7 @@
       "screens": [
         {
           "screen_name": "Screen A",
-          "language": "Hindi"
+          "language": "Hindi",
           "dates": [
             {
               "date": "2024-12-27",
