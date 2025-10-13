@@ -48,6 +48,9 @@ async def generate_show_slots(
             rows = screen["seating_layout"]["rows"]
             cols = screen["seating_layout"]["columns"]
 
+            # ✅ Total seats
+            total_seats = rows * cols
+
             # build seat ids like A1..A15, B1..B15, ...
             seats_availability = {}
             for r in range(rows):
@@ -85,6 +88,7 @@ async def generate_show_slots(
                         "seating_layout": screen["seating_layout"],
                         "seats_availability": seats_availability,
                         "price_per_row": price_per_row,
+                        "total_seats": total_seats, 
                         "booked_count": 0,
                         "status": "UPCOMING",
                         "created_from_event": True,
