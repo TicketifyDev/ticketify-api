@@ -1,19 +1,19 @@
 from fastapi import APIRouter, HTTPException, Security, Request, Depends, Query
 from typing import Optional
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from src.schemas.venue_manager_schema import VenueManagerRegistration
+from src.schemas.venue_manager_schema import VenueManagerRegistration, SeatBookedByVenueManager
 from src.schemas.auth_schema import AuthModel
 from src.schemas.venues_schema import VenueBase, VenueUpdateRequest
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
-from src.common.constants import VENUE_MANAGERS_COLLECTION, VENUES_COLLECTION
+from src.common.constants import VENUE_MANAGERS_COLLECTION, VENUES_COLLECTION, SHOW_SLOTS_COLLECTION
 from src.common.db import MongoDB, MongoDBCollectionProvider
 from src.common.logging_config import logger
 from src.endpoints.venue_management.venue_manager_register import venue_manager_register
 from src.endpoints.venue_management.venue_manager_login import venueManager_login
 from src.endpoints.venue_management.venue_creation import create_venue
 from src.endpoints.venue_management.venue_browse import get_venue
-from src.endpoints.venue_management.venues_managed_by_venue_manager import venues_managed_by_logged_in_venue_manager
+from src.endpoints.venue_management.venues_managed_by_venue_manager import venues_managed_by_logged_in_venue_manager, update_seats_bookedby_venuemanager
 from src.endpoints.venue_management.venue_updation import venue_updation
 from src.endpoints.venue_management.venue_deletion import venue_deletion
 
@@ -259,11 +259,24 @@ async def fetch_venues_added(
                 422 : status_codes["response_422"],
                 500 : status_codes["response_500"]
                 })
-async def update_booked_seats():
+async def update_booked_seats(
+    details: SeatBookedByVenueManager,
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(SHOW_SLOTS_COLLECTION))
+):
     """
     API for venue managers to block seats that have been booked externally (e.g., at the venue or via a third-party system).
-
     These seats will be marked as booked in our database to prevent them from being shown as available to users on the platform.
     """
 
-    pass
+    logger.info("'/venues/seats/block' API is invoked.")
+    try:
+        logger.debug("Checking if the seat is already booked by any person")
+        response = await update_seats_bookedby_venuemanager(credentials, collection, details)
+        logger.info("Succcessfully retrieved information about the seats that are booked offline.")
+        return response
+    except HTTPException as http_exc :
+        raise http_exc
+    except Exception as exc:
+        logger.error(f"Unexpected error occurred in '/venues/seats/block' : {exc}")
+        handle_internal_server_error(exc)
