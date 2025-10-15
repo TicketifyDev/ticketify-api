@@ -15,6 +15,20 @@ async def get_ticket_availability(show_slot_id, event_title, language, date, sho
             if not show_slot:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Show slot not found")
 
+            # Validate show slot status
+            if show_slot.get("status") != "UPCOMING":
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=response_content(
+                        400,
+                        VALIDATION_ERROR_CONSTANT,
+                        errors=[{
+                            "field": "show_slot_id",
+                            "message": f"Show slot '{show_slot_id}' is not UPCOMING (current status: {show_slot.get('status')})."
+                        }]
+                    )
+                )
+            
             if event_title and event_title.lower() != show_slot.get("event_name", "").lower():
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
