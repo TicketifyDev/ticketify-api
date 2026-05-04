@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from src.router import router
 from pathlib import Path
 import sys
+from contextlib import asynccontextmanager
 from src.common.logging_config import logger
 
 # Determine the parent directory of the current file.
@@ -31,8 +32,9 @@ async def read_root():
             }
         }
 
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def startup_event(app: FastAPI):
+    # Startup
     try :
         logger.info("Checking whether initial admin account exists or not.")
         await check_initial_admin()
