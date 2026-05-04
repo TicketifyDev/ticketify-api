@@ -26,12 +26,10 @@ jobs:
         pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Set environment variables
+    - name: Run tests with environment variables (from GitHub Secrets)
       env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-          MONGO_DB: ${{ secrets.MONGO_DB }}
-          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-
-    - name: Run tests
+        MONGO_URI: ${{ secrets.MONGO_URI }}
+        MONGO_DB: ${{ secrets.MONGO_DB }}
+        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
       run: |
         pytest -v
