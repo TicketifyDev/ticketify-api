@@ -38,6 +38,10 @@ jobs:
         MONGO_URI: ${{ secrets.MONGO_URI }}
         MONGO_DB: ${{ secrets.MONGO_DB }}
         JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+        INITIAL_ADMIN_NAME: ${{ secrets.INITIAL_ADMIN_NAME }}
+        INITIAL_ADMIN_USERNAME: ${{ secrets.INITIAL_ADMIN_USERNAME }}
+        INITIAL_ADMIN_EMAIL: ${{ secrets.INITIAL_ADMIN_EMAIL }}
+        INITIAL_ADMIN_PASSWORD: ${{ secrets.INITIAL_ADMIN_PASSWORD }}
       run: |
         pytest -v
 
