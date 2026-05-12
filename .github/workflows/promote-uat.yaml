@@ -1,0 +1,26 @@
+name: Promote Main to UAT
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  create-pr:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create PR main → T-UAT
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: "main"
+          destination_branch: "T-UAT"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_title: "Promote main to T-UAT"
+          pr_body: "Automated PR from main to T-UAT"
