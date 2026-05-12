@@ -1,60 +1,70 @@
 name: Ticketify CI
 
 on:
-  push:
-    branches: [ "main" ]
+
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+      - T-UAT
+      - T-PROD
+
+  push:
+    branches:
+      - main
+      - T-UAT
+      - T-PROD
 
 jobs:
-  build:
+
+  build-test:
 
     runs-on: ubuntu-latest
 
-    services:
+    env:
+      MONGO_URI: ${{ secrets.MONGO_URI }}
+      MONGO_DB: ${{ secrets.MONGO_DB }}
+      
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
 
-      mongodb:
-        image: mongo:7
-        ports:
-          - 27017:27017
+      INITIAL_ADMIN_NAME: ${{ secrets.INITIAL_ADMIN_NAME }}
+      INITIAL_ADMIN_USERNAME: ${{ secrets.INITIAL_ADMIN_USERNAME }}
+      INITIAL_ADMIN_EMAIL: ${{ secrets.INITIAL_ADMIN_EMAIL }}
+      INITIAL_ADMIN_PASSWORD: ${{ secrets.INITIAL_ADMIN_PASSWORD }}
 
     steps:
 
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - name: Install dependencies
-      run: |
-        pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Run tests with environment variables (from GitHub Secrets)
-      env:
-        MONGO_URI: ${{ secrets.MONGO_URI }}
-        MONGO_DB: ${{ secrets.MONGO_DB }}
-        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-        INITIAL_ADMIN_NAME: ${{ secrets.INITIAL_ADMIN_NAME }}
-        INITIAL_ADMIN_USERNAME: ${{ secrets.INITIAL_ADMIN_USERNAME }}
-        INITIAL_ADMIN_EMAIL: ${{ secrets.INITIAL_ADMIN_EMAIL }}
-        INITIAL_ADMIN_PASSWORD: ${{ secrets.INITIAL_ADMIN_PASSWORD }}
-      run: |
-        pytest -v
+      - name: Run tests
+        run: |
+          pytest -v
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Build Docker image
-      run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/ticketify-api:latest .
+      - name: Login to DockerHub
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Push Docker image to Docker Hub
-      run: |
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/ticketify-api:latest
+      - name: Build and Push Docker Image
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ticketify/ticketify-api:${{ github.ref_name }}-latest

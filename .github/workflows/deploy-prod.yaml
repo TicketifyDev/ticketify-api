@@ -1,25 +1,22 @@
-name: Ticketify CD
+name: Production Deployment
 
 on:
-  workflow_run:
-    workflows: ["Ticketify CI"]
-    types:
-      - completed
+  push:
+    branches:
+      - T-PROD
 
 jobs:
 
   deploy:
 
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-
     runs-on: ubuntu-latest
-    
+
     environment:
       name: prod
-      
+
     steps:
 
-      - name: Deploy to EC2 using SSH
+      - name: Deploy to EC2
 
         uses: appleboy/ssh-action@v1.0.3
 
