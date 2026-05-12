@@ -16,14 +16,21 @@ on:
 
 jobs:
 
-  build-test:
+  build-and-test:
 
     runs-on: ubuntu-latest
+
+    services:
+
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
 
     env:
       MONGO_URI: ${{ secrets.MONGO_URI }}
       MONGO_DB: ${{ secrets.MONGO_DB }}
-      
+
       JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
 
       INITIAL_ADMIN_NAME: ${{ secrets.INITIAL_ADMIN_NAME }}
