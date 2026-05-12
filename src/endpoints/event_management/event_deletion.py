@@ -3,6 +3,7 @@ from src.auth.auth_token import decode_access_token, validate_roles
 from fastapi.responses import JSONResponse
 from src.common.utils import response_content
 from src.common.db import MongoDB
+from src.common.logging_config import logger
 
 
 async def event_deletion(credentials, collection : MongoDB, title):
@@ -16,15 +17,16 @@ async def event_deletion(credentials, collection : MongoDB, title):
     """
     
     token = credentials.credentials
-    _, role = decode_access_token(token)
+    user_name, role = decode_access_token(token)
 
     required_roles = ['admin','organizer']
     validate_roles(required_roles, role)
 
     title = title.lower()
-
+    logger.debug(f"Checking if the event '{title}' exists")
     existing_event = await collection.read({"title": title})
     if not existing_event:
+        logger.error(f"Event '{title}' not found in db.")
         raise HTTPException(
             detail=response_content(
                 404,
@@ -34,14 +36,25 @@ async def event_deletion(credentials, collection : MongoDB, title):
             status_code=status.HTTP_404_NOT_FOUND
         )
     
+
+    if existing_event["created_by"]!= user_name:
+        raise HTTPException(
+            detail=response_content(
+                403,
+                "You are not authorized to delete this event."
+            ),
+            status_code=status.HTTP_403_FORBIDDEN
+        )
+    
+
     await collection.delete(existing_event)
+    logger.debug(f"The event '{title}' has been deleted successfully")
     del existing_event['_id']
 
     return JSONResponse(
         content=response_content(
             200,
-            f"The event {title} has been successfully removed.",
-            title
+            f"The event {title} has been successfully removed."
         ),
         status_code=status.HTTP_200_OK
     )

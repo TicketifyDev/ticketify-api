@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
+from motor.motor_asyncio import AsyncIOMotorClient
 import os
 
 # Load environment variables from the .env file
@@ -12,7 +12,7 @@ client = AsyncIOMotorClient(mongo_uri)
 db = client[mongo_db]
 
 class MongoDB:
-    def __init__(self, collection_name : AsyncIOMotorCollection) :
+    def __init__(self, collection_name) :
         """
         Initialize MongoDB with a specific collection.
         """
@@ -107,4 +107,63 @@ class MongoDB:
         except Exception as e:
             print(f"Error while checking if collection is empty: {e}")
             return False  # Return False in case of error to assume it's not empty
+        
+    async def count_documents(self, query: dict = {}) -> int:
+        """
+        Method to count the number of documents in the collection based on a query.
+
+        Args:
+            query (dict): The query to filter the documents. Defaults to empty {} if not provided.
+
+        Returns:
+            int: The number of documents that match the query.
+        """
+        try:
+            count = await self.collection.count_documents(query)
+            return count
+        except Exception as e:
+            print(f"Error while counting documents: {e}")
+            return 0  # Return 0 if there's an error
+        
+    async def read_many(self, query: dict, projection: dict = None, skip: int = 0, limit: int = 10, sort_criteria: list = None):
+        """
+        Method to retrieve multiple documents with pagination support.
+
+        Args:
+            query (dict): The query to filter the documents.
+            skip (int): The number of documents to skip for pagination.
+            limit (int): The maximum number of documents to return.
+            sort_criteria (list): A list of tuples specifying the fields and order for sorting. 
+                              E.g., [("field_name", 1)] for ascending or [("field_name", -1)] for descending.
+
+        Returns:
+            List[dict]: A list of the retrieved documents.
+        """
+        try:
+            cursor = self.collection.find(query, projection)
+
+            # Apply sorting if sort_criteria is provided
+            if sort_criteria:
+                cursor = cursor.sort(sort_criteria)
             
+            # Apply skip and limit for pagination
+            cursor = cursor.skip(skip).limit(limit)
+            
+            results = []
+            async for document in cursor:
+                results.append(document)
+            return results
+        except Exception as e:
+            print(f"Error while reading documents with pagination: {e}")
+            return []
+           
+           
+# Dependency Injection class
+class MongoDBCollectionProvider:
+    def __init__(self, collection_name: str):
+        self.collection_name = collection_name
+
+    def __call__(self):
+        # Returns the MongoDB collection for the given collection name
+        return MongoDB(self.collection_name)
+    

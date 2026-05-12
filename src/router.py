@@ -5,7 +5,8 @@ from src.endpoints import (
     organizer,
     health_check,
     event,
-    admin
+    admin,
+    venue
 )
 
 router = APIRouter()
@@ -15,4 +16,4 @@ router.include_router(admin.router)
 router.include_router(user.router)
 router.include_router(organizer.router)
 router.include_router(event.router)
-
+router.include_router(venue.router)

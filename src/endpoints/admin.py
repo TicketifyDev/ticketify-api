@@ -1,22 +1,127 @@
-from fastapi import APIRouter, HTTPException, Security, Request
+from fastapi import APIRouter, HTTPException, Security, Request, Query, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from src.schemas.auth_schema import AuthModel
 from src.common.status_codes import status_codes
 from src.common.utils import handle_internal_server_error
-from src.endpoints.admin_management.pending_organizer_requests import pending_organizer_registration_requests
-from src.common.constants import ADMINS_COLLECTION
-from src.common.constants import ORGANIZERS_COLLECTION
-from src.common.db import MongoDB
 from src.endpoints.admin_management.admin_login import admin_login
+from src.endpoints.admin_management.event_requests import event_registration_requests
+from src.endpoints.admin_management.get_admin_profile import get_admin_profile
+from src.endpoints.admin_management.organizer_requests import organizer_registration_requests
+from src.endpoints.admin_management.review_event_request import review_event_registration_request
+from src.endpoints.admin_management.review_organizer_request import review_organizer_registration_request
+from src.endpoints.admin_management.add_admin import add_admin
+from src.endpoints.admin_management.fetch_listOf_admins import list_of_admins
+from src.schemas.admin_management_schema import RegistrationStatus, ReviewRequest, AddNewAdmin
+from src.common.constants import ADMINS_COLLECTION, EVENTS_COLLECTION, ORGANIZERS_COLLECTION
+from src.common.db import MongoDB, MongoDBCollectionProvider
+from src.common.logging_config import logger
+from typing import Optional
 
-router = APIRouter(prefix="/api/v1", tags=["Admin Management"])
+router = APIRouter(prefix="/api/v1/admins", tags=["Admin Management"])
 token = HTTPBearer()
 
 # Create an instance of MongoDB class by providing a collection name
 collection = MongoDB(ADMINS_COLLECTION)
+events_collection = MongoDB(EVENTS_COLLECTION)
 organizers_collection = MongoDB(ORGANIZERS_COLLECTION)
 
-@router.get('/pending-organizer-requests',
+
+@router.post('/login',
+             status_code=200,
+             responses={
+                200 : status_codes["response_200"],
+                401 : status_codes["response_401"],
+                500 : status_codes["response_500"]
+             })
+async def login_as_admin(
+    details : AuthModel, 
+    request : Request,
+    admins_collection : MongoDB = Depends(MongoDBCollectionProvider(ADMINS_COLLECTION))
+    ):
+
+    """ 
+    API for authenticating admins and generating access tokens by validating their `username` and `password`.
+    """
+    logger.info("'/admins/login' API is invoked.")
+    try :
+        logger.debug(f"Login attempt by admin '{details.username}'.")
+        response = await admin_login(details, admins_collection, request)
+        logger.info("Admin login successful.")
+        return response
+    
+    except HTTPException as http_exc:
+        raise http_exc
+
+    except Exception as exc :
+        logger.error(f"Unexpected error occurred in '/admins/login' : {exc}")
+        handle_internal_server_error(exc)
+        
+
+@router.get('/profile',
+            status_code=200,
+            responses={
+               400 : status_codes["response_400"],
+               401 : status_codes["response_401"],
+               403 : status_codes["response_401"],
+               404 : status_codes["response_404"],
+               500 : status_codes["response_500"]
+           })
+async def fetch_admin_profile(
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(ADMINS_COLLECTION))
+):
+    """
+    API for retrieving logged-in admin's profile information.
+    """
+    logger.info("GET '/admins/profile' API is invoked.")
+    try :
+        logger.debug("Validating token for admin profile retrieval.")
+        response = await get_admin_profile(credentials, collection)
+        logger.info("Admin profile retrieved successfully.")
+        return response
+    
+    except HTTPException as http_exc:
+        raise http_exc
+
+    except Exception as exc :
+        logger.error(f"Unexpected error occurred in '/admins/profile' : {exc}")
+        handle_internal_server_error(exc)
+
+
+@router.post('/add',
+            status_code=201,
+            responses={
+               400 : status_codes["response_400"],
+               401 : status_codes["response_401"],
+               403 : status_codes["response_401"],
+               409 : status_codes["response_409"],
+               500 : status_codes["response_500"]
+            })
+async def add_new_admin(
+    details : AddNewAdmin,
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(ADMINS_COLLECTION))
+):
+    """
+    API for administrators to add a new admin to the application.\n
+    Only existing admins can add another admin.
+    """
+    logger.info("'/admins/add' API is invoked.")
+    try :
+        logger.debug("Validating token for adding new admin.")
+        response = await add_admin(details, credentials, collection)
+        logger.info("New Admin added successfully.")
+        return response
+    
+    except HTTPException as http_exc:
+        raise http_exc
+
+    except Exception as exc :
+        logger.error(f"Unexpected error occurred in '/admins/add' : {exc}")
+        handle_internal_server_error(exc)
+
+
+@router.get('/organizer-requests',
             status_code = 200,
             responses={
                 400 : status_codes["response_400"],
@@ -26,39 +131,177 @@ organizers_collection = MongoDB(ORGANIZERS_COLLECTION)
                 500 : status_codes["response_500"]
             }
         )
-async def get_pending_organizer_registration_requests(credentials : HTTPAuthorizationCredentials = Security(token)):
+async def get_organizer_registration_requests(
+    status : RegistrationStatus,
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    page : int = Query(1, description="Page number"),
+    page_size : int = Query(10, description="Number of records per page")
+    ):
     """
-    API for administrators to view all registration requests submitted by Organizers that are `under_review`.
+    API for administrators to view organizer registration requests based on their registration status.\n
+
+    Args:\n
+        status : The registration status to filter by
+        page : The current page number (default = 1)
+        page_size : The number of records per page (default = 10)
     """
+    logger.info("GET '/admins/organizer-requests' API is invoked.")
     try:
-        response = await pending_organizer_registration_requests(credentials, organizers_collection)
+        logger.debug("Validating token and checking administrator privileges.")
+        response = await organizer_registration_requests(credentials, organizers_collection, status, page, page_size)
+        logger.info("Successfully fetched organizer registration requests.")
         return response
     
     except HTTPException as http_exc:
         raise http_exc
 
     except Exception as exc :
+        logger.error(f"Unexpected error occurred in '/admins/organizer-requests' : {exc}")
         handle_internal_server_error(exc)
 
-
-@router.post('/admin-login',
-             status_code=200,
-             responses={
-                200 : status_codes["response_200"],
+        
+@router.patch('/organizers-review/{username}',
+              status_code = 200,
+              responses={
+                400 : status_codes["response_400"],
                 401 : status_codes["response_401"],
+                403 : status_codes["response_401"],
+                404 : status_codes["response_404"],
                 500 : status_codes["response_500"]
-             })
-async def login_as_admin(details : AuthModel, request : Request):
-
-    """ 
-    API for authenticating admins and generating access tokens by validating their `username` and `password`.
+            })
+async def review_organizer_registration(
+    username : str,
+    review : ReviewRequest,
+    rejection_reason : Optional[str] = Query(None, description="Reason is required if the parameter 'review' is set to 'reject'."),
+    credentials : HTTPAuthorizationCredentials = Security(token)
+):
     """
+    API for administrators to review and approve/reject an organizer's registration request.
+    """
+    logger.info(f"GET '/admins/organizer-review/{username}' API is invoked.")
     try :
-        response = await admin_login(details, collection, request)
+        logger.debug("Validating token and checking administrator privileges.")
+        response = await review_organizer_registration_request(
+            username,
+            review,
+            organizers_collection,
+            credentials,
+            rejection_reason
+        )
+        logger.info("Successfully reviewed organizer registration requests.")
+        return response
+
+    except HTTPException as http_exc:
+        raise http_exc
+    
+    except Exception as e :
+        logger.error(f"Unexpected error occurred in '/admins/organizer-review/{username}' : {e}")
+        handle_internal_server_error(e)
+
+
+@router.get('/event-requests',
+            status_code = 200,
+            responses={
+                400 : status_codes["response_400"],
+                401 : status_codes["response_401"],
+                403 : status_codes["response_401"],
+                404 : status_codes["response_404"],
+                500 : status_codes["response_500"]
+            })
+async def get_event_registration_requests(
+    status : RegistrationStatus,
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    page : int = Query(1, description="Page number"),
+    page_size : int = Query(10, description="Number of records per page")
+):
+    """
+    API for administrators to view event registration requests based on their registration status.\n
+
+    Args:\n
+        status : The registration status to filter by
+        page : The current page number (default = 1)
+        page_size : The number of records per page (default = 10)
+    """
+    logger.info("GET '/admins/event-requests' API is invoked.")
+    try:
+        logger.debug("Validating token and checking administrator privileges.")
+        response = await event_registration_requests(credentials, events_collection, status, page, page_size)
+        logger.info("Successfully fetched event registration requests.")
         return response
     
     except HTTPException as http_exc:
         raise http_exc
 
     except Exception as exc :
+        logger.error(f"Unexpected error occurred in '/admins/event-requests' : {exc}")
         handle_internal_server_error(exc)
+
+
+@router.patch('/events-review/{title}',
+              status_code = 200,
+              responses={
+                400 : status_codes["response_400"],
+                401 : status_codes["response_401"],
+                403 : status_codes["response_401"],
+                404 : status_codes["response_404"],
+                500 : status_codes["response_500"]
+            })
+async def review_event_registration(
+    title : str,
+    review : ReviewRequest,
+    rejection_reason : Optional[str] = Query(None, description="Reason is required if the parameter 'review' is set to 'reject'."),
+    credentials : HTTPAuthorizationCredentials = Security(token)
+):
+    """
+    API for administrators to review and approve/reject an event's registration request.
+    """
+    logger.info(f"GET '/admins/events-review/{title}' API is invoked.")
+    try :
+        logger.debug("Validating token and checking administrator privileges.")
+        response = await review_event_registration_request(
+            title,
+            review,
+            events_collection,
+            credentials,
+            rejection_reason
+        )
+        logger.info("Successfully reviewed event registration requests.")
+        return response
+
+    except HTTPException as http_exc:
+        raise http_exc
+    
+    except Exception as e :
+        logger.error(f"Unexpected error occurred in '/admins/events-review/{title}' : {e}")
+        handle_internal_server_error(e)
+
+
+@router.get('/admins',
+            status_code=200,
+            responses={
+               400 : status_codes["response_400"],
+               401 : status_codes["response_401"],
+               403 : status_codes["response_401"],
+               404 : status_codes["response_404"],
+               500 : status_codes["response_500"]
+           })
+async def admin_info(
+    credentials : HTTPAuthorizationCredentials = Security(token),
+    collection : MongoDB = Depends(MongoDBCollectionProvider(ADMINS_COLLECTION))
+):
+    """
+    Retrieves complete information for all administrators from the database.
+    """
+    logger.info("GET '/admins' API is invoked.")
+    try :
+        logger.debug("Validating token for admin profile retrieval.")
+        response = await list_of_admins(credentials, collection)
+        logger.info("Admins information is successfully retrieved.")
+        return response
+    
+    except HTTPException as http_exc:
+        raise http_exc
+
+    except Exception as ex :
+        logger.error(f"Unexpected error occurred in '/admins' : {ex}")
+        handle_internal_server_error(ex)
