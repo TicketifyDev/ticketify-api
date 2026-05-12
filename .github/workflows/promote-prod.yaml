@@ -5,6 +5,10 @@ on:
     branches:
       - T-UAT
 
+permissions:
+  contents: write
+  pull-requests: write
+  
 jobs:
 
   create-pr:
