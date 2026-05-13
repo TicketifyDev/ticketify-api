@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from src.router import router
 from pathlib import Path
 import sys
+from contextlib import asynccontextmanager
+from src.common.logging_config import logger
 
 # Determine the parent directory of the current file.
 parent_directory_resolved = Path(__file__).resolve().parents[1]
@@ -12,15 +14,33 @@ sys.path.append(str(parent_directory_resolved))
 from scripts.create_initial_admin import check_initial_admin
 from src.common.descriptions import tags_metadata
 
+@asynccontextmanager
+async def startup_event(app: FastAPI):
+    # Startup logic
+    try :
+        logger.info("Checking whether initial admin account exists or not.")
+        await check_initial_admin()
+        logger.info("Initial admin check completed successfully.")
+
+    except Exception as e:
+        logger.error("An error occurred during initial admin check: %s", e)
+        raise e
+    
+    yield
+
+    # Shutdown logic (optional)
+
 app = FastAPI(
         title="Ticketify-API", 
         description="A comprehensive backend APIs for a ticket booking platform, designed to manage user authentication and authorization, event listings, ticket reservations, administrative functions and lot more.",
         version="1.0.0",
-        openapi_tags=tags_metadata
+        openapi_tags=tags_metadata,
+        lifespan=startup_event
     )
 
 @app.get("/", include_in_schema=False)
 async def read_root():
+    logger.info("Root endpoint '/' accessed.")
     return {"message": "Welcome to the Ticketify API!",
             "details": {
             "description": "A comprehensive backend APIs for a ticket booking platform, designed to manage user authentication and authorization, event listings, ticket reservations, administrative functions and lot more.",
@@ -28,9 +48,5 @@ async def read_root():
             "version": "1.0.0",
             }
         }
-
-@app.on_event("startup")
-async def startup_event():
-    await check_initial_admin()
 
 app.include_router(router)

@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from datetime import datetime,timezone
-from datetime import datetime, timezone
+from src.common.logging_config import logger
 from src.schemas.registration_schema import user_registration
 from src.common.utils import hash_password, response_content
 from src.common.constants import CONFLICT_ERROR_CONSTANT
@@ -11,8 +11,10 @@ async def user_register(details : user_registration, collection):
     """
     Function to register a new user account
     """
+    logger.info(f"Starting user registration process for user '{details.user_name}'.")
 
     #check if user name already exists
+    logger.debug(f"Checking if username '{details.user_name}' already exists.")
     existing_user = await collection.read({"user_name": details.user_name})
     if existing_user:         
         raise HTTPException(
@@ -32,6 +34,7 @@ async def user_register(details : user_registration, collection):
 
 
     # Check if user email already exists
+    logger.debug(f"Checking if email '{details.email}' is already registered.")
     existing_mail = await collection.read({"email":details.email})
     if existing_mail:              
         raise HTTPException(
@@ -50,6 +53,7 @@ async def user_register(details : user_registration, collection):
         )
 
     # Check if phone number already exists
+    logger.debug(f"Checking if phone number '{details.phone_number}' is already registered.")
     existing_phone = await collection.read({"phone_number":details.phone_number})
     if existing_phone:         
         raise HTTPException(
@@ -68,15 +72,20 @@ async def user_register(details : user_registration, collection):
         )
     #hash the password
     hashed_password = hash_password(details.password)
-
+    # Add additional fields 
+    current_time = datetime.now(timezone.utc).isoformat()
     username = details.user_name
     data = jsonable_encoder(details)
     data["password"] = hashed_password
     data["registered_date"]=datetime.now(timezone.utc).isoformat()
+    data["last_updated_by"] = username
+    data["last_updated_at"] = current_time
 
     #Storing data in db
+    logger.debug(f"Inserting user details of username '{username}' into db.")
     await collection.create(data)  
 
+    logger.debug(f"User registration successful for username '{username}'.")
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
         content=response_content(

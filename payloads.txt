@@ -1,4 +1,6 @@
--->/user-register
+**This file contains example payloads(request body) for all POST APIs
+
+-->/users/register
 
 {
   "name": "Alia Bhat",
@@ -11,7 +13,15 @@
 }
 
 
--->/organizer-register
+-->/users/login
+
+{
+	"username": "Alia",
+	"password": "Aliabhat@21"
+}
+
+
+-->/organizers/register
 
 {
   "name": "John Doe",
@@ -26,15 +36,31 @@
   }
 }
 
--->/create-event
+
+-->/organizers/login
 
 {
-  "title": "Batman",
-  "release_date": "2024-08-26",
+  "username": "john_doe",
+  "password": "John@123"
+}
+
+
+-->/events POST
+**This is an example payload. Actual values for payload should be constructed as per venue details stored in 'venues' collection in your MongoDB.
+
+{
+  "title": "Avatar: Fire and Ash",
+  "release_date": "2025-12-19",
   "duration": 180,
-  "language": "English",
+  "languages": [
+    "English", "Hindi", "Telugu", "Tamil", "Malayalam", "Kannada"
+  ],
   "genre": [
     "Thriller","action"
+  ],
+  "censor": "UA13+",
+  "dimension": [
+    "3D","2D"
   ],
   "cast": [
     "Robert Pattinson","Zoë Kravitz"
@@ -42,24 +68,141 @@
   "crew": [
     "Paul Dano","Peter Sarsgaard"
   ],
+  "description": "Batman is called to intervene when the mayor of Gotham City is murdered. Soon, his investigation leads him to uncover a web of corruption, linked to his own dark past.",
   "venues": [
     {
-      "name": "PVR",
-      "location": "yalahanka",
-      "ticket_details": {
-        "price": 150,
-        "total_tickets": 100,
-        "available_tickets": 100
-      }
+      "venue_id": "65a87d9fc87b4d0012a68a7e", 
+      "venue_name": "PVR Yelahanka", 
+      "screens": [
+        {
+          "screen_name": "Screen 1",
+          "language": "English",
+          "dates": [
+            {
+              "date": "2024-12-26",
+              "times": ["09:00", "13:00", "17:00"]
+            },
+            {
+              "date": "2024-12-27",
+              "times": ["10:00", "14:00", "18:00"]
+            }
+          ]
+        }
+      ]
     },
     {
-      "name": "INOX",
-      "location": "vijayanagar",
-      "ticket_details": {
-        "price": 300,
-        "total_tickets": 78,
-        "available_tickets": 78
-      }
+      "venue_id": "65a87fa2c87b4d0012a68a95",
+      "venue_name": "INOX Galleria",
+      "screens": [
+        {
+          "screen_name": "Screen A",
+          "language": "Hindi",
+          "dates": [
+            {
+              "date": "2024-12-27",
+              "times": ["12:00", "15:00"]
+            }
+          ]
+        }
+      ]
     }
   ]
+}
+
+
+--> /admins/add
+
+{
+  "name": "John Doe",
+  "user_name": "john",
+  "email": "john@gmail.com",
+  "password": "John@123"
+}
+
+
+--> /venue-managers/register
+
+{
+  "full_name": "Ankit Sharma",
+  "user_name": "ankitsharma92",
+  "email": "ankit@example.com",
+  "phone_number": "9876543210",
+  "password": "StrongPassword@123",
+  "company_details":{
+  "company_name": "INOX Leisure Ltd",
+    "gstin": "29ABCDE1234F2Z5", 
+    "address": {
+      "line1": "No. 14, MG Road",
+      "line2": "Opp. Central Mall",
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "pincode": "560001"
+    }
+  }
+}
+
+
+--> /venues POST
+
+{
+  "name": "INOX Vega City",
+  "location": {
+    "address_line1": "172, Bannerghatta Main Rd",
+    "address_line2": "Inside Vega City Mall",
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "pincode": "560076"
+  },
+  "screens": [
+    {
+      "screen_name": "Screen 1",
+      "seating_layout": {
+        "rows": 10,
+        "columns": 15
+      },
+      "pricing": {
+        "zones": [
+          {
+            "zone_name": "Silver",
+            "price": 150,
+            "rows": ["A", "B", "C", "D"]
+          },
+          {
+            "zone_name": "Gold",
+            "price": 200,
+            "rows": ["E", "F", "G"]
+          },
+          {
+            "zone_name": "Platinum",
+            "price": 300,
+            "rows": ["H", "I", "J"]
+          }
+        ]
+      },
+      "features": ["Dolby Atmos", "Recliner", "Air Conditioning"]
+    },
+    {
+      "screen_name": "Screen 2",
+      "seating_layout": {
+        "rows": 8,
+        "columns": 12
+      },
+      "pricing": {
+        "zones": [
+          {
+            "zone_name": "Classic",
+            "price": 180,
+            "rows": ["A", "B", "C", "D"]
+          },
+          {
+            "zone_name": "Premium",
+            "price": 250,
+            "rows": ["E", "F", "G", "H"]
+          }
+        ]
+      },
+      "features": ["4K Projection", "Recliner"]
+    }
+  ],
+  "features": ["Parking", "Snacks"]
 }

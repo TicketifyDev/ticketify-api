@@ -1,0 +1,30 @@
+name: Promote UAT to PROD
+
+on:
+  push:
+    branches:
+      - T-UAT
+
+permissions:
+  contents: write
+  pull-requests: write
+  
+jobs:
+
+  create-pr:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create PR T-UAT → T-PROD
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: "T-UAT"
+          destination_branch: "T-PROD"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_title: "Promote T-UAT to T-PROD"
+          pr_body: "Automated PR from T-UAT to T-PROD"
