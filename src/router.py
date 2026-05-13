@@ -6,7 +6,8 @@ from src.endpoints import (
     health_check,
     event,
     admin,
-    venue
+    venue,
+    ticket_booking
 )
 
 router = APIRouter()
@@ -17,3 +18,4 @@ router.include_router(user.router)
 router.include_router(organizer.router)
 router.include_router(event.router)
 router.include_router(venue.router)
+router.include_router(ticket_booking.router)
